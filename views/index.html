@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Express MVC App</title>
+<title>BRACU Marketplace</title>
 <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -13,6 +13,45 @@
 <button onclick="addUser()">Add User</button>
 
 <ul id="userList"></ul>
+
+
+<!-- feature: advanced search  -->
+<hr>
+
+<section class="search-section">
+  <div class="filters">
+
+    <div class="filter-group">
+      <label for="keyword">Search by keyword</label>
+      <input type="text" id="keyword" placeholder="e.g. physics, calculator...">
+    </div>
+    
+    <div class="filter-group">
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="minPrice">Min Price (৳)</label>
+      <input type="number" id="minPrice" placeholder="0" min="0">
+    </div>
+
+    <div class="filter-group">
+      <label for="maxPrice">Max Price (৳)</label>
+      <input type="number" id="maxPrice" placeholder="9999" min="0">
+    </div>
+
+    <button onclick="searchProducts()">Search</button>
+    <button onclick="resetSearch()">Reset</button>
+  </div>
+
+  <!-- result count -->
+  <p id="resultCount" class="result-count"></p>
+  <div id="productGrid" class="product-grid"></div>
+
+</section>
 
 <script src="/js/script.js"></script>
 
