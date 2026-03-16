@@ -2,6 +2,31 @@ function addUser() {
   // add user
 }
 
+
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadCategories();
+  loadAllProducts();
+});
+async function loadCategories() {
+  const res  = await fetch('/products/categories');
+  const cats = await res.json();
+
+  const select = document.getElementById('category');
+  cats.forEach(cat => {
+    const option       = document.createElement('option');
+    option.value       = cat;
+    option.textContent = cat;
+    select.appendChild(option);
+  });
+}
+async function loadAllProducts() {
+  const res      = await fetch('/products');
+  const products = await res.json();
+  displayProducts(products);
+}
+
+
 async function searchProducts() {
   const keyword  = document.getElementById('keyword').value.trim();
   const category = document.getElementById('category').value;
