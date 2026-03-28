@@ -12,7 +12,6 @@ const paymentRoutes      = require('./routes/paymentRoutes');
 const reportRoutes       = require('./routes/reportRoutes');
 const wishlistRoutes     = require('./routes/wishlistRoutes');
 
-
 const uploadDir = path.join(__dirname, 'public', 'uploads', 'listings');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -32,6 +31,22 @@ app.use('/api/wishlist',      wishlistRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'admin.html'));
+});
+
+app.get('/admin.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
 
 app.get('/sell', (req, res) => {
