@@ -1,59 +1,306 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>BRACU Marketplace</title>
-<link rel="stylesheet" href="/css/style.css">
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRACU Marketplace</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+
+    
+    nav {
+      background: #1a1a2e;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { font-size: 18px; font-weight: bold; color: #fff; text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-user  { font-size: 13px; color: #ccc; }
+    .nav-logout {
+      font-size: 13px; color: #aaa; background: none;
+      border: 1px solid #444; padding: 5px 12px; border-radius: 5px;
+      cursor: pointer; font-family: Arial, sans-serif;
+    }
+    .nav-logout:hover { color: #fff; border-color: #888; }
+
+    /* SEARCH SECTION */
+    .search-section {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 16px 24px;
+    }
+    .search-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .search-top h2 { font-size: 16px; color: #1a1a2e; }
+
+    .btn-sell {
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: Arial, sans-serif;
+      display: inline-block;
+    }
+    .btn-sell:hover { background: #2a2a4e; }
+
+    .search-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-fields input,
+    .search-fields select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      outline: none;
+    }
+    .search-fields input:focus,
+    .search-fields select:focus { border-color: #1a1a2e; }
+    #keyword { flex: 1; min-width: 180px; }
+
+    .btn-search {
+      padding: 8px 18px;
+      background: #1a1a2e; color: #fff;
+      border: none; border-radius: 6px;
+      font-size: 13px; font-weight: bold;
+      cursor: pointer; font-family: Arial, sans-serif;
+    }
+    .btn-search:hover { background: #2a2a4e; }
+
+    .btn-reset {
+      padding: 8px 14px;
+      background: #eee; color: #555;
+      border: none; border-radius: 6px;
+      font-size: 13px; cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+    .btn-reset:hover { background: #ddd; }
+
+
+    .content { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+    .result-count { font-size: 13px; color: #888; margin-bottom: 16px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+    .card-img {
+      width: 100%; height: 150px;
+      background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; overflow: hidden;
+    }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-body { padding: 12px 14px; }
+    .card-category {
+      font-size: 11px; color: #1a1a2e; font-weight: bold;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
+    }
+    .card-title {
+      font-size: 14px; font-weight: bold; color: #222;
+      margin-bottom: 5px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-price { font-size: 15px; font-weight: bold; color: #1a1a2e; margin-bottom: 8px; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .badge {
+      font-size: 11px; background: #f0f0f0; color: #555;
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .card-seller { font-size: 11px; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px; }
+
+    
+    .empty { text-align: center; padding: 60px 20px; color: #aaa; }
+    .empty .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+    .loading { text-align: center; padding: 60px; color: #aaa; font-size: 14px; }
+  </style>
+</head>
 <body>
 
-<h1>User App</h1>
-
-<input id="username" placeholder="Enter name">
-<button onclick="addUser()">Add User</button>
-
-<ul id="userList"></ul>
-
-
-<!-- feature: advanced search  -->
-<hr>
-
-<section class="search-section">
-  <div class="filters">
-
-    <div class="filter-group">
-      <label for="keyword">Search by keyword</label>
-      <input type="text" id="keyword" placeholder="e.g. physics, calculator...">
-    </div>
-    
-    <div class="filter-group">
-      <label for="category">Category</label>
-      <select id="category">
-        <option value="">All Categories</option>
-      </select>
-    </div>
-    
-    <div class="filter-group">
-      <label for="minPrice">Min Price (৳)</label>
-      <input type="number" id="minPrice" placeholder="0" min="0">
-    </div>
-
-    <div class="filter-group">
-      <label for="maxPrice">Max Price (৳)</label>
-      <input type="number" id="maxPrice" placeholder="9999" min="0">
-    </div>
-
-    <button onclick="searchProducts()">Search</button>
-    <button onclick="resetSearch()">Reset</button>
+<nav>
+  <a class="nav-logo" href="/">BRACU Marketplace</a>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <button class="nav-logout" onclick="logout()">Sign Out</button>
   </div>
+</nav>
 
-  <!-- result count -->
-  <p id="resultCount" class="result-count"></p>
-  <div id="productGrid" class="product-grid"></div>
+<div class="search-section">
+  <div class="search-top">
+    <h2>Browse Listings</h2>
+    <a class="btn-sell" href="/sell">+ Sell an Item</a>
+  </div>
+  <div class="search-fields">
+    <input type="text" id="keyword" placeholder="Search by keyword…">
+    <select id="category">
+      <option value="">All Categories</option>
+      <option>Books &amp; Notes</option>
+      <option>Electronics</option>
+      <option>Clothing &amp; Accessories</option>
+      <option>Stationery &amp; Supplies</option>
+      <option>Sports &amp; Fitness</option>
+      <option>Food &amp; Beverages</option>
+      <option>Furniture &amp; Decor</option>
+      <option>Services</option>
+      <option>Other</option>
+    </select>
+    <select id="condition">
+      <option value="">Any Condition</option>
+      <option value="new">New</option>
+      <option value="like_new">Like New</option>
+      <option value="good">Good</option>
+      <option value="fair">Fair</option>
+      <option value="poor">Poor</option>
+    </select>
+    <input type="number" id="minPrice" placeholder="Min ৳" style="width:90px">
+    <input type="number" id="maxPrice" placeholder="Max ৳" style="width:90px">
+    <button class="btn-search" onclick="search()">Search</button>
+    <button class="btn-reset"  onclick="reset()">Reset</button>
+  </div>
+</div>
 
-</section>
+<div class="content">
+  <p class="result-count" id="resultCount"></p>
+  <div id="grid"></div>
+</div>
 
-<script src="/js/script.js"></script>
+<script>
+  
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+  if (!token || !user) {
+    window.location.href = '/login';
+  } else {
+    document.getElementById('navUser').textContent = 'Hi, ' + user.full_name;
+  }
 
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
+
+  
+  async function loadListings(params) {
+    document.getElementById('grid').innerHTML = '<div class="loading">Loading listings…</div>';
+    document.getElementById('resultCount').textContent = '';
+
+    const qs = new URLSearchParams();
+    if (params.keyword)   qs.set('keyword',       params.keyword);
+    if (params.category)  qs.set('category',       params.category);
+    if (params.condition) qs.set('condition_type', params.condition);
+    if (params.minPrice)  qs.set('minPrice',        params.minPrice);
+    if (params.maxPrice)  qs.set('maxPrice',        params.maxPrice);
+
+    try {
+      const res  = await fetch('/api/listings' + (qs.toString() ? '?' + qs : ''));
+      const data = await res.json();
+      if (!data.success) return showError('Failed to load listings.');
+      render(data.data || []);
+    } catch {
+      showError('Could not reach server.');
+    }
+  }
+
+  const condLabel = { new:'New', like_new:'Like New', good:'Good', fair:'Fair', poor:'Poor' };
+  const catEmoji  = {
+    'Books & Notes':'📚','Electronics':'💻','Clothing & Accessories':'👕',
+    'Stationery & Supplies':'✏️','Sports & Fitness':'⚽','Food & Beverages':'🍜',
+    'Furniture & Decor':'🪑','Services':'🛠️','Other':'📦',
+  };
+
+  function render(listings) {
+    const grid  = document.getElementById('grid');
+    const count = document.getElementById('resultCount');
+    count.textContent = listings.length + ' listing' + (listings.length !== 1 ? 's' : '') + ' found';
+
+    if (!listings.length) {
+      grid.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>No listings found. Try a different search or <a href="/sell">post one</a>.</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = listings.map(l => `
+      <a class="card" href="/listings?id=${l.listing_id}">
+        <div class="card-img">
+          ${l.primary_image ? `<img src="${l.primary_image}" alt="${l.title}" loading="lazy">` : (catEmoji[l.category]||'📦')}
+        </div>
+        <div class="card-body">
+          <div class="card-category">${l.category}</div>
+          <div class="card-title">${l.title}</div>
+          <div class="card-price">৳ ${Number(l.price).toLocaleString()}</div>
+          <div class="card-footer">
+            <span class="badge">${condLabel[l.condition_type]||l.condition_type}</span>
+            <span class="card-seller">${l.seller_name||''}</span>
+          </div>
+        </div>
+      </a>`).join('');
+  }
+
+  function showError(msg) {
+    document.getElementById('grid').innerHTML = `<div class="empty"><div class="icon">⚠️</div><p>${msg}</p></div>`;
+  }
+
+  function search() {
+    loadListings({
+      keyword:   document.getElementById('keyword').value.trim(),
+      category:  document.getElementById('category').value,
+      condition: document.getElementById('condition').value,
+      minPrice:  document.getElementById('minPrice').value,
+      maxPrice:  document.getElementById('maxPrice').value,
+    });
+  }
+
+  function reset() {
+    ['keyword','minPrice','maxPrice'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('category').value  = '';
+    document.getElementById('condition').value = '';
+    loadListings({});
+  }
+
+  document.getElementById('keyword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') search();
+  });
+
+  loadListings({});
+</script>
 </body>
 </html>
