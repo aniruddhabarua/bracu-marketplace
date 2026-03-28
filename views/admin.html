@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — BRACU Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0d1b40;
+      --navy-mid:   #162255;
+      --navy-light: #1e3a8a;
+      --blue:       #2563eb;
+      --white:      #ffffff;
+      --off-white:  #f8fafc;
+      --gray-100:   #f1f5f9;
+      --gray-200:   #e2e8f0;
+      --gray-400:   #94a3b8;
+      --gray-600:   #475569;
+      --gray-800:   #1e293b;
+      --error:      #ef4444;
+      --success:    #22c55e;
+      --warning:    #f59e0b;
+      --sidebar-w:  240px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off-white);
+      color: var(--gray-800);
+      display: flex;
+      min-height: 100vh;
+    }
+
+
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sidebar-brand .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    .sidebar-brand .logo span { color: #60a5fa; }
+
+    .sidebar-brand .admin-badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      padding: 0 12px;
+      margin: 16px 0 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+
+    .nav-item.active {
+      background: rgba(37,99,235,0.25);
+      color: var(--white);
+    }
+
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--error);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .admin-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .admin-details { flex: 1; overflow: hidden; }
+    .admin-name { font-size: 13px; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-role { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.35);
+      font-size: 16px;
+      padding: 4px;
+      transition: color 0.15s;
+    }
+    .logout-btn:hover { color: var(--error); }
+
+
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title { font-size: 18px; font-weight: 600; color: var(--navy); }
+    .topbar-sub   { font-size: 13px; color: var(--gray-400); margin-top: 1px; }
+
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+
+    .refresh-btn {
+      padding: 8px 16px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      background: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .refresh-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+    .content {
+      padding: 32px;
+      flex: 1;
+    }
+
+  
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 20px 24px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 0.4s forwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-label { font-size: 12px; font-weight: 500; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .stat-value { font-size: 30px; font-weight: 700; color: var(--navy); line-height: 1; }
+    .stat-sub   { font-size: 12px; color: var(--gray-400); margin-top: 6px; }
+
+    .stat-card.highlight { background: var(--navy); border-color: var(--navy); }
+    .stat-card.highlight .stat-label { color: rgba(255,255,255,0.5); }
+    .stat-card.highlight .stat-value { color: var(--white); }
+    .stat-card.highlight .stat-sub   { color: rgba(255,255,255,0.4); }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title { font-size: 16px; font-weight: 600; color: var(--navy); }
+
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 100px;
+      border: 1.5px solid var(--gray-200);
+      background: var(--white);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-chip:hover  { border-color: var(--blue); color: var(--blue); }
+    .filter-chip.active { background: var(--navy); border-color: var(--navy); color: var(--white); }
+
+
+    .table-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      background: var(--gray-100);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-400);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--gray-100);
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--off-white); }
+
+    td {
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--gray-800);
+      vertical-align: middle;
+    }
+
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge.pending   { background: #fef9c3; color: #854d0e; }
+    .badge.reviewed  { background: #dbeafe; color: #1e40af; }
+    .badge.resolved  { background: #dcfce7; color: #166534; }
+    .badge.dismissed { background: var(--gray-100); color: var(--gray-600); }
+    .badge.listing   { background: #ede9fe; color: #5b21b6; }
+    .badge.user      { background: #fce7f3; color: #9d174d; }
+    .badge.message   { background: #dbeafe; color: #1e40af; }
+
+    .action-btns { display: flex; gap: 8px; }
+
+    .btn-sm {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .btn-resolve  { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .btn-resolve:hover  { background: #22c55e; color: white; border-color: #22c55e; }
+
+    .btn-dismiss  { background: var(--gray-100); color: var(--gray-600); border-color: var(--gray-200); }
+    .btn-dismiss:hover  { background: var(--gray-200); }
+
+    .btn-danger   { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .btn-danger:hover   { background: var(--error); color: white; border-color: var(--error); }
+
+    .btn-view     { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+    .btn-view:hover     { background: var(--blue); color: white; border-color: var(--blue); }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-400);
+    }
+
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+  
+    .loading {
+      text-align: center;
+      padding: 48px;
+      color: var(--gray-400);
+      font-size: 14px;
+    }
+
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 28px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .modal h3 { font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .modal p  { font-size: 13px; color: var(--gray-600); margin-bottom: 20px; line-height: 1.6; }
+
+    .modal textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .modal textarea:focus { border-color: var(--blue); }
+
+    .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+    .btn-cancel {
+      padding: 9px 20px;
+      border: 1.5px solid var(--gray-200);
+      background: var(--white);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--gray-600);
+    }
+
+    .btn-confirm {
+      padding: 9px 20px;
+      border: none;
+      background: var(--navy);
+      color: var(--white);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-confirm:hover { background: var(--navy-light); }
+
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy);
+      color: var(--white);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 300;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: #166534; }
+    .toast.error   { background: #b91c1c; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">BRACU <span>Marketplace</span></div>
+    <div class="admin-badge">Admin Panel</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="showPanel('overview')">
+      <span class="icon">📊</span> Dashboard
+    </div>
+
+    <div class="nav-label">Moderation</div>
+    <div class="nav-item" onclick="showPanel('reports')" id="nav-reports">
+      <span class="icon">🚩</span> Reports
+      <span class="nav-badge" id="reportsBadge" style="display:none"></span>
+    </div>
+    <div class="nav-item" onclick="showPanel('listings')">
+      <span class="icon">📦</span> Listings
+    </div>
+    <div class="nav-item" onclick="showPanel('users')">
+      <span class="icon">👥</span> Users
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-avatar" id="adminAvatar">A</div>
+      <div class="admin-details">
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
+    </div>
+  </div>
+</aside>
+
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-sub" id="topbarSub">Overview of marketplace activity</div>
+    </div>
+    <div class="topbar-right">
+      <button class="refresh-btn" onclick="refreshCurrent()">⟳ Refresh</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="panel active" id="panel-overview">
+      <div class="stats-grid">
+        <div class="stat-card highlight">
+          <div class="stat-label">Pending Reports</div>
+          <div class="stat-value" id="stat-pending">—</div>
+          <div class="stat-sub">Awaiting review</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value" id="stat-users">—</div>
+          <div class="stat-sub">Registered accounts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Listings</div>
+          <div class="stat-value" id="stat-listings">—</div>
+          <div class="stat-sub">Available items</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Resolved Reports</div>
+          <div class="stat-value" id="stat-resolved">—</div>
+          <div class="stat-sub">All time</div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Recent Pending Reports</div>
+        <button class="refresh-btn" onclick="showPanel('reports')">View all →</button>
+      </div>
+      <div class="table-card" id="overviewReportsTable">
+        <div class="loading">Loading reports…</div>
+      </div>
+    </div>
+
+
+    <div class="panel" id="panel-reports">
+      <div class="filter-bar">
+        <div class="filter-chip active" onclick="filterReports('', this)">All</div>
+        <div class="filter-chip" onclick="filterReports('pending', this)">Pending</div>
+        <div class="filter-chip" onclick="filterReports('reviewed', this)">Reviewed</div>
+        <div class="filter-chip" onclick="filterReports('resolved', this)">Resolved</div>
+        <div class="filter-chip" onclick="filterReports('dismissed', this)">Dismissed</div>
+      </div>
+      <div class="table-card" id="reportsTable">
+        <div class="loading">Loading reports…</div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-listings">
+      <div class="table-card" id="listingsTable">
+        <div class="loading">Loading listings…</div>
+      </div>
+    </div>
+
+ 
+    <div class="panel" id="panel-users">
+      <div class="table-card" id="usersTable">
+        <div class="loading">Loading users…</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="modal-overlay" id="resolveModal">
+  <div class="modal">
+    <h3 id="modalTitle">Resolve Report</h3>
+    <p id="modalDesc">Add an optional note for the reporter.</p>
+    <textarea id="adminNote" placeholder="Optional admin note…"></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+
+  if (!token || !user || user.role !== 'admin') {
+    window.location.href = '/login.html';
+  } else {
+    document.getElementById('adminName').textContent   = user.full_name || 'Admin';
+    document.getElementById('adminAvatar').textContent = (user.full_name || 'A')[0].toUpperCase();
+  }
+
+  const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+  const panelTitles = {
+    overview: ['Dashboard',  'Overview of marketplace activity'],
+    reports:  ['Reports',    'Review and resolve reported content'],
+    listings: ['Listings',   'Manage all marketplace listings'],
+    users:    ['Users',      'View all registered users'],
+  };
+
+  let currentPanel = 'overview';
+
+  function showPanel(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    document.getElementById(`panel-${name}`).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.textContent.trim().toLowerCase().includes(name === 'overview' ? 'dashboard' : name))
+        n.classList.add('active');
+    });
+
+    const [title, sub] = panelTitles[name];
+    document.getElementById('topbarTitle').textContent = title;
+    document.getElementById('topbarSub').textContent   = sub;
+
+    currentPanel = name;
+
+    if (name === 'overview') loadOverview();
+    if (name === 'reports')  loadReports();
+    if (name === 'listings') loadListings();
+    if (name === 'users')    loadUsers();
+  }
+
+  function refreshCurrent() { showPanel(currentPanel); }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = `toast show ${type}`;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  async function loadOverview() {
+    try {
+      const res  = await fetch('/api/reports', { headers });
+      const data = await res.json();
+      const reports = data.data || [];
+
+      const pending  = reports.filter(r => r.status === 'pending').length;
+      const resolved = reports.filter(r => r.status === 'resolved').length;
+
+      document.getElementById('stat-pending').textContent  = pending;
+      document.getElementById('stat-resolved').textContent = resolved;
+
+      
+      const badge = document.getElementById('reportsBadge');
+      if (pending > 0) { badge.textContent = pending; badge.style.display = ''; }
+      else               badge.style.display = 'none';
+
+   
+      const lRes  = await fetch('/api/listings', { headers });
+      const lData = await lRes.json();
+      document.getElementById('stat-listings').textContent = lData.count || 0;
+
+    
+      const recent = reports.filter(r => r.status === 'pending').slice(0, 5);
+      renderOverviewReports(recent);
+
+    } catch { document.getElementById('stat-pending').textContent = 'Err'; }
+  }
+
+  function renderOverviewReports(reports) {
+    const el = document.getElementById('overviewReportsTable');
+    if (!reports.length) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">✅</div><p>No pending reports</p></div>`;
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Reporter</th><th>Type</th><th>Reason</th><th>Date</th><th>Action</th>
+        </tr></thead>
+        <tbody>
+          ${reports.map(r => `
+            <tr>
+              <td>${r.reporter_name || '—'}</td>
+              <td><span class="badge ${r.reported_type}">${r.reported_type}</span></td>
+              <td>${r.reason}</td>
+              <td>${formatDate(r.created_at)}</td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-sm btn-resolve"  onclick="openModal(${r.report_id},'resolved')">Resolve</button>
+                  <button class="btn-sm btn-dismiss"   onclick="openModal(${r.report_id},'dismissed')">Dismiss</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+
+  let allReports = [];
+
+  async function loadReports(status = '') {
+    const el = document.getElementById('reportsTable');
+    el.innerHTML = '<div class="loading">Loading…</div>';
+    try {
+      const url = status ? `/api/reports?status=${status}` : '/api/reports';
+      const res  = await fetch(url, { headers });
+      const data = await res.json();
+      allReports = data.data || [];
+      renderReportsTable(allReports);
+    } catch {
+      el.innerHTML = '<div class="empty-state"><p>Failed to load reports.</p></div>';
+    }
+  }
+
+  function filterReports(status, chip) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const filtered = status ? allReports.filter(r => r.status === status) : allReports;
+    renderReportsTable(filtered);
+  }
+
+  function renderReportsTable(reports) {
+    const el = document.getElementById('reportsTable');
+    if (!reports.length) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">🚩</div><p>No reports found</p></div>`;
+      return;
+    }
+    el.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>ID</th><th>Reporter</th><th>Type</th><th>Reported ID</th>
+          <th>Reason</th><th>Status</th><th>Date</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${reports.map(r => `
+            <tr>
+              <td>#${r.report_id}</td>
+              <td>${r.reporter_name || '—'}</td>
+              <td><span class="badge ${r.reported_type}">${r.reported_type}</span></td>
+              <td>${r.reported_id}</td>
+              <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.reason}">${r.reason}</td>
+              <td><span class="badge ${r.status}">${r.status}</span></td>
+              <td>${formatDate(r.created_at)}</td>
+              <td>
+                ${r.status === 'pending' ? `
+                  <div class="action-btns">
+                    <button class="btn-sm btn-resolve"  onclick="openModal(${r.report_id},'resolved')">Resolve</button>
+                    <button class="btn-sm btn-dismiss"   onclick="openModal(${r.report_id},'dismissed')">Dismiss</button>
+                  </div>` : '<span style="color:var(--gray-400);font-size:12px">—</span>'}
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+
+  async function loadListings() {
+    const el = document.getElementById('listingsTable');
+    el.innerHTML = '<div class="loading">Loading…</div>';
+    try {
+      const res  = await fetch('/api/listings', { headers });
+      const data = await res.json();
+      const listings = data.data || [];
+
+      if (!listings.length) {
+        el.innerHTML = `<div class="empty-state"><div class="icon">📦</div><p>No listings found</p></div>`;
+        return;
+      }
+
+      el.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Title</th><th>Seller</th><th>Category</th>
+            <th>Price</th><th>Status</th><th>Date</th><th>Action</th>
+          </tr></thead>
+          <tbody>
+            ${listings.map(l => `
+              <tr>
+                <td>#${l.listing_id}</td>
+                <td style="font-weight:500">${l.title}</td>
+                <td>${l.seller_name || '—'}</td>
+                <td>${l.category}</td>
+                <td>৳${Number(l.price).toLocaleString()}</td>
+                <td><span class="badge ${l.status === 'available' ? 'resolved' : l.status === 'sold' ? 'reviewed' : 'dismissed'}">${l.status}</span></td>
+                <td>${formatDate(l.created_at)}</td>
+                <td>
+                  <button class="btn-sm btn-danger" onclick="deleteListing(${l.listing_id}, this)">Remove</button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } catch {
+      el.innerHTML = '<div class="empty-state"><p>Failed to load listings.</p></div>';
+    }
+  }
+
+  async function loadUsers() {
+    const el = document.getElementById('usersTable');
+    el.innerHTML = '<div class="loading">Loading…</div>';
+
+
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">👥</div>
+        <p>User management endpoint coming soon.<br>Add <code>GET /api/users</code> to userRoutes.js to enable this.</p>
+      </div>`;
+
+    document.getElementById('stat-users').textContent = '—';
+  }
+
+  async function deleteListing(id, btn) {
+    if (!confirm(`Remove listing #${id}? This cannot be undone.`)) return;
+    btn.disabled = true;
+    btn.textContent = '…';
+    try {
+      const res = await fetch(`/api/listings/${id}`, { method: 'DELETE', headers });
+      const data = await res.json();
+      if (data.success) { showToast('Listing removed.', 'success'); loadListings(); }
+      else              { showToast(data.message || 'Failed.', 'error'); btn.disabled = false; btn.textContent = 'Remove'; }
+    } catch { showToast('Server error.', 'error'); btn.disabled = false; btn.textContent = 'Remove'; }
+  }
+
+
+  let modalReportId = null;
+  let modalAction   = null;
+
+  function openModal(reportId, action) {
+    modalReportId = reportId;
+    modalAction   = action;
+
+    document.getElementById('modalTitle').textContent    = action === 'resolved' ? 'Resolve Report' : 'Dismiss Report';
+    document.getElementById('modalDesc').textContent     = action === 'resolved'
+      ? 'The reporter will be notified that their report was resolved.'
+      : 'The reporter will be notified that their report was dismissed.';
+    document.getElementById('modalConfirmBtn').textContent = action === 'resolved' ? 'Resolve' : 'Dismiss';
+    document.getElementById('adminNote').value = '';
+    document.getElementById('resolveModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('resolveModal').classList.remove('open');
+    modalReportId = null;
+    modalAction   = null;
+  }
+
+  document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
+    if (!modalReportId) return;
+    const adminNote = document.getElementById('adminNote').value.trim();
+
+    try {
+      const res  = await fetch(`/api/reports/${modalReportId}`, {
+        method:  'PUT',
+        headers,
+        body:    JSON.stringify({ status: modalAction, admin_note: adminNote }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showToast(`Report marked as ${modalAction}.`, 'success');
+        closeModal();
+        loadReports();
+        loadOverview();
+      } else {
+        showToast(data.message || 'Failed.', 'error');
+      }
+    } catch { showToast('Server error.', 'error'); }
+  });
+
+  function formatDate(str) {
+    if (!str) return '—';
+    return new Date(str).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login.html';
+  }
+
+  loadOverview();
+</script>
+</body>
+</html>
