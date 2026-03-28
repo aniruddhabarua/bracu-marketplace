@@ -3,14 +3,13 @@ const router            = express.Router();
 const path              = require('path');
 const multer            = require('multer');
 const ListingController = require('../controllers/listingControllers');
-
+const { authenticate }  = require('../middleware/auth');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '..', 'public', 'uploads', 'listings'));
   },
   filename: (req, file, cb) => {
-
     const ext    = path.extname(file.originalname).toLowerCase();
     const unique = `listing_${Date.now()}_${Math.round(Math.random() * 1e6)}${ext}`;
     cb(null, unique);
@@ -19,41 +18,19 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-  if (allowed.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only JPEG, PNG, WEBP and GIF images are allowed.'), false);
-  }
+  allowed.includes(file.mimetype) ? cb(null, true) : cb(new Error('Only JPEG, PNG, WEBP and GIF images are allowed.'), false);
 };
 
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, 
-});
+const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
 
+router.get('/',             ListingController.getListings);      
+router.get('/categories',   ListingController.getCategories);     
+router.get('/:id',          ListingController.getListing);        
 
-
-router.get('/',                     ListingController.getListings);
-
-
-router.get('/categories',           ListingController.getCategories);
-
-router.get('/:id',                  ListingController.getListing);
-
-
-router.post(
-  '/',
-  upload.array('images', 5),
-  ListingController.createListing,
-);
-
-
-router.put('/:id',                  ListingController.updateListing);
-
-
-router.delete('/:id',               ListingController.deleteListing);
+router.post('/',   authenticate, upload.array('images', 5), ListingController.createListing);
+router.put('/:id', authenticate, ListingController.updateListing);
+router.delete('/:id', authenticate, ListingController.deleteListing);
 
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError || err.message) {
