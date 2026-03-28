@@ -1,583 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BRACU Marketplace — Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --navy:       #0d1b40;
-      --navy-mid:   #162255;
-      --navy-light: #1e3a8a;
-      --blue:       #2563eb;
-      --blue-hover: #1d4ed8;
-      --white:      #ffffff;
-      --off-white:  #f8fafc;
-      --gray-100:   #f1f5f9;
-      --gray-200:   #e2e8f0;
-      --gray-400:   #94a3b8;
-      --gray-600:   #475569;
-      --gray-800:   #1e293b;
-      --error:      #ef4444;
-      --success:    #22c55e;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--off-white);
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
       min-height: 100vh;
       display: flex;
-      overflow: hidden;
-    }
-
-    .left-panel {
-      width: 45%;
-      background: var(--navy);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 48px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .left-panel::before {
-      content: '';
-      position: absolute;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 70%);
-      top: -100px;
-      right: -100px;
-    }
-
-    .left-panel::after {
-      content: '';
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%);
-      bottom: 80px;
-      left: -60px;
-    }
-
-    .brand {
-      position: relative;
-      z-index: 1;
-    }
-
-    .brand-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 100px;
-      padding: 6px 16px;
-      margin-bottom: 32px;
-    }
-
-    .brand-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--blue);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.6; transform: scale(1.3); }
-    }
-
-    .brand-badge span {
-      font-size: 12px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.7);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .brand h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 42px;
-      font-weight: 700;
-      color: var(--white);
-      line-height: 1.15;
-      margin-bottom: 20px;
-    }
-
-    .brand h1 span {
-      color: #60a5fa;
-    }
-
-    .brand p {
-      font-size: 15px;
-      color: rgba(255,255,255,0.55);
-      line-height: 1.7;
-      max-width: 320px;
-    }
-
-    .features {
-      position: relative;
-      z-index: 1;
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
-      opacity: 0;
-      transform: translateX(-20px);
-      animation: slideIn 0.5s forwards;
-    }
-
-    .feature-item:nth-child(1) { animation-delay: 0.2s; }
-    .feature-item:nth-child(2) { animation-delay: 0.35s; }
-    .feature-item:nth-child(3) { animation-delay: 0.5s; }
-    .feature-item:nth-child(4) { animation-delay: 0.65s; }
-
-    @keyframes slideIn {
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .feature-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: rgba(37,99,235,0.2);
-      border: 1px solid rgba(37,99,235,0.3);
-      display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
     }
 
-    .feature-text {
-      font-size: 13px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.5;
-    }
-
-    .feature-text strong {
-      display: block;
-      color: rgba(255,255,255,0.85);
-      font-weight: 500;
-      margin-bottom: 2px;
-    }
-
-    .left-footer {
-      position: relative;
-      z-index: 1;
-      font-size: 12px;
-      color: rgba(255,255,255,0.25);
-    }
-
-    
-    .right-panel {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px 40px;
-      background: var(--white);
-    }
-
-    .form-container {
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 36px 32px;
       width: 100%;
-      max-width: 420px;
-      opacity: 0;
-      transform: translateY(16px);
-      animation: fadeUp 0.5s 0.1s forwards;
+      max-width: 400px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     }
 
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
+    .logo {
+      text-align: center;
+      margin-bottom: 24px;
     }
+    .logo h1 { font-size: 22px; color: #1a1a2e; }
+    .logo p  { font-size: 13px; color: #888; margin-top: 4px; }
 
-    .form-header {
-      margin-bottom: 36px;
-    }
-
-    .form-header h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 600;
-      color: var(--navy);
-      margin-bottom: 8px;
-    }
-
-    .form-header p {
-      font-size: 14px;
-      color: var(--gray-400);
-    }
-
-    .tab-switcher {
+    .tabs {
       display: flex;
-      background: var(--gray-100);
-      border-radius: 10px;
-      padding: 4px;
-      margin-bottom: 32px;
+      border-bottom: 2px solid #eee;
+      margin-bottom: 24px;
     }
-
-    .tab-btn {
+    .tab {
       flex: 1;
-      padding: 9px;
-      border: none;
-      background: transparent;
-      border-radius: 7px;
-      font-family: 'DM Sans', sans-serif;
+      text-align: center;
+      padding: 10px;
       font-size: 14px;
-      font-weight: 500;
-      color: var(--gray-400);
+      font-weight: bold;
+      color: #888;
       cursor: pointer;
-      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
     }
+    .tab.active { color: #1a1a2e; border-bottom-color: #1a1a2e; }
 
-    .tab-btn.active {
-      background: var(--white);
-      color: var(--navy);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
+    .form-group { margin-bottom: 14px; }
+    label {
       display: block;
       font-size: 13px;
-      font-weight: 500;
-      color: var(--gray-800);
-      margin-bottom: 7px;
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 5px;
     }
-
-    .form-group input,
-    .form-group select {
+    input, select {
       width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid var(--gray-200);
-      border-radius: 9px;
-      font-family: 'DM Sans', sans-serif;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
       font-size: 14px;
-      color: var(--gray-800);
-      background: var(--white);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: Arial, sans-serif;
       outline: none;
     }
+    input:focus, select:focus { border-color: #1a1a2e; }
 
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-    }
-
-    .form-group input.error {
-      border-color: var(--error);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .submit-btn {
+    .btn {
       width: 100%;
-      padding: 13px;
-      background: var(--navy);
-      color: var(--white);
+      padding: 11px;
+      background: #1a1a2e;
+      color: #fff;
       border: none;
-      border-radius: 9px;
-      font-family: 'DM Sans', sans-serif;
+      border-radius: 6px;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: bold;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
       margin-top: 6px;
-      letter-spacing: 0.01em;
+      font-family: Arial, sans-serif;
     }
-
-    .submit-btn:hover  { background: var(--navy-light); }
-    .submit-btn:active { transform: scale(0.99); }
-
-    .submit-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
+    .btn:hover { background: #2a2a4e; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .alert {
-      padding: 12px 16px;
-      border-radius: 9px;
+      padding: 10px 14px;
+      border-radius: 6px;
       font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       display: none;
     }
+    .alert.error   { background: #fff0f0; color: #c00; border: 1px solid #fcc; display: block; }
+    .alert.success { background: #f0fff4; color: #070; border: 1px solid #9e9; display: block; }
 
-    .alert.error {
-      background: #fef2f2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
-      display: block;
-    }
-
-    .alert.success {
-      background: #f0fdf4;
-      color: #15803d;
-      border: 1px solid #bbf7d0;
-      display: block;
-    }
-
-    .divider {
-      text-align: center;
-      font-size: 12px;
-      color: var(--gray-400);
-      margin: 20px 0;
-      position: relative;
-    }
-
-    .divider::before, .divider::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: 42%;
-      height: 1px;
-      background: var(--gray-200);
-    }
-
-    .divider::before { left: 0; }
-    .divider::after  { right: 0; }
-
-    .form-footer {
-      text-align: center;
-      font-size: 13px;
-      color: var(--gray-400);
-      margin-top: 24px;
-    }
-
-    .form-footer a {
-      color: var(--blue);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .form-panel { display: none; }
-    .form-panel.active { display: block; }
-
-   
+    .panel { display: none; }
+    .panel.active { display: block; }
   </style>
 </head>
 <body>
+<div class="card">
+  <div class="logo">
+    <h1>BRACU Marketplace</h1>
+    <p>Buy &amp; sell within the BRACU community</p>
+  </div>
 
- 
-  <div class="left-panel">
-    <div class="brand">
-      <div class="brand-badge">
-        <div class="brand-dot"></div>
-        <span>BRACU Marketplace</span>
-      </div>
-      <h1>Buy & Sell<br>within the <span>BRACU</span><br>community.</h1>
-      <p>A secure, closed marketplace exclusively for BRACU students, faculty, staff and alumni.</p>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('login')">Sign In</div>
+    <div class="tab"        onclick="switchTab('register')">Register</div>
+  </div>
+
+  <div class="alert" id="alertBox"></div>
+
+
+  <div class="panel active" id="loginPanel">
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@bracu.ac.bd">
     </div>
-
-    <div class="features">
-      <div class="feature-item">
-        <div class="feature-icon">🔒</div>
-        <div class="feature-text">
-          <strong>BRACU-only access</strong>
-          Verified university emails only
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">💬</div>
-        <div class="feature-text">
-          <strong>In-app chat</strong>
-          Message buyers & sellers directly
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">💳</div>
-        <div class="feature-text">
-          <strong>Flexible payments</strong>
-          bKash, Nagad, bank or offline
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">⭐</div>
-        <div class="feature-text">
-          <strong>Ratings & reviews</strong>
-          Build trust within the community
-        </div>
-      </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter your password">
     </div>
-
-    <div class="left-footer">© 2025 BRACU Marketplace · All rights reserved</div>
+    <button class="btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
   </div>
 
 
-  <div class="right-panel">
-    <div class="form-container">
-
-      <div class="form-header">
-        <h2 id="formTitle">Welcome back</h2>
-        <p id="formSubtitle">Sign in to your BRACU Marketplace account</p>
-      </div>
-
-  
-      <div class="tab-switcher">
-        <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
-        <button class="tab-btn"        onclick="switchTab('register')">Register</button>
-      </div>
-
-      <div class="alert" id="alertBox"></div>
-
-  
-      <div class="form-panel active" id="loginPanel">
-        <div class="form-group">
-          <label>Email address</label>
-          <input type="email" id="loginEmail" placeholder="you@bracu.ac.bd" />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter your password" />
-        </div>
-        <button class="submit-btn" onclick="handleLogin()">Sign In</button>
-        <div class="form-footer">
-          Don't have an account?
-          <a href="#" onclick="switchTab('register')">Register here</a>
-        </div>
-      </div>
-
-
-      <div class="form-panel" id="registerPanel">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="regName" placeholder="Your full name" />
-          </div>
-          <div class="form-group">
-            <label>Role</label>
-            <select id="regRole">
-              <option value="student">Student</option>
-              <option value="faculty">Faculty</option>
-              <option value="staff">Staff</option>
-              <option value="alumni">Alumni</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>BRACU Email</label>
-          <input type="email" id="regEmail" placeholder="you@bracu.ac.bd" />
-        </div>
-        <div class="form-group">
-          <label>Department</label>
-          <input type="text" id="regDept" placeholder="e.g. CSE, EEE, BBA..." />
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="regPassword" placeholder="Min 6 characters" />
-          </div>
-          <div class="form-group">
-            <label>Confirm Password</label>
-            <input type="password" id="regConfirm" placeholder="Repeat password" />
-          </div>
-        </div>
-        <button class="submit-btn" onclick="handleRegister()">Create Account</button>
-        <div class="form-footer">
-          Already have an account?
-          <a href="#" onclick="switchTab('login')">Sign in here</a>
-        </div>
-      </div>
-
+  <div class="panel" id="registerPanel">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="regName" placeholder="Your full name">
     </div>
+    <div class="form-group">
+      <label>BRACU Email</label>
+      <input type="email" id="regEmail" placeholder="you@bracu.ac.bd">
+    </div>
+    <div class="form-group">
+      <label>Role</label>
+      <select id="regRole">
+        <option value="student">Student</option>
+        <option value="faculty">Faculty</option>
+        <option value="staff">Staff</option>
+        <option value="alumni">Alumni</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Department</label>
+      <input type="text" id="regDept" placeholder="e.g. CSE, EEE, BBA">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="regPassword" placeholder="Min 6 characters">
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="regConfirm" placeholder="Repeat password">
+    </div>
+    <button class="btn" id="registerBtn" onclick="handleRegister()">Create Account</button>
   </div>
+</div>
 
 <script>
+  const t = localStorage.getItem('token');
+  const u = JSON.parse(localStorage.getItem('user') || 'null');
+  if (t && u) window.location.href = u.role === 'admin' ? '/admin' : '/';
 
   function switchTab(tab) {
-    const titles    = { login: 'Welcome back',    register: 'Create account' };
-    const subtitles = { login: 'Sign in to your BRACU Marketplace account', register: 'Join the BRACU community marketplace' };
-
-    document.getElementById('formTitle').textContent    = titles[tab];
-    document.getElementById('formSubtitle').textContent = subtitles[tab];
-
-    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-      btn.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+    document.querySelectorAll('.tab').forEach((el, i) => {
+      el.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1));
     });
-
-    document.getElementById('loginPanel').classList.toggle('active',    tab === 'login');
-    document.getElementById('registerPanel').classList.toggle('active', tab === 'register');
-
+    document.getElementById('loginPanel').classList.toggle('active', tab==='login');
+    document.getElementById('registerPanel').classList.toggle('active', tab==='register');
     clearAlert();
   }
 
-
-  function showAlert(msg, type = 'error') {
-    const box = document.getElementById('alertBox');
-    box.textContent = msg;
-    box.className   = `alert ${type}`;
+  function showAlert(msg, type='error') {
+    const b = document.getElementById('alertBox');
+    b.textContent = msg; b.className = 'alert ' + type;
   }
-
-  function clearAlert() {
-    const box = document.getElementById('alertBox');
-    box.className = 'alert';
-    box.textContent = '';
-  }
-
+  function clearAlert() { document.getElementById('alertBox').className = 'alert'; }
 
   async function handleLogin() {
     clearAlert();
     const email    = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-
     if (!email || !password) return showAlert('Please fill in all fields.');
 
-    const btn = document.querySelector('#loginPanel .submit-btn');
-    btn.disabled = true;
-    btn.textContent = 'Signing in…';
-
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Signing in…';
     try {
       const res  = await fetch('/api/auth/login', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email, password }),
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-
       if (!data.success) {
         showAlert(data.message || 'Login failed.');
       } else {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user',  JSON.stringify(data.user));
-        showAlert('Login successful! Redirecting…', 'success');
-
-        setTimeout(() => {
-          if (data.user.role === 'admin') {
-            window.location.href = '/admin.html';
-          } else {
-            window.location.href = '/';
-          }
-        }, 800);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = data.user.role === 'admin' ? '/admin' : '/';
       }
-    } catch (err) {
-      showAlert('Server error. Please try again.');
-    } finally {
-      btn.disabled    = false;
-      btn.textContent = 'Sign In';
-    }
+    } catch { showAlert('Server error. Please try again.'); }
+    finally { btn.disabled=false; btn.textContent='Sign In'; }
   }
 
-  
   async function handleRegister() {
     clearAlert();
     const full_name  = document.getElementById('regName').value.trim();
@@ -587,56 +215,30 @@
     const password   = document.getElementById('regPassword').value;
     const confirm    = document.getElementById('regConfirm').value;
 
-    if (!full_name || !email || !password || !confirm)
-      return showAlert('Please fill in all required fields.');
+    if (!full_name||!email||!password||!confirm) return showAlert('Please fill in all required fields.');
+    if (!['@bracu.ac.bd','@g.bracu.ac.bd'].some(d=>email.endsWith(d)))
+      return showAlert('Only BRACU email addresses are allowed.');
+    if (password.length < 6) return showAlert('Password must be at least 6 characters.');
+    if (password !== confirm) return showAlert('Passwords do not match.');
 
-    const allowed = ['@bracu.ac.bd', '@g.bracu.ac.bd'];
-    if (!allowed.some(d => email.endsWith(d)))
-      return showAlert('Only BRACU email addresses are allowed (@bracu.ac.bd).');
-
-    if (password.length < 6)
-      return showAlert('Password must be at least 6 characters.');
-
-    if (password !== confirm)
-      return showAlert('Passwords do not match.');
-
-    const btn = document.querySelector('#registerPanel .submit-btn');
-    btn.disabled = true;
-    btn.textContent = 'Creating account…';
-
+    const btn = document.getElementById('registerBtn');
+    btn.disabled=true; btn.textContent='Creating account…';
     try {
       const res  = await fetch('/api/auth/register', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ full_name, email, password, role, department }),
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ full_name, email, password, role, department }),
       });
       const data = await res.json();
-
-      if (!data.success) {
-        showAlert(data.message || 'Registration failed.');
-      } else {
-        showAlert('Account created! You can now sign in.', 'success');
-        setTimeout(() => switchTab('login'), 1500);
-      }
-    } catch (err) {
-      showAlert('Server error. Please try again.');
-    } finally {
-      btn.disabled    = false;
-      btn.textContent = 'Create Account';
-    }
+      if (!data.success) showAlert(data.message || 'Registration failed.');
+      else { showAlert('Account created! You can now sign in.','success'); setTimeout(()=>switchTab('login'),1500); }
+    } catch { showAlert('Server error. Please try again.'); }
+    finally { btn.disabled=false; btn.textContent='Create Account'; }
   }
 
-  const existingToken = localStorage.getItem('token');
-  const existingUser  = JSON.parse(localStorage.getItem('user') || 'null');
-  if (existingToken && existingUser) {
-    window.location.href = existingUser.role === 'admin' ? '/admin.html' : '/';
-  }
-
-
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
-    const loginActive = document.getElementById('loginPanel').classList.contains('active');
-    if (loginActive) handleLogin(); else handleRegister();
+    if (document.getElementById('loginPanel').classList.contains('active')) handleLogin();
+    else handleRegister();
   });
 </script>
 </body>
