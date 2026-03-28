@@ -18,7 +18,6 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,7 +29,6 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/payments',      paymentRoutes);
 app.use('/api/reports',       reportRoutes);
 app.use('/api/wishlist',      wishlistRoutes);
-
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
@@ -47,7 +45,7 @@ app.get('/listings', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${3002}`);
+  console.log(`✅ Server running at http://localhost:${3000}`);
 });
 
 module.exports = app;
