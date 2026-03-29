@@ -50,6 +50,9 @@ async function loadProfile() {
     // Load user's listings
     loadUserListings(userProfile.user_id);
     
+    // Load user's wishlist
+    loadWishlist();
+    
     // Load seller ratings (reviews)
     loadSellerRatings(userProfile.user_id);
     
@@ -170,6 +173,88 @@ function renderListings(listings) {
       </div>
     </a>
   `).join('');
+}
+
+// ==========================================
+// LOAD & DISPLAY USER'S WISHLIST
+// ==========================================
+
+async function loadWishlist() {
+  try {
+    const res = await fetch('/api/wishlist', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    if (!res.ok) {
+      console.error('Failed to load wishlist');
+      renderWishlist([]);
+      return;
+    }
+
+    const data = await res.json();
+    const wishlistItems = data.data || [];
+    renderWishlist(wishlistItems);
+
+  } catch (error) {
+    console.error('Error loading wishlist:', error);
+    renderWishlist([]);
+  }
+}
+
+function renderWishlist(items) {
+  const grid = document.getElementById('wishlistGrid');
+
+  if (!items.length) {
+    grid.innerHTML = `
+      <div class="empty" style="grid-column: 1 / -1;">
+        <div class="icon">💔</div>
+        <p>Your wishlist is empty.</p>
+        <p><a href="/" style="color: #1a1a2e; text-decoration: underline; font-weight: bold;">Browse items to add to your wishlist →</a></p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.className = 'grid';
+  grid.innerHTML = items.map(item => `
+    <div class="card" style="position: relative;">
+      <a href="/listings?id=${item.listing_id}" style="text-decoration: none; color: inherit; display: block;">
+        <div class="card-img">
+          ${item.primary_image ? `<img src="${item.primary_image}" alt="${item.title}" loading="lazy">` : (catEmoji[item.category] || '📦')}
+        </div>
+        <div class="card-body">
+          <div class="card-category">${item.category}</div>
+          <div class="card-title">${item.title}</div>
+          <div class="card-price">৳ ${Number(item.price).toLocaleString()}</div>
+          <div style="font-size: 11px; color: #999;">
+            ${item.seller_name || 'Unknown Seller'}
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-secondary" style="width: 90%; margin: 8px auto 12px; padding: 8px; font-size: 12px; display: block;" onclick="removeFromWishlist(${item.listing_id})">❌ Remove</button>
+    </div>
+  `).join('');
+}
+
+async function removeFromWishlist(listingId) {
+  try {
+    const res = await fetch(`/api/wishlist/${listingId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showAlert('Removed from wishlist ❌', 'success');
+      loadWishlist(); // Reload wishlist
+    } else {
+      showAlert(data.message || 'Failed to remove from wishlist', 'error');
+    }
+  } catch (error) {
+    console.error('Error removing from wishlist:', error);
+    showAlert('Could not remove from wishlist', 'error');
+  }
 }
 
 // ==========================================

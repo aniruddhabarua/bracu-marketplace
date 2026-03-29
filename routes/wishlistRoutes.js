@@ -2,9 +2,10 @@
 const express             = require('express');
 const router              = express.Router();
 const WishlistController  = require('../controllers/wishlistControllers');
+const { authenticate }    = require('../middleware/auth');
 
 // All wishlist routes require authentication.
-// router.use(authenticate);
+router.use(authenticate);
 
 // GET    /api/wishlist                        — get my wishlist
 router.get('/',                                 WishlistController.getWishlist);

@@ -219,8 +219,35 @@ function contactSeller(sellerName) {
   alert(`💬 Chat with ${sellerName} feature coming soon!`);
 }
 
-function addToWishlist(listingId) {
-  alert('❤️ Added to wishlist!');
+async function addToWishlist(listingId) {
+  try {
+    console.log('Adding to wishlist, listing ID:', listingId, 'token:', token);
+    
+    const res = await fetch('/api/wishlist', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ listing_id: listingId })
+    });
+
+    console.log('Response status:', res.status);
+    
+    const data = await res.json();
+    console.log('Response data:', data);
+
+    if (data.success) {
+      alert('❤️ Added to wishlist!');
+    } else if (res.status === 409) {
+      alert('⚠️ This item is already in your wishlist.');
+    } else {
+      alert('❌ ' + (data.message || 'Failed to add to wishlist'));
+    }
+  } catch (error) {
+    console.error('Error adding to wishlist:', error);
+    alert('Could not add to wishlist. Please try again. Error: ' + error.message);
+  }
 }
 
 function editListing(listingId) {
