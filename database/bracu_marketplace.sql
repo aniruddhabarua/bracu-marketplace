@@ -235,21 +235,25 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 -- ============================================================
 --  SAMPLE DATA — safe to delete before production
+--  All passwords are: admin123
 -- ============================================================
 
--- Admin user  (password: admin123  — bcrypt hash, rounds=10)
+-- NOTE: is_verified is already set per-user in the INSERT below.
+-- Faculty, staff, and admin are verified by default (from migration_add_verification.sql).
+-- Students start unverified (is_verified = 0).
+
 INSERT INTO users (full_name, email, password_hash, role, department, is_verified) VALUES
-('Admin User',       'admin@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin',   'Administration', 1),
-('Alice Student',    'alice@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'CSE', 0),
-('Bob Student',      'bob@bracu.ac.bd',     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'EEE', 0),
-('Carol Faculty',    'carol@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'faculty', 'Mathematics', 1);
+('Admin User',    'admin@bracu.ac.bd',  '$2b$10$zgj9BB.B9Hc7lnP9MO/F1OUJkHWg4sC9RDMvgwiMc9ljaxyr9N9eC', 'admin',   'Administration', 1),
+('Alice Student', 'alice@bracu.ac.bd',  '$2b$10$zgj9BB.B9Hc7lnP9MO/F1OUJkHWg4sC9RDMvgwiMc9ljaxyr9N9eC', 'student', 'CSE',            0),
+('Bob Student',   'bob@bracu.ac.bd',    '$2b$10$zgj9BB.B9Hc7lnP9MO/F1OUJkHWg4sC9RDMvgwiMc9ljaxyr9N9eC', 'student', 'EEE',            0),
+('Carol Faculty', 'carol@bracu.ac.bd',  '$2b$10$zgj9BB.B9Hc7lnP9MO/F1OUJkHWg4sC9RDMvgwiMc9ljaxyr9N9eC', 'faculty', 'Mathematics',    1);
 
 -- Sample listings
 INSERT INTO listings (seller_id, title, description, price, category, condition_type, location, status) VALUES
-(2, 'Calculus Textbook',      'Essential calculus book, 3rd edition. Very good condition.', 450.00, 'Books & Notes',  'good',     'BRACU Campus', 'available'),
-(2, 'Scientific Calculator',  'Casio fx-991EX. Works perfectly.',                           850.00, 'Electronics',    'like_new',  'BRACU Campus', 'available'),
-(3, 'Physics Lab Manual',     'Complete lab manual for PHY101.',                            200.00, 'Books & Notes',  'fair',      'Dhaka',        'available'),
-(3, 'Laptop Stand',           'Adjustable aluminum laptop stand.',                          600.00, 'Furniture & Decor','new',     'BRACU Campus', 'available');
+(2, 'Calculus Textbook',      'Essential calculus book, 3rd edition. Very good condition.', 450.00, 'Books & Notes',    'good',     'BRACU Campus', 'available'),
+(2, 'Scientific Calculator',  'Casio fx-991EX. Works perfectly.',                           850.00, 'Electronics',      'like_new',  'BRACU Campus', 'available'),
+(3, 'Physics Lab Manual',     'Complete lab manual for PHY101.',                            200.00, 'Books & Notes',    'fair',      'Dhaka',        'available'),
+(3, 'Laptop Stand',           'Adjustable aluminum laptop stand.',                          600.00, 'Furniture & Decor','new',       'BRACU Campus', 'available');
 
 -- Primary images for sample listings (placeholder paths)
 INSERT INTO listing_images (listing_id, image_url, is_primary) VALUES
@@ -257,3 +261,16 @@ INSERT INTO listing_images (listing_id, image_url, is_primary) VALUES
 (2, '/uploads/listings/sample_calculator.jpg', 1),
 (3, '/uploads/listings/sample_manual.jpg',     1),
 (4, '/uploads/listings/sample_stand.jpg',      1);
+
+-- ============================================================
+--  MIGRATION: migration_add_verification.sql (merged)
+--  Safe to run on existing databases that predate is_verified.
+--  If you imported this full schema fresh, this section is a no-op.
+-- ============================================================
+
+-- Add column only if it doesn't exist (MySQL 8.0+: use IF NOT EXISTS)
+ALTER TABLE users
+  MODIFY COLUMN is_verified TINYINT(1) NOT NULL DEFAULT 0;
+
+-- Mark faculty, staff, and admin as verified by default
+UPDATE users SET is_verified = 1 WHERE role IN ('faculty', 'staff', 'admin');
