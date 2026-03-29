@@ -24,11 +24,13 @@ CREATE TABLE IF NOT EXISTS users (
   profile_picture VARCHAR(255)  DEFAULT NULL,
   bio             TEXT          DEFAULT NULL,
   is_active       TINYINT(1)    NOT NULL DEFAULT 1,
+  is_verified     TINYINT(1)    NOT NULL DEFAULT 0,
   created_at      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP
                                 ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id),
-  INDEX idx_users_email (email)
+  INDEX idx_users_email (email),
+  INDEX idx_users_verified (is_verified)
 ) ENGINE=InnoDB;
 
 -- ------------------------------------------------------------
@@ -236,11 +238,11 @@ CREATE TABLE IF NOT EXISTS reviews (
 -- ============================================================
 
 -- Admin user  (password: admin123  — bcrypt hash, rounds=10)
-INSERT INTO users (full_name, email, password_hash, role, department) VALUES
-('Admin User',       'admin@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin',   'Administration'),
-('Alice Student',    'alice@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'CSE'),
-('Bob Student',      'bob@bracu.ac.bd',     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'EEE'),
-('Carol Faculty',    'carol@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'faculty', 'Mathematics');
+INSERT INTO users (full_name, email, password_hash, role, department, is_verified) VALUES
+('Admin User',       'admin@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin',   'Administration', 1),
+('Alice Student',    'alice@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'CSE', 0),
+('Bob Student',      'bob@bracu.ac.bd',     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'EEE', 0),
+('Carol Faculty',    'carol@bracu.ac.bd',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'faculty', 'Mathematics', 1);
 
 -- Sample listings
 INSERT INTO listings (seller_id, title, description, price, category, condition_type, location, status) VALUES

@@ -36,6 +36,7 @@ const UserModel = {
         u.department,
         u.profile_picture,
         u.bio,
+        u.is_verified,
         u.created_at,
         AVG(r.rating)   AS avg_rating,
         COUNT(r.review_id) AS total_reviews

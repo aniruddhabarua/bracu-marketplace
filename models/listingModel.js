@@ -90,7 +90,8 @@ const ListingModel = {
         u.full_name       AS seller_name,
         u.user_id         AS seller_id,
         u.profile_picture AS seller_avatar,
-        u.department      AS seller_department
+        u.department      AS seller_department,
+        u.is_verified     AS seller_is_verified
       FROM listings l
       JOIN users u ON u.user_id = l.seller_id
       WHERE l.listing_id = ?`;
