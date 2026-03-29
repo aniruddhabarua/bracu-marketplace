@@ -48,6 +48,10 @@ app.get('/sell', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'sell.html'));
 });
 
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'profile.html'));
+});
+
 app.get('/listings', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'listings.html'));
 });

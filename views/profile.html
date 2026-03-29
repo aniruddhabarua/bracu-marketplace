@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - BRACU Marketplace</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+
+    /* NAVIGATION */
+    nav {
+      background: #1a1a2e;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { font-size: 18px; font-weight: bold; color: #fff; text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-user  { font-size: 13px; color: #ccc; }
+    .nav-logout {
+      font-size: 13px; color: #aaa; background: none;
+      border: 1px solid #444; padding: 5px 12px; border-radius: 5px;
+      cursor: pointer; font-family: Arial, sans-serif;
+    }
+    .nav-logout:hover { color: #fff; border-color: #888; }
+
+    .content { max-width: 900px; margin: 0 auto; padding: 24px; }
+
+    /* PROFILE CARD */
+    .profile-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .profile-header {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .profile-picture-container {
+      flex-shrink: 0;
+    }
+
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      overflow: hidden;
+      object-fit: cover;
+    }
+
+    .profile-info h2 {
+      font-size: 20px; color: #1a1a2e; margin-bottom: 8px;
+    }
+
+    .profile-info p {
+      font-size: 13px; color: #666; margin-bottom: 6px;
+    }
+
+    .profile-info .bio {
+      font-size: 14px; color: #333; margin-top: 12px; line-height: 1.5;
+    }
+
+    .profile-rating {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .rating-stars {
+      color: #ffc107;
+      margin-right: 6px;
+    }
+
+    .profile-actions {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      font-size: 13px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: #2a2a4e; }
+
+    .btn-secondary {
+      background: #eee;
+      color: #555;
+    }
+
+    .btn-secondary:hover { background: #ddd; }
+
+    /* EDIT FORM (HIDDEN BY DEFAULT) */
+    .edit-form {
+      display: none;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .edit-form.show { display: block; }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #1a1a2e;
+      background: #fff;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-save {
+      background: #28a745;
+      color: #fff;
+      padding: 10px 18px;
+      font-size: 13px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+    }
+
+    .btn-save:hover { background: #218838; }
+
+    .btn-cancel {
+      background: #ddd;
+      color: #555;
+      padding: 10px 18px;
+      font-size: 13px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+
+    .btn-cancel:hover { background: #ccc; }
+
+    /* SECTION HEADERS */
+    .section-header {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      margin-top: 32px;
+    }
+
+    /* LISTINGS GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+    .card-img {
+      width: 100%; height: 150px;
+      background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; overflow: hidden;
+    }
+
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-body { padding: 12px 14px; }
+    .card-category {
+      font-size: 11px; color: #1a1a2e; font-weight: bold;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
+    }
+    .card-title {
+      font-size: 14px; font-weight: bold; color: #222;
+      margin-bottom: 5px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-price { font-size: 15px; font-weight: bold; color: #1a1a2e; margin-bottom: 8px; }
+
+    .empty { text-align: center; padding: 40px 20px; color: #aaa; }
+    .empty .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+
+    .loading { text-align: center; padding: 40px; color: #aaa; font-size: 14px; }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .reviews-list {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 32px;
+    }
+
+    .review-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .review-item:last-child { border-bottom: none; }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .review-author {
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .review-rating {
+      font-size: 13px;
+      color: #ffc107;
+    }
+
+    .review-text {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .review-date {
+      font-size: 11px;
+      color: #999;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">BRACU Marketplace</a>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <button class="nav-logout" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="content">
+
+  <!-- ALERT MESSAGE -->
+  <div id="alertBox"></div>
+
+  <!-- PROFILE CARD -->
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="profile-picture-container">
+        <img id="profilePicture" class="profile-picture" alt="Profile Picture" src="👤">
+      </div>
+      <div class="profile-info">
+        <h2 id="profileName">Loading...</h2>
+        <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
+        <p><strong>Department:</strong> <span id="profileDepartment">-</span></p>
+        <p><strong>Role:</strong> <span id="profileRole">-</span></p>
+        <div class="profile-rating">
+          <div id="profileRating">No ratings yet</div>
+        </div>
+        <div class="bio" id="profileBio"></div>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button class="btn btn-primary" onclick="toggleEditForm()">✏️ Edit Profile</button>
+    </div>
+
+    <!-- EDIT FORM -->
+    <div id="editForm" class="edit-form">
+      <h3 style="margin-bottom: 16px; color: #1a1a2e;">Edit Your Profile</h3>
+      
+      <form onsubmit="saveProfile(event)">
+        <div class="form-group">
+          <label for="editName">Full Name</label>
+          <input type="text" id="editName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editDepartment">Department</label>
+          <input type="text" id="editDepartment" placeholder="e.g., Computer Science">
+        </div>
+
+        <div class="form-group">
+          <label for="editBio">Bio</label>
+          <textarea id="editBio" placeholder="Tell other students about yourself..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-save">💾 Save Changes</button>
+          <button type="button" class="btn-cancel" onclick="toggleEditForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MY LISTINGS SECTION -->
+  <div>
+    <h3 class="section-header">📦 My Listings</h3>
+    <div id="myListingsGrid"></div>
+  </div>
+
+  <!-- SELLER RATINGS SECTION -->
+  <div>
+    <h3 class="section-header">⭐ Seller Reviews</h3>
+    <div id="reviewsContainer"></div>
+  </div>
+
+</div>
+
+<script src="/js/profile.js"></script>
+
+</body>
+</html>
