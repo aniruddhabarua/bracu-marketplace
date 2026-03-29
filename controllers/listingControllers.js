@@ -105,6 +105,7 @@ const ListingController = {
       condition_type: req.query.condition_type || '',
       minPrice:       req.query.minPrice,
       maxPrice:       req.query.maxPrice,
+      seller_id:      req.query.seller_id ? parseInt(req.query.seller_id) : null,
     };
 
     ListingModel.getAll(filters, (err, listings) => {

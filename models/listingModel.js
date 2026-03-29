@@ -52,9 +52,18 @@ const ListingModel = {
       JOIN users u ON u.user_id = l.seller_id
       LEFT JOIN listing_images img
         ON img.listing_id = l.listing_id AND img.is_primary = TRUE
-      WHERE l.status = 'available'`;
+      WHERE 1=1`;
 
     const params = [];
+
+    // Filter by seller if provided (shows all statuses for seller's own listings)
+    if (filters.seller_id) {
+      sql += ` AND l.seller_id = ?`;
+      params.push(filters.seller_id);
+    } else {
+      // For public listings, only show available ones
+      sql += ` AND l.status = 'available'`;
+    }
 
     if (filters.keyword) {
       sql += ` AND (l.title LIKE ? OR l.description LIKE ?)`;
@@ -81,8 +90,6 @@ const ListingModel = {
 
     db.query(sql, params, callback);
   },
-
-  
   findById: (listingId, callback) => {
     const sql = `
       SELECT

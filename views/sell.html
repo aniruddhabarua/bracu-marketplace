@@ -388,11 +388,11 @@
       const data = await res.json();
 
       if (res.ok && data.success) {
-        showAlert('✅ Listing posted successfully! Showing your listing…', 'success');
-        // Redirect to the new listing page with success parameter
+        showAlert('✅ Listing posted successfully! Redirecting to your profile…', 'success');
+        // Redirect to profile to see the new listing
         const listingId = data.listing_id || data.data?.listing_id;
         setTimeout(() => {
-          window.location.href = `/listings?id=${listingId}&new=1`;
+          window.location.href = `/profile?new_listing=${listingId}`;
         }, 1800);
       } else if (res.status === 401 || res.status === 403) {
         showAlert('Session expired. Please log in again.');

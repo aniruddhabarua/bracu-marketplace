@@ -6,10 +6,22 @@
 const token = localStorage.getItem('token');
 const user  = JSON.parse(localStorage.getItem('user') || 'null');
 
+// Check for new listing parameter
+const urlParams = new URLSearchParams(window.location.search);
+const newListingId = urlParams.get('new_listing');
+
 if (!token || !user) {
   window.location.href = '/login';
 } else {
   document.getElementById('navUser').textContent = 'Hi, ' + user.full_name;
+  
+  // Show success message if new listing was created
+  if (newListingId) {
+    showAlert('✅ Listing created successfully! See it in "My Listings" below.', 'success');
+    // Clean up URL
+    window.history.replaceState({}, document.title, '/profile');
+  }
+  
   loadProfile();
 }
 
@@ -110,8 +122,8 @@ function displayProfile(userProfile) {
 
 async function loadUserListings(userId) {
   try {
-    // Fetch listings by seller_id
-    const res = await fetch(`/api/products?seller_id=${userId}`, {
+    // Fetch listings by seller_id using the listings API
+    const res = await fetch(`/api/listings?seller_id=${userId}`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
 
