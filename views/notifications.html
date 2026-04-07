@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications — BRACU Marketplace</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      background: #1a1a2e;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo  { font-size: 18px; font-weight: bold; color: #fff; text-decoration: none; }
+    #navRight  { display: flex; align-items: center; gap: 16px; }
+    .nav-link  { color: #ccc; font-size: 14px; text-decoration: none; }
+    .nav-link:hover { color: #fff; }
+
+    /* ── Page layout ── */
+    .page { max-width: 680px; margin: 32px auto; padding: 0 16px 48px; }
+
+    /* ── Header ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .page-header h1 { font-size: 22px; color: #1a1a2e; }
+    .header-actions { display: flex; gap: 10px; }
+    .btn-text {
+      background: none; border: none; cursor: pointer;
+      font-size: 13px; color: #555; text-decoration: underline;
+      font-family: Arial, sans-serif;
+    }
+    .btn-text:hover { color: #1a1a2e; }
+    .btn-text.danger { color: #c00; }
+
+    /* ── Filter tabs ── */
+    .filter-tabs {
+      display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 6px 16px; border-radius: 20px; font-size: 13px;
+      font-weight: bold; cursor: pointer; border: none;
+      background: #e0e0e0; color: #555; font-family: Arial, sans-serif;
+      transition: all 0.15s;
+    }
+    .filter-tab.active, .filter-tab:hover {
+      background: #1a1a2e; color: #fff;
+    }
+
+    /* ── Notification card ── */
+    .notif-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e8e8e8;
+      padding: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: box-shadow 0.15s;
+      cursor: pointer;
+    }
+    .notif-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .notif-card.unread { background: #f0f4ff; border-color: #c7d7ff; }
+
+    .notif-icon-wrap {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #f0f2f5; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .notif-icon-wrap.type-message  { background: #e0f2fe; }
+    .notif-icon-wrap.type-order    { background: #dcfce7; }
+    .notif-icon-wrap.type-payment  { background: #fef9c3; }
+    .notif-icon-wrap.type-review   { background: #fef3c7; }
+    .notif-icon-wrap.type-report   { background: #fee2e2; }
+    .notif-icon-wrap.type-system   { background: #f3e8ff; }
+
+    .notif-content { flex: 1; min-width: 0; }
+    .notif-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #1a1a2e;
+      margin-bottom: 3px;
+    }
+    .notif-card.unread .notif-title { font-weight: 800; }
+    .notif-body  { font-size: 13px; color: #555; margin-bottom: 5px; }
+    .notif-time  { font-size: 12px; color: #aaa; }
+
+    .notif-right {
+      display: flex; flex-direction: column;
+      align-items: flex-end; gap: 6px; flex-shrink: 0;
+    }
+    .unread-dot {
+      width: 9px; height: 9px; border-radius: 50%; background: #3b82f6;
+    }
+    .btn-delete-notif {
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; color: #bbb; line-height: 1;
+    }
+    .btn-delete-notif:hover { color: #c00; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center; padding: 60px 20px; color: #999;
+    }
+    .empty-icon { font-size: 52px; margin-bottom: 12px; }
+    .empty p    { font-size: 15px; }
+
+    /* ── Loading skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.3s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position:  400px 0; }
+    }
+    .skel-card {
+      height: 76px; margin-bottom: 10px; border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav>
+  <a href="/" class="nav-logo">BRACU Marketplace</a>
+  <div id="navRight">
+    <a href="/"         class="nav-link">Home</a>
+    <a href="/listings" class="nav-link">Browse</a>
+    <a href="/profile"  class="nav-link">Profile</a>
+    <a href="/sell"     class="nav-link">Sell</a>
+    <button onclick="logout()" style="
+      background:none;border:1px solid #555;color:#ccc;
+      padding:5px 12px;border-radius:5px;cursor:pointer;
+      font-size:13px;font-family:Arial,sans-serif;">Logout</button>
+  </div>
+</nav>
+
+<!-- ── Main content ── -->
+<div class="page">
+  <div class="page-header">
+    <h1>🔔 Notifications</h1>
+    <div class="header-actions">
+      <button class="btn-text" onclick="markAllRead()">Mark all as read</button>
+      <button class="btn-text danger" onclick="clearAll()">Clear all</button>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setFilter('all',    this)">All</button>
+    <button class="filter-tab"        onclick="setFilter('message', this)">💬 Messages</button>
+    <button class="filter-tab"        onclick="setFilter('order',   this)">🛒 Orders</button>
+    <button class="filter-tab"        onclick="setFilter('payment', this)">💳 Payments</button>
+    <button class="filter-tab"        onclick="setFilter('report',  this)">🚩 Reports</button>
+    <button class="filter-tab"        onclick="setFilter('system',  this)">📢 System</button>
+  </div>
+
+  <!-- Notification list -->
+  <div id="notifContainer">
+    <!-- Skeleton loading state -->
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+  </div>
+</div>
+
+<!-- Socket.IO client -->
+<script src="/socket.io/socket.io.js"></script>
+<!-- Reusable notification bell widget -->
+<script src="/js/notifications.js"></script>
+
+<script>
+  const TOKEN = localStorage.getItem('token');
+  const USER  = JSON.parse(localStorage.getItem('user') || 'null');
+
+  // Redirect to login if not authenticated
+  if (!TOKEN || !USER) window.location.href = '/login';
+
+  let allNotifications = [];   // cached full list
+  let currentFilter    = 'all';
+
+  // ── Load all notifications ───────────────────────────────────
+  async function loadNotifications() {
+    try {
+      const res  = await fetch('/api/notifications', {
+        headers: { Authorization: `Bearer ${TOKEN}` },
+      });
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.message);
+
+      allNotifications = data.data || [];
+      renderList();
+
+    } catch (err) {
+      document.getElementById('notifContainer').innerHTML =
+        `<p style="color:#c00;text-align:center;padding:32px;">
+          Failed to load notifications. Please refresh.
+        </p>`;
+    }
+  }
+
+  // ── Render filtered list ─────────────────────────────────────
+  function renderList() {
+    const container = document.getElementById('notifContainer');
+    const filtered  = currentFilter === 'all'
+      ? allNotifications
+      : allNotifications.filter(n => n.type === currentFilter);
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">🔔</div>
+          <p>No ${currentFilter === 'all' ? '' : currentFilter + ' '}notifications yet.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(n => `
+      <div class="notif-card ${n.is_read ? '' : 'unread'}"
+           onclick="handleNotifClick(${n.notification_id}, '${n.link || ''}')">
+        <div class="notif-icon-wrap type-${n.type}">${iconFor(n.type)}</div>
+        <div class="notif-content">
+          <p class="notif-title">${n.title}</p>
+          <p class="notif-body">${n.body}</p>
+          <p class="notif-time">${timeAgo(n.created_at)}</p>
+        </div>
+        <div class="notif-right">
+          ${!n.is_read ? '<div class="unread-dot"></div>' : ''}
+          <button class="btn-delete-notif"
+                  onclick="event.stopPropagation(); deleteNotif(${n.notification_id})"
+                  title="Delete">✕</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Filter tabs ──────────────────────────────────────────────
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderList();
+  }
+
+  // ── Click a notification ─────────────────────────────────────
+  async function handleNotifClick(notifId, link) {
+    // Mark as read
+    await fetch(`/api/notifications/${notifId}/read`, {
+      method: 'PUT', headers: { Authorization: `Bearer ${TOKEN}` },
+    }).catch(() => {});
+
+    // Update local cache
+    const n = allNotifications.find(x => x.notification_id === notifId);
+    if (n) n.is_read = true;
+    renderList();
+
+    // Navigate to the linked page if there is one
+    if (link) window.location.href = link;
+  }
+
+  // ── Mark all as read ─────────────────────────────────────────
+  async function markAllRead() {
+    await fetch('/api/notifications/all/read', {
+      method: 'PUT', headers: { Authorization: `Bearer ${TOKEN}` },
+    }).catch(() => {});
+    allNotifications.forEach(n => n.is_read = true);
+    renderList();
+
+    // Reset bell badge
+    const badge = document.getElementById('notifBadge');
+    if (badge) badge.style.display = 'none';
+  }
+
+  // ── Clear all notifications ───────────────────────────────────
+  async function clearAll() {
+    if (!confirm('Delete all notifications? This cannot be undone.')) return;
+    await fetch('/api/notifications/all', {
+      method: 'DELETE', headers: { Authorization: `Bearer ${TOKEN}` },
+    }).catch(() => {});
+    allNotifications = [];
+    renderList();
+  }
+
+  // ── Delete one notification ───────────────────────────────────
+  async function deleteNotif(notifId) {
+    await fetch(`/api/notifications/${notifId}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${TOKEN}` },
+    }).catch(() => {});
+    allNotifications = allNotifications.filter(n => n.notification_id !== notifId);
+    renderList();
+  }
+
+  // ── Listen for real-time new notifications ────────────────────
+  // (socket.io client is loaded above, notifications.js connects it)
+  document.addEventListener('DOMContentLoaded', () => {
+    loadNotifications();
+  });
+
+  // When a new notification arrives via socket, prepend it live
+  window.addEventListener('new_notification', (e) => {
+    allNotifications.unshift(e.detail);
+    renderList();
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function iconFor(type) {
+    const m = { message:'💬', order:'🛒', payment:'💳', review:'⭐', report:'🚩', system:'📢' };
+    return m[type] || '🔔';
+  }
+
+  function timeAgo(dateStr) {
+    const s = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (s < 60)     return 'just now';
+    if (s < 3600)   return `${Math.floor(s/60)}m ago`;
+    if (s < 86400)  return `${Math.floor(s/3600)}h ago`;
+    return `${Math.floor(s/86400)}d ago`;
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
+</script>
+</body>
+</html>
