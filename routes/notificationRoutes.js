@@ -1,18 +1,22 @@
 // routes/notificationRoutes.js
-const express                    = require('express');
-const router                     = express.Router();
-const NotificationController     = require('../controllers/notificationControllers');
+const express                = require('express');
+const router                 = express.Router();
+const NotificationController = require('../controllers/notificationControllers');
+const { authenticate }       = require('../middleware/auth');
 
-// All notification routes require authentication.
-// router.use(authenticate);
+// All routes require a valid JWT token
+router.use(authenticate);
 
-// GET    /api/notifications           — get all notifications + unread count
-router.get('/',                         NotificationController.getAll);
+// GET  /api/notifications               — all notifications + unread count
+router.get('/',                 NotificationController.getAll);
 
-// PUT    /api/notifications/:id/read  — mark one or all as read (id = 'all' for all)
-router.put('/:id/read',                 NotificationController.markRead);
+// GET  /api/notifications/unread-count  — just the badge number (lightweight)
+router.get('/unread-count',     NotificationController.getUnreadCount);
 
-// DELETE /api/notifications/:id       — delete one notification
-router.delete('/:id',                   NotificationController.deleteOne);
+// PUT  /api/notifications/:id/read      — mark one as read  (id='all' for all)
+router.put('/:id/read',         NotificationController.markRead);
+
+// DELETE /api/notifications/:id         — delete one        (id='all' for all)
+router.delete('/:id',           NotificationController.deleteOne);
 
 module.exports = router;
