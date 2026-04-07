@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - BRACU Marketplace</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+
+    nav {
+      background: #1a1a2e;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { font-size: 18px; font-weight: bold; color: #fff; text-decoration: none; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-user  { font-size: 13px; color: #ccc; }
+    .nav-logout {
+      font-size: 13px; color: #aaa; background: none;
+      border: 1px solid #444; padding: 5px 12px; border-radius: 5px;
+      cursor: pointer; font-family: Arial, sans-serif;
+    }
+    .nav-logout:hover { color: #fff; border-color: #888; }
+
+    .content { max-width: 900px; margin: 0 auto; padding: 24px; }
+
+    .profile-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .profile-header {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      overflow: hidden;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .profile-info h2 { font-size: 20px; color: #1a1a2e; margin-bottom: 8px; }
+    .profile-info p  { font-size: 13px; color: #666; margin-bottom: 6px; }
+    .profile-info .bio { font-size: 14px; color: #333; margin-top: 12px; line-height: 1.5; }
+
+    .profile-rating {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .stars { color: #ffc107; margin-right: 4px; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      background: #e8f5e9;
+      color: #2e7d32;
+      margin-left: 8px;
+    }
+
+    .section-header {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      margin-top: 32px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+    .card-img {
+      width: 100%; height: 150px;
+      background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; overflow: hidden;
+    }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-body { padding: 12px 14px; }
+    .card-category {
+      font-size: 11px; color: #1a1a2e; font-weight: bold;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
+    }
+    .card-title {
+      font-size: 14px; font-weight: bold; color: #222;
+      margin-bottom: 5px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-price { font-size: 15px; font-weight: bold; color: #1a1a2e; }
+
+    /* REVIEW FORM */
+    .review-form-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .review-form-card h3 { font-size: 15px; color: #1a1a2e; margin-bottom: 16px; }
+
+    .star-selector { display: flex; gap: 8px; margin-bottom: 16px; }
+    .star-selector span {
+      font-size: 28px; cursor: pointer; color: #ddd; transition: color 0.1s;
+    }
+    .star-selector span.active { color: #ffc107; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; font-weight: bold; color: #333; margin-bottom: 6px; }
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #ddd; border-radius: 6px;
+      font-size: 13px; font-family: Arial, sans-serif; outline: none;
+    }
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: #1a1a2e; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .btn-submit {
+      background: #1a1a2e; color: #fff;
+      padding: 10px 20px; font-size: 13px;
+      border: none; border-radius: 6px;
+      cursor: pointer; font-weight: bold; font-family: Arial, sans-serif;
+    }
+    .btn-submit:hover { background: #2a2a4e; }
+    .btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* REVIEWS LIST */
+    .reviews-list {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .review-item {
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .review-item:last-child { border-bottom: none; }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .review-author { font-size: 13px; font-weight: bold; color: #333; }
+    .review-rating { color: #ffc107; font-size: 14px; }
+    .review-listing { font-size: 11px; color: #888; margin-bottom: 6px; }
+    .review-text { font-size: 13px; color: #555; line-height: 1.5; }
+    .review-date { font-size: 11px; color: #bbb; margin-top: 6px; }
+
+    .empty { text-align: center; padding: 32px 20px; color: #aaa; }
+    .empty .icon { font-size: 36px; margin-bottom: 10px; }
+    .empty p { font-size: 13px; }
+
+    .loading { text-align: center; padding: 40px; color: #aaa; font-size: 14px; }
+
+    .alert {
+      padding: 12px 16px; border-radius: 6px;
+      margin-bottom: 16px; font-size: 13px;
+    }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">BRACU Marketplace</a>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <button class="nav-logout" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="content">
+
+  <div id="alertBox"></div>
+  <div id="pageContent" class="loading">Loading profile...</div>
+
+</div>
+
+<script>
+  const params   = new URLSearchParams(window.location.search);
+  const userId   = params.get('id');
+  const token    = localStorage.getItem('token');
+  const me       = JSON.parse(localStorage.getItem('user') || 'null');
+  let   selectedRating  = 0;
+  let   sellerListings  = [];
+
+  // ── Nav ──────────────────────────────────────────────────────
+  if (me) document.getElementById('navUser').textContent = me.full_name;
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function showAlert(msg, type = 'success') {
+    const box = document.getElementById('alertBox');
+    box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    setTimeout(() => box.innerHTML = '', 4000);
+  }
+
+  function starsHtml(rating) {
+    const filled = Math.round(rating);
+    return '★'.repeat(filled) + '☆'.repeat(5 - filled);
+  }
+
+  function formatDate(iso) {
+    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  // ── Load profile ─────────────────────────────────────────────
+  async function loadProfile() {
+    if (!userId) {
+      document.getElementById('pageContent').innerHTML =
+        '<div class="empty"><div class="icon">⚠️</div><p>No user ID provided. Use <strong>?id=3</strong> in the URL.</p></div>';
+      return;
+    }
+
+    try {
+      const [profileRes, ratingsRes] = await Promise.all([
+        fetch(`/api/users/${userId}`),
+        fetch(`/api/ratings/seller/${userId}`),
+      ]);
+
+      const profileData = await profileRes.json();
+      const ratingsData = await ratingsRes.json();
+
+      if (!profileData.success) {
+        document.getElementById('pageContent').innerHTML =
+          '<div class="empty"><div class="icon">😕</div><p>User not found.</p></div>';
+        return;
+      }
+
+      const u = profileData.data;
+      sellerListings = u.listings || [];
+
+      // Don't show "view own profile" as public profile
+      const isOwnProfile = me && me.user_id === u.user_id;
+
+      document.title = `${u.full_name} - BRACU Marketplace`;
+
+      const avgRating   = ratingsData.average_rating;
+      const totalReviews = ratingsData.total_reviews;
+
+      const ratingHtml = avgRating
+        ? `<span class="stars">${starsHtml(avgRating)}</span> <strong>${avgRating}</strong> / 5 &nbsp;(${totalReviews} review${totalReviews !== 1 ? 's' : ''})`
+        : 'No reviews yet';
+
+      const picHtml = u.profile_picture
+        ? `<img class="profile-picture" src="${u.profile_picture}" alt="Profile">`
+        : `<div class="profile-picture">👤</div>`;
+
+      document.getElementById('pageContent').innerHTML = `
+
+        <!-- PROFILE CARD -->
+        <div class="profile-card">
+          <div class="profile-header">
+            ${picHtml}
+            <div class="profile-info">
+              <h2>${u.full_name} ${u.is_verified ? '<span class="badge">✔ Verified</span>' : ''}</h2>
+              <p><strong>Department:</strong> ${u.department || 'Not specified'}</p>
+              <p><strong>Role:</strong> ${u.role}</p>
+              <p><strong>Member since:</strong> ${formatDate(u.member_since)}</p>
+              <div class="profile-rating">${ratingHtml}</div>
+              ${u.bio ? `<div class="bio">${u.bio}</div>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <!-- LISTINGS -->
+        <h3 class="section-header">📦 Listings by ${u.full_name}</h3>
+        <div id="listingsGrid" class="grid"></div>
+
+        <!-- WRITE A REVIEW (only if logged in and not own profile) -->
+        ${token && !isOwnProfile ? `
+        <h3 class="section-header">✍️ Write a Review</h3>
+        <div class="review-form-card">
+          <h3>Rate ${u.full_name}</h3>
+
+          <div class="form-group">
+            <label>Your Rating</label>
+            <div class="star-selector" id="starSelector">
+              <span onclick="setRating(1)">★</span>
+              <span onclick="setRating(2)">★</span>
+              <span onclick="setRating(3)">★</span>
+              <span onclick="setRating(4)">★</span>
+              <span onclick="setRating(5)">★</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reviewListing">Related Listing</label>
+            <select id="reviewListing">
+              <option value="">-- Select a listing --</option>
+              ${sellerListings.map(l => `<option value="${l.listing_id}">${l.title}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="reviewComment">Comment (optional)</label>
+            <textarea id="reviewComment" placeholder="Share your experience..."></textarea>
+          </div>
+
+          <button class="btn-submit" onclick="submitReview(${u.user_id})">Submit Review</button>
+        </div>
+        ` : ''}
+
+        <!-- REVIEWS -->
+        <h3 class="section-header">⭐ Reviews (${totalReviews})</h3>
+        <div id="reviewsList" class="reviews-list"></div>
+      `;
+
+      renderListings(sellerListings);
+      renderReviews(ratingsData.reviews || []);
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('pageContent').innerHTML =
+        '<div class="empty"><div class="icon">⚠️</div><p>Failed to load profile.</p></div>';
+    }
+  }
+
+  // ── Render listings ──────────────────────────────────────────
+  function renderListings(listings) {
+    const grid = document.getElementById('listingsGrid');
+    if (!grid) return;
+    if (!listings.length) {
+      grid.innerHTML = '<div class="empty"><div class="icon">📦</div><p>No active listings.</p></div>';
+      return;
+    }
+    grid.innerHTML = listings.map(l => `
+      <a class="card" href="/listings?id=${l.listing_id}">
+        <div class="card-img">
+          ${l.primary_image ? `<img src="${l.primary_image}" alt="${l.title}">` : '📦'}
+        </div>
+        <div class="card-body">
+          <div class="card-category">${l.category}</div>
+          <div class="card-title">${l.title}</div>
+          <div class="card-price">৳${parseFloat(l.price).toLocaleString()}</div>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  // ── Render reviews ───────────────────────────────────────────
+  function renderReviews(reviews) {
+    const list = document.getElementById('reviewsList');
+    if (!list) return;
+    if (!reviews.length) {
+      list.innerHTML = '<div class="empty"><div class="icon">💬</div><p>No reviews yet.</p></div>';
+      return;
+    }
+    list.innerHTML = reviews.map(r => `
+      <div class="review-item">
+        <div class="review-header">
+          <span class="review-author">${r.reviewer_name || 'Anonymous'}</span>
+          <span class="review-rating">${starsHtml(r.rating)} (${r.rating}/5)</span>
+        </div>
+        ${r.listing_title ? `<div class="review-listing">📦 ${r.listing_title}</div>` : ''}
+        ${r.comment ? `<div class="review-text">${r.comment}</div>` : ''}
+        <div class="review-date">${formatDate(r.created_at)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Star selector ────────────────────────────────────────────
+  function setRating(val) {
+    selectedRating = val;
+    document.querySelectorAll('#starSelector span').forEach((s, i) => {
+      s.classList.toggle('active', i < val);
+    });
+  }
+
+  // ── Submit review ────────────────────────────────────────────
+  async function submitReview(seller_id) {
+    if (!selectedRating) return showAlert('Please select a star rating.', 'error');
+
+    const listing_id = document.getElementById('reviewListing').value;
+    if (!listing_id) return showAlert('Please select a listing.', 'error');
+
+    const comment = document.getElementById('reviewComment').value.trim();
+
+    try {
+      const res = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ seller_id, listing_id, rating: selectedRating, comment }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) return showAlert(data.error || 'Failed to submit review.', 'error');
+
+      showAlert('Review submitted successfully!');
+      setTimeout(() => loadProfile(), 1000); // reload to show new review
+    } catch (err) {
+      showAlert('Something went wrong.', 'error');
+    }
+  }
+
+  loadProfile();
+</script>
+
+</body>
+</html>

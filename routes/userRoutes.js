@@ -5,7 +5,7 @@ const jwt            = require('jsonwebtoken');
 const UserModel      = require('../models/userModels');
 const UserController = require('../controllers/userControllers');
 const { authenticate, JWT_SECRET } = require('../middleware/auth');
-
+const path = require('path');
 
 router.post('/api/auth/register', async (req, res) => {
   const { full_name, email, password, role, department } = req.body;
@@ -83,7 +83,7 @@ router.post('/api/auth/login', (req, res) => {
   });
 });
 
-
+router.get('/user', (req, res) => res.sendFile(path.join(__dirname, '../views/userProfile.html')));
 router.get('/api/users/:id', UserController.getProfile);
 
 

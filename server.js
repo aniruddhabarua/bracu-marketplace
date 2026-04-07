@@ -21,7 +21,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const paymentRoutes      = require('./routes/paymentRoutes');
 const reportRoutes       = require('./routes/reportRoutes');
 const wishlistRoutes     = require('./routes/wishlistRoutes');
-
+const ratingRoutes       = require('./routes/ratingRoutes');      // ← rating REST
 // ── Ensure upload directory exists ────────────────────────────
 const uploadDir = path.join(__dirname, 'public', 'uploads', 'listings');
 if (!fs.existsSync(uploadDir)) {
@@ -49,6 +49,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/payments',      paymentRoutes);
 app.use('/api/reports',       reportRoutes);
 app.use('/api/wishlist',      wishlistRoutes);
+app.use('/api/ratings',       ratingRoutes);
 
 // ── Page Routes ───────────────────────────────────────────────
 app.get('/', (req, res) => {
@@ -61,6 +62,7 @@ app.get('/profile',    (req, res) => res.sendFile(path.join(__dirname, 'views', 
 app.get('/listings',   (req, res) => res.sendFile(path.join(__dirname, 'views', 'listings.html')));
 app.get('/admin',      (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
+app.get('/user',       (req, res) => res.sendFile(path.join(__dirname, 'views', 'userProfile.html')));
 
 // ── Socket.IO real-time chat ──────────────────────────────────
 require('./socket')(io);
