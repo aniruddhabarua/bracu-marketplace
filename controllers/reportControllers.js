@@ -1,5 +1,3 @@
-// controllers/reportControllers.js
-// Handles Feature 10: Report System
 const ReportModel       = require('../models/reportModels');
 const NotificationModel = require('../models/notificationModels');
 
@@ -15,8 +13,6 @@ const VALID_REASONS = [
 ];
 
 const ReportController = {
-
-  // ── POST /api/reports ─────────────────────────────────────────
   // Submit a new report
   // Body: { reported_type, reported_id, reason, details }
   submitReport: (req, res) => {
@@ -69,8 +65,8 @@ const ReportController = {
     });
   },
 
-  // ── GET /api/reports/my ───────────────────────────────────────
-  // Get all reports submitted by the logged-in user
+
+  // all reports submitted by the logged-in user
   getMyReports: (req, res) => {
     ReportModel.getByReporter(req.user.user_id, (err, rows) => {
       if (err) return res.status(500).json({ success: false, message: 'Database error.' });
@@ -78,10 +74,8 @@ const ReportController = {
     });
   },
 
-  // ── GET /api/reports ──────────────────────────────────────────
-  // Admin: get all reports with optional ?status= filter
+  // Admin: all reports with optional status= filter
   getAllReports: (req, res) => {
-    // Role check — only admins
     if (req.user.role !== 'admin')
       return res.status(403).json({ success: false, message: 'Admin access required.' });
 
@@ -92,9 +86,6 @@ const ReportController = {
     });
   },
 
-  // ── PUT /api/reports/:id ──────────────────────────────────────
-  // Admin: resolve or dismiss a report
-  // Body: { status, admin_note }
   resolveReport: (req, res) => {
     if (req.user.role !== 'admin')
       return res.status(403).json({ success: false, message: 'Admin access required.' });
