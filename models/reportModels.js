@@ -1,11 +1,7 @@
-// models/reportModels.js
-// Database queries for Feature 10: Report System
 const db = require('../config/db');
 
 const ReportModel = {
 
-  // ── Submit a new report ───────────────────────────────────────
-  // reported_type: 'listing' | 'user' | 'message'
   create: (reportData, callback) => {
     const { reporter_id, reported_type, reported_id, reason, details } = reportData;
     const sql = `
@@ -17,7 +13,7 @@ const ReportModel = {
     );
   },
 
-  // ── Get all reports (admin view) with optional status filter ──
+
   getAll: (status, callback) => {
     let sql = `
       SELECT
@@ -36,7 +32,7 @@ const ReportModel = {
     db.query(sql, params, callback);
   },
 
-  // ── Get a single report by ID ────────────────────────────────
+
   findById: (reportId, callback) => {
     db.query(
       `SELECT r.*, u.full_name AS reporter_name
@@ -47,7 +43,6 @@ const ReportModel = {
     );
   },
 
-  // ── Get all reports submitted by a specific user ──────────────
   getByReporter: (userId, callback) => {
     db.query(
       `SELECT * FROM reports WHERE reporter_id = ? ORDER BY created_at DESC`,
@@ -56,8 +51,7 @@ const ReportModel = {
     );
   },
 
-  // ── Update report status (admin resolves/dismisses) ──────────
-  // status: 'reviewed' | 'resolved' | 'dismissed'
+
   updateStatus: (reportId, status, adminNote, callback) => {
     const sql = `
       UPDATE reports
@@ -66,8 +60,6 @@ const ReportModel = {
     db.query(sql, [status, adminNote || null, reportId], callback);
   },
 
-  // ── Check if a user already reported the same item ───────────
-  // Prevents duplicate reports from the same user
   isDuplicate: (reporterId, reportedType, reportedId, callback) => {
     db.query(
       `SELECT report_id FROM reports
