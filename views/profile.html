@@ -3,61 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Profile - BRACU Marketplace</title>
+  <title>Profile — BRACU Marketplace</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+      background: #faf9f7;
+      color: #1a1a1a;
+      line-height: 1.5;
     }
 
-    /* NAVIGATION */
-    nav {
-      background: #1a1a2e;
-      padding: 12px 24px;
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    
+    .nav {
+      padding: 28px 0;
+      border-bottom: 1px solid #e8e5e0;
+    }
+
+    .nav-inner {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
-    .nav-logo { font-size: 18px; font-weight: bold; color: #fff; text-decoration: none; }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .nav-user  { font-size: 13px; color: #ccc; }
-    .nav-logout {
-      font-size: 13px; color: #aaa; background: none;
-      border: 1px solid #444; padding: 5px 12px; border-radius: 5px;
-      cursor: pointer; font-family: Arial, sans-serif;
+
+    .logo {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: #1a1a1a;
     }
-    .nav-logout:hover { color: #fff; border-color: #888; }
 
-    .content { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .logo span {
+      font-weight: 300;
+      color: #c9a03d;
+    }
 
-    /* PROFILE CARD */
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      color: #5a5a5a;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: #1a1a1a;
+    }
+
+    .nav-user {
+      font-size: 14px;
+      color: #5a5a5a;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid #e0ddd8;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      color: #5a5a5a;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      border-color: #1a1a1a;
+      color: #1a1a1a;
+    }
+
+   
     .profile-card {
       background: #fff;
-      border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-radius: 24px;
+      border: 1px solid #efede8;
+      padding: 32px;
+      margin: 32px 0;
     }
 
     .profile-header {
       display: flex;
-      gap: 20px;
+      gap: 32px;
       align-items: flex-start;
-      margin-bottom: 20px;
-    }
-
-    .profile-picture-container {
-      flex-shrink: 0;
+      flex-wrap: wrap;
     }
 
     .profile-picture {
       width: 120px;
       height: 120px;
-      border-radius: 8px;
-      background: #f0f0f0;
+      background: #f5f3ef;
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -66,74 +118,87 @@
       object-fit: cover;
     }
 
+    .profile-info {
+      flex: 1;
+    }
+
     .profile-info h2 {
-      font-size: 20px; color: #1a1a2e; margin-bottom: 8px;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
     }
 
     .profile-info p {
-      font-size: 13px; color: #666; margin-bottom: 6px;
-    }
-
-    .profile-info .bio {
-      font-size: 14px; color: #333; margin-top: 12px; line-height: 1.5;
+      font-size: 14px;
+      color: #5a5a5a;
+      margin-bottom: 6px;
     }
 
     .profile-rating {
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid #eee;
-      font-size: 13px;
-      color: #555;
+      border-top: 1px solid #efede8;
+      color: #c9a03d;
     }
 
-    .rating-stars {
-      color: #ffc107;
-      margin-right: 6px;
+    .bio {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #efede8;
+      color: #5a5a5a;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
     .profile-actions {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
+      margin-top: 24px;
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
 
     .btn {
-      padding: 10px 18px;
+      padding: 10px 24px;
+      border-radius: 40px;
       font-size: 13px;
-      border: none;
-      border-radius: 6px;
+      font-weight: 500;
       cursor: pointer;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
+      font-family: inherit;
+      transition: all 0.2s;
     }
 
     .btn-primary {
-      background: #1a1a2e;
+      background: #1a1a1a;
       color: #fff;
+      border: none;
     }
 
-    .btn-primary:hover { background: #2a2a4e; }
+    .btn-primary:hover {
+      background: #333;
+    }
 
     .btn-secondary {
-      background: #eee;
-      color: #555;
+      background: transparent;
+      border: 1px solid #e0ddd8;
+      color: #5a5a5a;
     }
 
-    .btn-secondary:hover { background: #ddd; }
+    .btn-secondary:hover {
+      border-color: #c9a03d;
+      color: #1a1a1a;
+    }
 
-    /* EDIT FORM (HIDDEN BY DEFAULT) */
+    /* Edit Form */
     .edit-form {
       display: none;
-      background: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      margin-top: 20px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #efede8;
     }
 
-    .edit-form.show { display: block; }
+    .edit-form.show {
+      display: block;
+    }
 
     .form-group {
       margin-bottom: 16px;
@@ -142,297 +207,220 @@
     .form-group label {
       display: block;
       font-size: 13px;
-      font-weight: bold;
-      color: #333;
+      font-weight: 500;
+      color: #1a1a1a;
       margin-bottom: 6px;
     }
 
     .form-group input,
     .form-group textarea {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 13px;
-      font-family: Arial, sans-serif;
+      padding: 12px 16px;
+      border: 1px solid #e0ddd8;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
       outline: none;
+      transition: border-color 0.2s;
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
-      border-color: #1a1a2e;
-      background: #fff;
+      border-color: #c9a03d;
     }
 
     .form-group textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 100px;
     }
 
     .form-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 16px;
+      gap: 12px;
+      margin-top: 20px;
     }
 
     .btn-save {
-      background: #28a745;
+      background: #c9a03d;
       color: #fff;
-      padding: 10px 18px;
-      font-size: 13px;
       border: none;
-      border-radius: 6px;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
-      font-weight: bold;
-      font-family: Arial, sans-serif;
     }
 
-    .btn-save:hover { background: #218838; }
+    .btn-save:hover {
+      background: #b8902e;
+    }
 
     .btn-cancel {
-      background: #ddd;
-      color: #555;
-      padding: 10px 18px;
+      background: transparent;
+      border: 1px solid #e0ddd8;
+      padding: 10px 24px;
+      border-radius: 40px;
       font-size: 13px;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
-      font-family: Arial, sans-serif;
     }
 
-    .btn-cancel:hover { background: #ccc; }
-
-    /* SECTION HEADERS */
+    /* Section Headers */
     .section-header {
-      font-size: 16px;
-      font-weight: bold;
-      color: #1a1a2e;
-      margin-bottom: 16px;
-      margin-top: 32px;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin: 40px 0 20px;
     }
 
-    /* LISTINGS GRID */
+   
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
     }
 
     .card {
       background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
+      border-radius: 16px;
       overflow: hidden;
-      cursor: pointer;
-      transition: box-shadow 0.15s;
       text-decoration: none;
       color: inherit;
-      display: block;
+      transition: all 0.25s;
+      border: 1px solid #efede8;
     }
 
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    }
 
     .card-img {
-      width: 100%; height: 150px;
-      background: #f5f5f5;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 36px; overflow: hidden;
+      width: 100%;
+      height: 160px;
+      background: #f5f3ef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      overflow: hidden;
     }
 
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-    .card-body { padding: 12px 14px; }
+    .card-body {
+      padding: 14px;
+    }
+
     .card-category {
-      font-size: 11px; color: #1a1a2e; font-weight: bold;
-      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 4px;
     }
+
     .card-title {
-      font-size: 14px; font-weight: bold; color: #222;
-      margin-bottom: 5px; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .card-price { font-size: 15px; font-weight: bold; color: #1a1a2e; margin-bottom: 8px; }
 
-    .empty { text-align: center; padding: 40px 20px; color: #aaa; }
-    .empty .icon { font-size: 40px; margin-bottom: 12px; }
-    .empty p { font-size: 14px; }
+    .card-price {
+      font-size: 15px;
+      font-weight: 500;
+      color: #c9a03d;
+    }
 
-    .loading { text-align: center; padding: 40px; color: #aaa; font-size: 14px; }
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #efede8;
+    }
 
+    .empty .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+   
     .alert {
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-bottom: 16px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
       font-size: 13px;
     }
 
     .alert-success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
     }
 
     .alert-error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
     }
 
-    .reviews-list {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 32px;
+    
+    .footer {
+      margin-top: 80px;
+      padding: 40px 0 60px;
+      border-top: 1px solid #efede8;
+      text-align: center;
     }
 
-    .review-item {
-      padding: 12px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .review-item:last-child { border-bottom: none; }
-
-    .review-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .review-author {
-      font-size: 13px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .review-rating {
-      font-size: 13px;
-      color: #ffc107;
-    }
-
-    .review-text {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.4;
-    }
-
-    .review-date {
-      font-size: 11px;
-      color: #999;
-      margin-top: 6px;
+    .footer p {
+      font-size: 12px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="/">BRACU Marketplace</a>
-  <div class="nav-right">
-    <span class="nav-user" id="navUser"></span>
-    <button class="nav-logout" onclick="logout()">Sign Out</button>
-  </div>
-</nav>
+<div class="container">
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">BRACU<span>Marketplace</span></a>
+      <div class="nav-links">
+        <span class="nav-user" id="navUser"></span>
+        <a href="/" class="nav-link">Browse</a>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+  </nav>
 
-<div class="content">
-
-  <!-- ALERT MESSAGE -->
   <div id="alertBox"></div>
+  <div id="pageContent" class="loading">Loading profile...</div>
 
-  <!-- PROFILE CARD -->
-  <div class="profile-card">
-    <div class="profile-header">
-      <div class="profile-picture-container">
-        <img id="profilePicture" class="profile-picture" alt="Profile Picture" src="👤">
+  <!-- Seller Modal -->
+  <div id="sellerModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:24px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto;">
+      <div style="padding:24px; border-bottom:1px solid #efede8; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="font-size:20px; font-weight:500;">Seller Profile</h2>
+        <button onclick="closeSellerModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#aaa;">✕</button>
       </div>
-      <div class="profile-info">
-        <h2 id="profileName">Loading...</h2>
-        <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
-        <p><strong>Department:</strong> <span id="profileDepartment">-</span></p>
-        <p><strong>Role:</strong> <span id="profileRole">-</span></p>
-        <div class="profile-rating">
-          <div id="profileRating">No ratings yet</div>
-        </div>
-        <div class="bio" id="profileBio"></div>
-      </div>
-    </div>
-
-    <div class="profile-actions">
-      <button class="btn btn-primary" onclick="toggleEditForm()">✏️ Edit Profile</button>
-    </div>
-
-    <!-- EDIT FORM -->
-    <div id="editForm" class="edit-form">
-      <h3 style="margin-bottom: 16px; color: #1a1a2e;">Edit Your Profile</h3>
-      
-      <form onsubmit="saveProfile(event)">
-        <div class="form-group">
-          <label for="editName">Full Name</label>
-          <input type="text" id="editName" required>
-        </div>
-
-        <div class="form-group">
-          <label for="editDepartment">Department</label>
-          <input type="text" id="editDepartment" placeholder="e.g., Computer Science">
-        </div>
-
-        <div class="form-group">
-          <label for="editBio">Bio</label>
-          <textarea id="editBio" placeholder="Tell other students about yourself..."></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-save">💾 Save Changes</button>
-          <button type="button" class="btn-cancel" onclick="toggleEditForm()">Cancel</button>
-        </div>
-      </form>
+      <div style="padding:24px;" id="sellerProfileContent">Loading...</div>
     </div>
   </div>
 
-  <!-- MY LISTINGS SECTION -->
-  <div>
-    <h3 class="section-header">📦 My Listings</h3>
-    <div id="myListingsGrid"></div>
+  <!-- Footer -->
+  <div class="footer">
+    <p>BRACU Marketplace — a closed community marketplace</p>
   </div>
-
-  <!-- FOLLOWED SELLERS SECTION -->
-  <div>
-    <h3 class="section-header">⭐ Followed Sellers</h3>
-    <div id="followedSellersGrid"></div>
-  </div>
-
-  <!-- WISHLIST SECTION -->
-  <div>
-    <h3 class="section-header">❤️ My Wishlist</h3>
-    <div id="wishlistGrid"></div>
-  </div>
-
-  <!-- SELLER RATINGS SECTION -->
-  <div>
-    <h3 class="section-header">⭐ Seller Reviews</h3>
-    <div id="reviewsContainer"></div>
-  </div>
-
-  <!-- SELLER PROFILE MODAL -->
-  <div id="sellerModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
-    <div style="background: #fff; border-radius: 8px; max-width: 600px; margin: 40px auto; padding: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
-      
-      <!-- Modal Header -->
-      <div style="padding: 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin: 0; color: #1a1a2e; font-size: 20px;">Seller Profile</h2>
-        <button onclick="closeSellerModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">✕</button>
-      </div>
-
-      <!-- Modal Body -->
-      <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
-        <div id="sellerProfileContent">Loading seller profile...</div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <script src="/js/profile.js"></script>
-
 </body>
 </html>
