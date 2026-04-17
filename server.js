@@ -7,8 +7,8 @@ const path    = require('path');
 const fs      = require('fs');
 
 const app    = express();
-const server = http.createServer(app);       // wrap express in http server
-const io     = new Server(server, {          // attach Socket.IO to http server
+const server = http.createServer(app);
+const io     = new Server(server, {          
   cors: { origin: '*' },
 });
 
@@ -16,44 +16,44 @@ const io     = new Server(server, {          // attach Socket.IO to http server
 const userRoutes         = require('./routes/userRoutes');
 const productRoutes      = require('./routes/productRoutes');
 const listingRoutes      = require('./routes/listingRoutes');
-const chatRoutes         = require('./routes/chatRoutes');        // ← chat REST
+const chatRoutes         = require('./routes/chatRoutes'); 
 const notificationRoutes = require('./routes/notificationRoutes');
 const paymentRoutes      = require('./routes/paymentRoutes');
 const reportRoutes       = require('./routes/reportRoutes');
 const wishlistRoutes     = require('./routes/wishlistRoutes');
-const ratingRoutes       = require('./routes/ratingRoutes');      // ← rating REST
-const favoriteSellersRoutes = require('./routes/favoriteSellersRoutes'); // ← favorite sellers
-// ── Ensure upload directory exists ────────────────────────────
+const ratingRoutes       = require('./routes/ratingRoutes'); 
+const favoriteSellersRoutes = require('./routes/favoriteSellersRoutes'); 
+const recentlyViewedRoutes = require('./routes/recentlyViewedRoutes');
+
 const uploadDir = path.join(__dirname, 'public', 'uploads', 'listings');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// ── Middleware ────────────────────────────────────────────────
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Attach Socket.IO instance to every request
-// so controllers can emit real-time events via req.io
+
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
 
-// ── API Routes ────────────────────────────────────────────────
+
 app.use('/',                     userRoutes);
 app.use('/',                     productRoutes);
 app.use('/api/listings',         listingRoutes);
-app.use('/api/chat',             chatRoutes);           // ← chat REST endpoints
+app.use('/api/chat',             chatRoutes);           
 app.use('/api/notifications',    notificationRoutes);
 app.use('/api/payments',         paymentRoutes);
 app.use('/api/reports',          reportRoutes);
 app.use('/api/wishlist',         wishlistRoutes);
 app.use('/api/ratings',          ratingRoutes);
-app.use('/api/favorite-sellers', favoriteSellersRoutes); // ← favorite sellers
+app.use('/api/favorite-sellers', favoriteSellersRoutes);
 
-// ── Page Routes ───────────────────────────────────────────────
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
@@ -66,12 +66,11 @@ app.get('/admin',      (req, res) => res.sendFile(path.join(__dirname, 'views', 
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
 app.get('/user',       (req, res) => res.sendFile(path.join(__dirname, 'views', 'userProfile.html')));
 
-// ── Socket.IO real-time chat ──────────────────────────────────
+
 require('./socket')(io);
 
-// ── Start server ──────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {                  // use server.listen, NOT app.listen
+server.listen(PORT, () => {  
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
 
