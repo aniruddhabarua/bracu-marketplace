@@ -38,7 +38,7 @@
     }
     .nav-logout:hover { color: #fff; border-color: #888; }
 
-    /* SEARCH SECTION */
+  
     .search-section {
       background: #fff;
       border-bottom: 1px solid #ddd;
@@ -104,6 +104,116 @@
     }
     .btn-reset:hover { background: #ddd; }
 
+  
+    .recent-section {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .recent-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .recent-header h3 {
+      font-size: 18px;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .clear-recent-btn {
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+
+    .clear-recent-btn:hover {
+      color: #c00;
+    }
+
+    .recent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .recent-card {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .recent-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .recent-card-img {
+      width: 100%;
+      height: 120px;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      overflow: hidden;
+    }
+
+    .recent-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .recent-card-body {
+      padding: 10px;
+    }
+
+    .recent-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .recent-card-price {
+      font-size: 13px;
+      font-weight: bold;
+      color: #1a1a2e;
+    }
+
+    .recent-card-category {
+      font-size: 10px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .recent-empty {
+      text-align: center;
+      padding: 30px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      color: #aaa;
+      font-size: 13px;
+    }
 
     .content { max-width: 1100px; margin: 0 auto; padding: 24px; }
 
@@ -207,6 +317,14 @@
 </div>
 
 <div class="content">
+  <div id="recentSection" class="recent-section" style="display: none;">
+    <div class="recent-header">
+      <h3>🕐 Recently Viewed</h3>
+      <button class="clear-recent-btn" onclick="clearRecentlyViewed()">Clear all</button>
+    </div>
+    <div id="recentGrid" class="recent-grid"></div>
+  </div>
+
   <p class="result-count" id="resultCount"></p>
   <div id="grid"></div>
 </div>
@@ -308,7 +426,97 @@
     if (e.key === 'Enter') search();
   });
 
+  // Recently Viewed Functions
+  async function loadRecentlyViewed() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const recentSection = document.getElementById('recentSection');
+    const recentGrid = document.getElementById('recentGrid');
+
+    try {
+      const res = await fetch('/api/recently-viewed?limit=8', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (data.success && data.data && data.data.length > 0) {
+        recentSection.style.display = 'block';
+        
+        recentGrid.innerHTML = data.data.map(item => `
+          <a class="recent-card" href="/listings?id=${item.listing_id}">
+            <div class="recent-card-img">
+              ${item.primary_image ? `<img src="${item.primary_image}" alt="${item.title}">` : getCategoryEmoji(item.category)}
+            </div>
+            <div class="recent-card-body">
+              <div class="recent-card-title">${escapeHtml(item.title)}</div>
+              <div class="recent-card-price">৳ ${Number(item.price).toLocaleString()}</div>
+              <div class="recent-card-category">${item.category}</div>
+            </div>
+          </a>
+        `).join('');
+      } else {
+        recentSection.style.display = 'none';
+      }
+    } catch (err) {
+      console.error('Failed to load recently viewed:', err);
+      recentSection.style.display = 'none';
+    }
+  }
+
+  function getCategoryEmoji(category) {
+    const emojis = {
+      'Books & Notes': '📚',
+      'Electronics': '💻',
+      'Clothing & Accessories': '👕',
+      'Stationery & Supplies': '✏️',
+      'Sports & Fitness': '⚽',
+      'Food & Beverages': '🍜',
+      'Furniture & Decor': '🪑',
+      'Services': '🛠️',
+      'Other': '📦'
+    };
+    return emojis[category] || '📦';
+  }
+
+  async function clearRecentlyViewed() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    if (!confirm('Clear your recently viewed history?')) return;
+
+    try {
+      const res = await fetch('/api/recently-viewed', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        document.getElementById('recentSection').style.display = 'none';
+        alert('Recently viewed cleared!');
+      }
+    } catch (err) {
+      console.error('Failed to clear:', err);
+      alert('Could not clear recently viewed');
+    }
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+
   loadListings({});
+  loadRecentlyViewed();
 </script>
 </body>
 </html>
