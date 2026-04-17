@@ -1,6 +1,4 @@
-// models/chatModels.js
-// All database queries for In-App Chat (conversations + messages)
-const db = require('../db');
+const db = require('../config/db');
 
 const ChatModel = {
 

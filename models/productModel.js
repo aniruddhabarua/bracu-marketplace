@@ -1,3 +1,5 @@
+const db = require('../config/db');
+
 const products = [
   { id: 1,  name: "Calculus Textbook",     category: "Books",       price: 450, description: "Essential calculus book for BRACU students" },
   { id: 2,  name: "Scientific Calculator", category: "Electronics", price: 850, description: "Casio scientific calculator fx-991" },

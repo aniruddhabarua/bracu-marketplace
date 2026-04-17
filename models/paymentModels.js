@@ -1,6 +1,4 @@
-// models/paymentModels.js
-// Database queries for Feature 5: Online & Offline Payment
-const db = require('../db');
+const db = require('../config/db');
 
 const PaymentModel = {
 
