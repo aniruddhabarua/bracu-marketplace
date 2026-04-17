@@ -56,12 +56,10 @@ const ListingModel = {
 
     const params = [];
 
-    // Filter by seller if provided (shows all statuses for seller's own listings)
     if (filters.seller_id) {
       sql += ` AND l.seller_id = ?`;
       params.push(filters.seller_id);
     } else {
-      // For public listings, only show available ones
       sql += ` AND l.status = 'available'`;
     }
 
@@ -90,18 +88,19 @@ const ListingModel = {
 
     db.query(sql, params, callback);
   },
+
   findById: (listingId, callback) => {
     const sql = `
       SELECT
         l.*,
-        u.full_name       AS seller_name,
-        u.user_id         AS seller_id,
+        u.full_name AS seller_name,
+        u.user_id AS seller_id,
         u.profile_picture AS seller_avatar,
-        u.department      AS seller_department,
-        u.is_verified     AS seller_is_verified
+        u.department AS seller_department
       FROM listings l
       JOIN users u ON u.user_id = l.seller_id
-      WHERE l.listing_id = ?`;
+      WHERE l.listing_id = ?
+    `;
 
     db.query(sql, [listingId], (err, rows) => {
       if (err) return callback(err);
@@ -109,7 +108,6 @@ const ListingModel = {
 
       const listing = rows[0];
 
-      
       db.query(
         `SELECT image_id, image_url, is_primary
          FROM listing_images WHERE listing_id = ? ORDER BY is_primary DESC`,
@@ -118,7 +116,7 @@ const ListingModel = {
           if (err2) return callback(err2);
           listing.images = images;
           callback(null, listing);
-        },
+        }
       );
     });
   },
@@ -147,7 +145,6 @@ const ListingModel = {
   },
 
   delete: (listingId, callback) => {
-    
     db.query('DELETE FROM listing_images WHERE listing_id = ?', [listingId], (err) => {
       if (err) return callback(err);
       db.query('DELETE FROM listings WHERE listing_id = ?', [listingId], callback);

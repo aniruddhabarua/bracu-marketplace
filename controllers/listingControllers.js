@@ -130,13 +130,29 @@ const ListingController = {
   
   getListing: (req, res) => {
     const listingId = parseInt(req.params.id);
-    if (isNaN(listingId))
+    console.log('=== getListing called ===');
+    console.log('Listing ID:', listingId);
+    
+    if (isNaN(listingId)) {
+      console.log('Invalid ID - not a number');
       return res.status(400).json({ success: false, message: 'Invalid listing ID.' });
+    }
 
     ListingModel.findById(listingId, (err, listing) => {
-      if (err)      return res.status(500).json({ success: false, message: 'Database error.' });
-      if (!listing) return res.status(404).json({ success: false, message: 'Listing not found.' });
+      console.log('findById callback triggered');
+      console.log('Error object:', err);
+      console.log('Listing result:', listing);
+      
+      if (err) {
+        console.log('ERROR in findById:', err.message);
+        return res.status(500).json({ success: false, message: 'Database error.', error: err.message });
+      }
+      if (!listing) {
+        console.log('No listing found for ID:', listingId);
+        return res.status(404).json({ success: false, message: 'Listing not found.' });
+      }
 
+      console.log('Success! Returning listing');
       return res.status(200).json({ success: true, data: listing });
     });
   },
