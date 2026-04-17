@@ -71,9 +71,6 @@ async function loadProfile() {
     // Load followed sellers
     loadFollowedSellers();
     
-    // Load listings from followed sellers
-    loadFollowedSellersListings();
-    
     // Pre-fill edit form with current data
     document.getElementById('editName').value = userProfile.full_name || '';
     document.getElementById('editDepartment').value = userProfile.department || '';
@@ -372,7 +369,7 @@ function renderFollowedSellers(sellers) {
 
   grid.className = 'grid';
   grid.innerHTML = sellers.map(seller => `
-    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;" onclick="showFollowedSellerProfile(${seller.user_id})">
       <div>
         <div class="card-img" style="height: 120px; justify-content: center; align-items: center; flex-direction: column;">
           ${seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover;">` : '<span style="font-size: 40px;">👤</span>'}
@@ -388,7 +385,9 @@ function renderFollowedSellers(sellers) {
           </div>
         </div>
       </div>
-      <button class="btn btn-secondary" style="width: 90%; margin: auto auto 12px; padding: 8px; font-size: 12px; display: block;" onclick="unfollowSeller(${seller.user_id})">⭐ Unfollow</button>
+      <div style="display: flex; gap: 8px; padding: 12px;">
+        <button class="btn btn-secondary" style="flex: 1; margin: 0; padding: 8px; font-size: 12px;" onclick="event.stopPropagation(); unfollowSeller(${seller.user_id})">⭐ Unfollow</button>
+      </div>
     </div>
   `).join('');
 }
@@ -405,7 +404,6 @@ async function unfollowSeller(sellerId) {
     if (data.success) {
       showAlert('Unfollowed seller ⭐', 'success');
       loadFollowedSellers(); // Reload
-      loadFollowedSellersListings(); // Also reload listings
     } else {
       showAlert(data.message || 'Failed to unfollow', 'error');
     }
@@ -413,63 +411,6 @@ async function unfollowSeller(sellerId) {
     console.error('Error unfollowing seller:', error);
     showAlert('Could not unfollow seller', 'error');
   }
-}
-
-// ==========================================
-// LOAD & DISPLAY FOLLOWED SELLERS' LISTINGS
-// ==========================================
-
-async function loadFollowedSellersListings() {
-  try {
-    const res = await fetch(`/api/users/${user.user_id}/followed-sellers/listings?limit=12`, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-
-    if (!res.ok) {
-      console.error('Failed to load followed sellers listings');
-      renderFollowedSellersListings([]);
-      return;
-    }
-
-    const data = await res.json();
-    const listings = data.data || [];
-    renderFollowedSellersListings(listings);
-
-  } catch (error) {
-    console.error('Error loading followed sellers listings:', error);
-    renderFollowedSellersListings([]);
-  }
-}
-
-function renderFollowedSellersListings(listings) {
-  const grid = document.getElementById('followedSellersListingsGrid');
-
-  if (!listings.length) {
-    grid.innerHTML = `
-      <div class="empty" style="grid-column: 1 / -1;">
-        <div class="icon">🛍️</div>
-        <p>No new listings from followed sellers.</p>
-      </div>
-    `;
-    return;
-  }
-
-  grid.className = 'grid';
-  grid.innerHTML = listings.map(listing => `
-    <a class="card" href="/listings?id=${listing.listing_id}">
-      <div class="card-img">
-        ${listing.primary_image ? `<img src="${listing.primary_image}" alt="${listing.title}" loading="lazy">` : (catEmoji[listing.category] || '📦')}
-      </div>
-      <div class="card-body">
-        <div class="card-category">${listing.category}</div>
-        <div class="card-title">${listing.title}</div>
-        <div class="card-price">৳ ${Number(listing.price).toLocaleString()}</div>
-        <div style="font-size: 11px; color: #999;">
-          <strong>By:</strong> ${listing.seller_name || 'Unknown'}
-        </div>
-      </div>
-    </a>
-  `).join('');
 }
 
 
@@ -561,4 +502,114 @@ function formatDate(dateStr) {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// ==========================================
+// SELLER PROFILE MODAL
+// ==========================================
+
+async function showFollowedSellerProfile(sellerId) {
+  try {
+    const res = await fetch(`/api/users/${sellerId}`, {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    });
+
+    if (!res.ok) {
+      showAlert('Could not load seller profile', 'error');
+      return;
+    }
+
+    const data = await res.json();
+    if (!data.success) {
+      showAlert('Seller profile not found', 'error');
+      return;
+    }
+
+    const seller = data.data;
+    const verificationBadge = seller.is_verified ? '✅ Verified' : '';
+    const memberYear = new Date(seller.member_since).getFullYear();
+    const roleLabel = seller.role.charAt(0).toUpperCase() + seller.role.slice(1);
+    const sellerAvatar = seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}">` : '👤';
+    const stars = seller.avg_rating ? '⭐'.repeat(Math.round(seller.avg_rating)) : 'No ratings yet';
+
+    const profileHtml = `
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="width: 100px; height: 100px; margin: 0 auto 16px; border-radius: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden;">
+          ${sellerAvatar}
+        </div>
+        <h3 style="margin: 8px 0 4px; color: #1a1a2e; font-size: 18px;">
+          ${escapeHtml(seller.full_name)}
+          ${verificationBadge ? `<span style="color: #4caf50; font-size: 14px; margin-left: 8px;">${verificationBadge}</span>` : ''}
+        </h3>
+        <p style="margin: 0 0 8px; color: #999; font-size: 12px;">${roleLabel}</p>
+        ${seller.department ? `<p style="margin: 0 0 12px; color: #666; font-size: 13px;">${escapeHtml(seller.department)}</p>` : ''}
+      </div>
+
+      <div style="background: #f9f9f9; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+        <div style="margin-bottom: 12px;">
+          <p style="margin: 0 0 4px; color: #999; font-size: 11px; font-weight: bold; text-transform: uppercase;">Email</p>
+          <p style="margin: 0; color: #333; font-size: 13px;">${escapeHtml(seller.email)}</p>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <p style="margin: 0 0 4px; color: #999; font-size: 11px; font-weight: bold; text-transform: uppercase;">Member Since</p>
+          <p style="margin: 0; color: #333; font-size: 13px;">${memberYear}</p>
+        </div>
+        <div>
+          <p style="margin: 0 0 4px; color: #999; font-size: 11px; font-weight: bold; text-transform: uppercase;">Rating</p>
+          <p style="margin: 0; color: #ffc107; font-size: 13px;">${stars}${seller.total_reviews > 0 ? ` (${seller.total_reviews} review${seller.total_reviews !== 1 ? 's' : ''})` : ''}</p>
+        </div>
+      </div>
+
+      ${seller.bio ? `
+        <div style="margin-bottom: 16px;">
+          <p style="margin: 0 0 8px; color: #999; font-size: 11px; font-weight: bold; text-transform: uppercase;">About</p>
+          <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.5;">${escapeHtml(seller.bio)}</p>
+        </div>
+      ` : ''}
+
+      <div style="border-top: 1px solid #eee; padding-top: 16px;">
+        <p style="margin: 0 0 12px; color: #999; font-size: 11px; font-weight: bold; text-transform: uppercase;">Active Listings (${seller.listings ? seller.listings.length : 0})</p>
+        ${seller.listings && seller.listings.length > 0 ? `
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+            ${seller.listings.slice(0, 4).map(listing => `
+              <a href="/listings?id=${listing.listing_id}" style="text-decoration: none; color: inherit;">
+                <div style="background: #f5f5f5; border-radius: 6px; padding: 12px; border: 1px solid #eee; transition: box-shadow 0.2s; cursor: pointer;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
+                  <div style="width: 100%; height: 80px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 8px; overflow: hidden;">
+                    ${listing.primary_image ? `<img src="${listing.primary_image}" alt="${listing.title}" style="width: 100%; height: 100%; object-fit: cover;">` : '📦'}
+                  </div>
+                  <p style="margin: 0 0 4px; font-size: 12px; font-weight: bold; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(listing.title)}</p>
+                  <p style="margin: 0; font-size: 12px; font-weight: bold; color: #1a1a2e;">৳ ${Number(listing.price).toLocaleString()}</p>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        ` : '<p style="margin: 0; color: #aaa; font-size: 13px;">No active listings</p>'}
+      </div>
+    `;
+
+    document.getElementById('sellerProfileContent').innerHTML = profileHtml;
+    document.getElementById('sellerModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+  } catch (error) {
+    console.error('Error loading seller profile:', error);
+    showAlert('Could not load seller profile', 'error');
+  }
+}
+
+function closeSellerModal() {
+  document.getElementById('sellerModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
 }

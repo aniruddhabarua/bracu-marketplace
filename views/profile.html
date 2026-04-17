@@ -401,12 +401,6 @@
     <div id="followedSellersGrid"></div>
   </div>
 
-  <!-- FOLLOWED SELLERS' LISTINGS SECTION -->
-  <div>
-    <h3 class="section-header">🛍️ Latest from Followed Sellers</h3>
-    <div id="followedSellersListingsGrid"></div>
-  </div>
-
   <!-- WISHLIST SECTION -->
   <div>
     <h3 class="section-header">❤️ My Wishlist</h3>
@@ -417,6 +411,23 @@
   <div>
     <h3 class="section-header">⭐ Seller Reviews</h3>
     <div id="reviewsContainer"></div>
+  </div>
+
+  <!-- SELLER PROFILE MODAL -->
+  <div id="sellerModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+    <div style="background: #fff; border-radius: 8px; max-width: 600px; margin: 40px auto; padding: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+      
+      <!-- Modal Header -->
+      <div style="padding: 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; color: #1a1a2e; font-size: 20px;">Seller Profile</h2>
+        <button onclick="closeSellerModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+        <div id="sellerProfileContent">Loading seller profile...</div>
+      </div>
+    </div>
   </div>
 
 </div>
