@@ -52,6 +52,7 @@ app.use('/api/reports',          reportRoutes);
 app.use('/api/wishlist',         wishlistRoutes);
 app.use('/api/ratings',          ratingRoutes);
 app.use('/api/favorite-sellers', favoriteSellersRoutes);
+app.use('/api/recently-viewed', recentlyViewedRoutes);
 
 
 app.get('/', (req, res) => {
