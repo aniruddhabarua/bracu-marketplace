@@ -1,5 +1,5 @@
 // models/notificationModels.js
-const db = require('../config/db');
+const db = require('../db');
 
 const NotificationModel = {
 

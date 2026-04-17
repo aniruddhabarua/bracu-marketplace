@@ -1,5 +1,5 @@
 // models/ratingModel.js
-const db = require('../config/db'); // adjust path to your mysql2 pool/connection
+const db = require('../db');
 
 const Rating = {
   // ── Create ────────────────────────────────────────────────────

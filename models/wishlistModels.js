@@ -1,6 +1,4 @@
-// models/wishlistModels.js
-// Database queries for Feature 9: Wishlist
-const db = require('../config/db');
+const db = require('../db');
 
 const WishlistModel = {
 
