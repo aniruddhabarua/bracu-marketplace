@@ -279,14 +279,53 @@ INSERT INTO listing_images (listing_id, image_url, is_primary) VALUES
 (4, '/uploads/listings/sample_stand.jpg',      1);
 
 -- ============================================================
---  MIGRATION: migration_add_verification.sql (merged)
+--  MIGRATION: Email Verification (merged from migration_add_verification.sql)
 --  Safe to run on existing databases that predate is_verified.
---  If you imported this full schema fresh, this section is a no-op.
+--  If you imported this full schema fresh, this section sets up OTP verification.
 -- ============================================================
 
--- Add column only if it doesn't exist (MySQL 8.0+: use IF NOT EXISTS)
+-- STEP 1: Ensure is_verified column exists on users table
 ALTER TABLE users
-  MODIFY COLUMN is_verified TINYINT(1) NOT NULL DEFAULT 0;
+  MODIFY COLUMN is_verified TINYINT(1) NOT NULL DEFAULT 0
+  COMMENT '0 = email not verified, 1 = email verified';
 
--- Mark faculty, staff, and admin as verified by default
-UPDATE users SET is_verified = 1 WHERE role IN ('faculty', 'staff', 'admin');
+-- STEP 2: Create the otp_verifications table
+--         Stores 6-digit OTP codes sent to users during registration
+CREATE TABLE IF NOT EXISTS otp_verifications (
+  otp_id      INT           NOT NULL AUTO_INCREMENT,
+  user_id     INT           NOT NULL,
+  otp_code    VARCHAR(10)   NOT NULL,
+  expires_at  DATETIME      NOT NULL,
+  is_used     TINYINT(1)    NOT NULL DEFAULT 0,
+  created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (otp_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  INDEX idx_otp_user    (user_id),
+  INDEX idx_otp_expires (expires_at)
+) ENGINE=InnoDB
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci
+  COMMENT 'Stores one-time passwords for email verification';
+
+-- STEP 3: Mark faculty, staff, and admin as already verified
+UPDATE users
+SET is_verified = 1
+WHERE role IN ('faculty', 'staff', 'admin')
+  AND is_verified = 0;
+
+-- STEP 4: Clean up expired or used OTPs automatically
+DROP EVENT IF EXISTS cleanup_expired_otps;
+
+CREATE EVENT cleanup_expired_otps
+  ON SCHEDULE EVERY 1 HOUR
+  DO
+    DELETE FROM otp_verifications
+    WHERE expires_at < NOW() OR is_used = 1;
+
+-- ============================================================
+--  Verification migration complete.
+--  New table created : otp_verifications
+--  Column confirmed  : users.is_verified
+--  Auto-verified     : faculty, staff, admin roles
+--  Event created     : cleanup_expired_otps (runs hourly)
+-- ============================================================
