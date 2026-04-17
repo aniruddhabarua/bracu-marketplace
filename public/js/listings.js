@@ -1,7 +1,3 @@
-// ==========================================
-// AUTH CHECK
-// ==========================================
-
 const token = localStorage.getItem('token');
 const user  = JSON.parse(localStorage.getItem('user') || 'null');
 
@@ -17,11 +13,27 @@ function logout() {
   window.location.href = '/login';
 }
 
-// ==========================================
-// LOAD LISTING
-// ==========================================
 
-// Get listing ID from URL parameter
+
+async function trackRecentView(listingId) {
+  if (!token || !listingId) return;
+  
+  try {
+    await fetch('/api/recently-viewed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ listing_id: listingId })
+    });
+    console.log('View tracked successfully');
+  } catch (err) {
+    console.error('Failed to track view:', err);
+  }
+}
+
+
 const urlParams = new URLSearchParams(window.location.search);
 const listingId = urlParams.get('id');
 const isNewListing = urlParams.get('new') === '1';
@@ -51,7 +63,10 @@ async function loadListing(id) {
 
     const listing = data.data;
     
-    // Check if user is following this seller (if not their own listing)
+
+    trackRecentView(listingId);
+    
+  
     let isFollowing = false;
     if (user && user.user_id !== listing.seller_id) {
       isFollowing = await checkFollowStatus(listing.seller_id);
@@ -65,7 +80,7 @@ async function loadListing(id) {
   }
 }
 
-// Check if user is following a seller
+
 async function checkFollowStatus(sellerId) {
   try {
     const res = await fetch(`/api/favorite-sellers/check/${sellerId}`, {
@@ -79,14 +94,10 @@ async function checkFollowStatus(sellerId) {
   }
 }
 
-// ==========================================
-// RENDER LISTING
-// ==========================================
 
 function renderListing(listing, isFollowing = false) {
   document.getElementById('loadingBox').style.display = 'none';
 
-  // Show success banner if newly posted
   if (isNewListing) {
     const alertBox = document.getElementById('alertBox');
     alertBox.innerHTML = `
@@ -110,11 +121,10 @@ function renderListing(listing, isFollowing = false) {
     poor:'Poor'
   };
 
-  // Images array
+ 
   const images = listing.images && listing.images.length > 0 ? listing.images : [listing.primary_image];
   const imagesWithFallback = images.filter(img => img); // Remove null/undefined
 
-  // Main image HTML
   let mainImageHtml = '';
   if (imagesWithFallback.length > 0) {
     mainImageHtml = `<img src="${imagesWithFallback[0]}" alt="${listing.title}" id="mainImage">`;
@@ -122,7 +132,7 @@ function renderListing(listing, isFollowing = false) {
     mainImageHtml = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 80px;">${catEmoji[listing.category] || '📦'}</div>`;
   }
 
-  // Thumbnails HTML
+
   let thumbnailsHtml = '';
   if (imagesWithFallback.length > 1) {
     thumbnailsHtml = imagesWithFallback.map((img, idx) => `
@@ -223,25 +233,20 @@ function renderListing(listing, isFollowing = false) {
   document.getElementById('listingBox').style.display = 'block';
 }
 
-// ==========================================
-// IMAGE GALLERY
-// ==========================================
+
 
 function switchImage(imageSrc, thumbnailEl) {
-  // Update main image
+
   const mainImg = document.getElementById('mainImage');
   if (mainImg) {
     mainImg.src = imageSrc;
   }
 
-  // Update active thumbnail
+
   document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
   thumbnailEl.classList.add('active');
 }
 
-// ==========================================
-// ACTIONS
-// ==========================================
 
 function contactSeller(sellerName) {
   alert(`💬 Chat with ${sellerName} feature coming soon!`);
@@ -335,10 +340,6 @@ async function deleteListing(listingId) {
   }
 }
 
-// ==========================================
-// UTILITY FUNCTIONS
-// ==========================================
-
 function showError(message) {
   document.getElementById('loadingBox').style.display = 'none';
   document.getElementById('errorBox').textContent = '⚠️ ' + message;
@@ -363,9 +364,6 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-// ==========================================
-// SELLER PROFILE MODAL
-// ==========================================
 
 async function showSellerProfile(sellerId) {
   try {
@@ -461,7 +459,7 @@ function closeSellerModal() {
   document.body.style.overflow = 'auto';
 }
 
-// Close modal when clicking outside of it
+
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('sellerModal');
   if (modal) {
