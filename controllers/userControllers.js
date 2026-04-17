@@ -72,6 +72,42 @@ const UserController = {
     });
   },
 
+  // GET /api/users/:id/followed-sellers
+  // Get all followed sellers for the user
+  getFollowedSellers: (req, res) => {
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ success: false, message: 'Invalid user ID.' });
+
+    UserModel.getFollowedSellers(userId, (err, sellers) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error.', error: err.message });
+
+      return res.status(200).json({
+        success: true,
+        count: sellers.length,
+        data: sellers,
+      });
+    });
+  },
+
+  // GET /api/users/:id/followed-sellers/listings
+  // Get all listings from followed sellers
+  getFollowedSellersListings: (req, res) => {
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) return res.status(400).json({ success: false, message: 'Invalid user ID.' });
+
+    const limit = parseInt(req.query.limit) || 12;
+
+    UserModel.getFollowedSellersListings(userId, limit, (err, listings) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error.', error: err.message });
+
+      return res.status(200).json({
+        success: true,
+        count: listings.length,
+        data: listings,
+      });
+    });
+  },
+
 };
 
 module.exports = UserController;

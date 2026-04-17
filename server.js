@@ -22,6 +22,7 @@ const paymentRoutes      = require('./routes/paymentRoutes');
 const reportRoutes       = require('./routes/reportRoutes');
 const wishlistRoutes     = require('./routes/wishlistRoutes');
 const ratingRoutes       = require('./routes/ratingRoutes');      // ← rating REST
+const favoriteSellersRoutes = require('./routes/favoriteSellersRoutes'); // ← favorite sellers
 // ── Ensure upload directory exists ────────────────────────────
 const uploadDir = path.join(__dirname, 'public', 'uploads', 'listings');
 if (!fs.existsSync(uploadDir)) {
@@ -41,15 +42,16 @@ app.use((req, res, next) => {
 });
 
 // ── API Routes ────────────────────────────────────────────────
-app.use('/',                  userRoutes);
-app.use('/',                  productRoutes);
-app.use('/api/listings',      listingRoutes);
-app.use('/api/chat',          chatRoutes);           // ← chat REST endpoints
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/payments',      paymentRoutes);
-app.use('/api/reports',       reportRoutes);
-app.use('/api/wishlist',      wishlistRoutes);
-app.use('/api/ratings',       ratingRoutes);
+app.use('/',                     userRoutes);
+app.use('/',                     productRoutes);
+app.use('/api/listings',         listingRoutes);
+app.use('/api/chat',             chatRoutes);           // ← chat REST endpoints
+app.use('/api/notifications',    notificationRoutes);
+app.use('/api/payments',         paymentRoutes);
+app.use('/api/reports',          reportRoutes);
+app.use('/api/wishlist',         wishlistRoutes);
+app.use('/api/ratings',          ratingRoutes);
+app.use('/api/favorite-sellers', favoriteSellersRoutes); // ← favorite sellers
 
 // ── Page Routes ───────────────────────────────────────────────
 app.get('/', (req, res) => {

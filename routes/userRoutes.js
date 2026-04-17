@@ -85,7 +85,8 @@ router.post('/api/auth/login', (req, res) => {
 
 router.get('/user', (req, res) => res.sendFile(path.join(__dirname, '../views/userProfile.html')));
 router.get('/api/users/:id', UserController.getProfile);
-
+router.get('/api/users/:id/followed-sellers', UserController.getFollowedSellers);
+router.get('/api/users/:id/followed-sellers/listings', UserController.getFollowedSellersListings);
 
 router.put('/api/users/:id', authenticate, UserController.updateProfile);
 

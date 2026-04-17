@@ -68,6 +68,12 @@ async function loadProfile() {
     // Load seller ratings (reviews)
     loadSellerRatings(userProfile.user_id);
     
+    // Load followed sellers
+    loadFollowedSellers();
+    
+    // Load listings from followed sellers
+    loadFollowedSellersListings();
+    
     // Pre-fill edit form with current data
     document.getElementById('editName').value = userProfile.full_name || '';
     document.getElementById('editDepartment').value = userProfile.department || '';
@@ -325,8 +331,148 @@ function renderReviews(reviews) {
 }
 
 // ==========================================
-// EDIT PROFILE FORM
+// LOAD & DISPLAY FOLLOWED SELLERS
 // ==========================================
+
+async function loadFollowedSellers() {
+  try {
+    const res = await fetch(`/api/users/${user.user_id}/followed-sellers`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    if (!res.ok) {
+      console.error('Failed to load followed sellers');
+      renderFollowedSellers([]);
+      return;
+    }
+
+    const data = await res.json();
+    const sellers = data.data || [];
+    renderFollowedSellers(sellers);
+
+  } catch (error) {
+    console.error('Error loading followed sellers:', error);
+    renderFollowedSellers([]);
+  }
+}
+
+function renderFollowedSellers(sellers) {
+  const grid = document.getElementById('followedSellersGrid');
+
+  if (!sellers.length) {
+    grid.innerHTML = `
+      <div class="empty" style="grid-column: 1 / -1;">
+        <div class="icon">⭐</div>
+        <p>You haven't followed any sellers yet.</p>
+        <p><a href="/" style="color: #1a1a2e; text-decoration: underline; font-weight: bold;">Browse and follow your favorite sellers →</a></p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.className = 'grid';
+  grid.innerHTML = sellers.map(seller => `
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div class="card-img" style="height: 120px; justify-content: center; align-items: center; flex-direction: column;">
+          ${seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover;">` : '<span style="font-size: 40px;">👤</span>'}
+        </div>
+        <div class="card-body">
+          <div class="card-title" style="margin-bottom: 8px;">
+            ${seller.full_name}
+            ${seller.is_verified ? '<span style="color: #4caf50; font-size: 12px;">✅</span>' : ''}
+          </div>
+          <div style="font-size: 12px; color: #666; margin-bottom: 6px;">${seller.department || 'BRACU Student'}</div>
+          <div style="font-size: 12px; color: #ffc107;">
+            ${seller.avg_rating ? '⭐'.repeat(Math.round(seller.avg_rating)) + ` (${seller.total_reviews} reviews)` : 'No ratings'}
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" style="width: 90%; margin: auto auto 12px; padding: 8px; font-size: 12px; display: block;" onclick="unfollowSeller(${seller.user_id})">⭐ Unfollow</button>
+    </div>
+  `).join('');
+}
+
+async function unfollowSeller(sellerId) {
+  try {
+    const res = await fetch(`/api/favorite-sellers/${sellerId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showAlert('Unfollowed seller ⭐', 'success');
+      loadFollowedSellers(); // Reload
+      loadFollowedSellersListings(); // Also reload listings
+    } else {
+      showAlert(data.message || 'Failed to unfollow', 'error');
+    }
+  } catch (error) {
+    console.error('Error unfollowing seller:', error);
+    showAlert('Could not unfollow seller', 'error');
+  }
+}
+
+// ==========================================
+// LOAD & DISPLAY FOLLOWED SELLERS' LISTINGS
+// ==========================================
+
+async function loadFollowedSellersListings() {
+  try {
+    const res = await fetch(`/api/users/${user.user_id}/followed-sellers/listings?limit=12`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    if (!res.ok) {
+      console.error('Failed to load followed sellers listings');
+      renderFollowedSellersListings([]);
+      return;
+    }
+
+    const data = await res.json();
+    const listings = data.data || [];
+    renderFollowedSellersListings(listings);
+
+  } catch (error) {
+    console.error('Error loading followed sellers listings:', error);
+    renderFollowedSellersListings([]);
+  }
+}
+
+function renderFollowedSellersListings(listings) {
+  const grid = document.getElementById('followedSellersListingsGrid');
+
+  if (!listings.length) {
+    grid.innerHTML = `
+      <div class="empty" style="grid-column: 1 / -1;">
+        <div class="icon">🛍️</div>
+        <p>No new listings from followed sellers.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.className = 'grid';
+  grid.innerHTML = listings.map(listing => `
+    <a class="card" href="/listings?id=${listing.listing_id}">
+      <div class="card-img">
+        ${listing.primary_image ? `<img src="${listing.primary_image}" alt="${listing.title}" loading="lazy">` : (catEmoji[listing.category] || '📦')}
+      </div>
+      <div class="card-body">
+        <div class="card-category">${listing.category}</div>
+        <div class="card-title">${listing.title}</div>
+        <div class="card-price">৳ ${Number(listing.price).toLocaleString()}</div>
+        <div style="font-size: 11px; color: #999;">
+          <strong>By:</strong> ${listing.seller_name || 'Unknown'}
+        </div>
+      </div>
+    </a>
+  `).join('');
+}
+
+
 
 function toggleEditForm() {
   const form = document.getElementById('editForm');

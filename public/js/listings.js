@@ -49,7 +49,15 @@ async function loadListing(id) {
       return;
     }
 
-    renderListing(data.data);
+    const listing = data.data;
+    
+    // Check if user is following this seller (if not their own listing)
+    let isFollowing = false;
+    if (user && user.user_id !== listing.seller_id) {
+      isFollowing = await checkFollowStatus(listing.seller_id);
+    }
+
+    renderListing(listing, isFollowing);
 
   } catch (error) {
     console.error('Error loading listing:', error);
@@ -57,11 +65,25 @@ async function loadListing(id) {
   }
 }
 
+// Check if user is following a seller
+async function checkFollowStatus(sellerId) {
+  try {
+    const res = await fetch(`/api/favorite-sellers/check/${sellerId}`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    return data.success ? data.is_favorite : false;
+  } catch (error) {
+    console.error('Error checking follow status:', error);
+    return false;
+  }
+}
+
 // ==========================================
 // RENDER LISTING
 // ==========================================
 
-function renderListing(listing) {
+function renderListing(listing, isFollowing = false) {
   document.getElementById('loadingBox').style.display = 'none';
 
   // Show success banner if newly posted
@@ -185,6 +207,9 @@ function renderListing(listing) {
             ` : `
               <button class="btn btn-primary" onclick="contactSeller('${seller}')">💬 Contact Seller</button>
               <button class="btn btn-secondary" onclick="addToWishlist(${listing.listing_id})">❤️ Save to Wishlist</button>
+              <button class="btn btn-secondary" id="followBtn" onclick="toggleFollowSeller(${listing.seller_id}, '${seller}')">
+                ${isFollowing ? '⭐ Following' : '☆ Follow Seller'}
+              </button>
             `}
 
             <div class="posted-date">Seller member since ${new Date(listing.created_at).getFullYear()}</div>
@@ -220,6 +245,35 @@ function switchImage(imageSrc, thumbnailEl) {
 
 function contactSeller(sellerName) {
   alert(`💬 Chat with ${sellerName} feature coming soon!`);
+}
+
+async function toggleFollowSeller(sellerId, sellerName) {
+  try {
+    const btn = document.getElementById('followBtn');
+    const isFollowing = btn.textContent.includes('Following');
+
+    const res = await fetch(`/api/favorite-sellers/${sellerId}`, {
+      method: isFollowing ? 'DELETE' : 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      if (isFollowing) {
+        btn.textContent = '☆ Follow Seller';
+        alert(`✅ Unfollowed ${sellerName}`);
+      } else {
+        btn.textContent = '⭐ Following';
+        alert(`✅ Following ${sellerName}! You'll see their latest listings in your profile.`);
+      }
+    } else {
+      alert('❌ ' + (data.message || 'Failed to update follow status'));
+    }
+  } catch (error) {
+    console.error('Error toggling follow status:', error);
+    alert('Could not update follow status. Please try again.');
+  }
 }
 
 async function addToWishlist(listingId) {

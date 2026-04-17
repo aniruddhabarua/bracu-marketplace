@@ -233,6 +233,22 @@ CREATE TABLE IF NOT EXISTS reviews (
   INDEX idx_reviews_seller (seller_id)
 ) ENGINE=InnoDB;
 
+-- ------------------------------------------------------------
+-- 12. FAVORITE SELLERS
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS favorite_sellers (
+  favorite_id  INT      NOT NULL AUTO_INCREMENT,
+  user_id      INT      NOT NULL,
+  seller_id    INT      NOT NULL,
+  followed_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (favorite_id),
+  UNIQUE KEY uq_favorite_seller (user_id, seller_id),
+  FOREIGN KEY (user_id)   REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (seller_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  INDEX idx_favorite_user (user_id),
+  INDEX idx_favorite_seller (seller_id)
+) ENGINE=InnoDB;
+
 -- ============================================================
 --  SAMPLE DATA — safe to delete before production
 --  All passwords are: admin123
