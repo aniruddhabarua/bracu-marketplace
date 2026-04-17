@@ -3,124 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BRACU Marketplace</title>
+  <title>BRACU Marketplace — buy & sell within the community</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+      background: #faf9f7;
+      color: #1a1a1a;
+      line-height: 1.5;
     }
 
-    
-    nav {
-      background: #1a1a2e;
-      padding: 12px 24px;
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* Navigation - Minimal */
+    .nav {
+      padding: 28px 0;
+      border-bottom: 1px solid #e8e5e0;
+    }
+
+    .nav-inner {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
-    .nav-logo { font-size: 18px; font-weight: bold; color: #fff; text-decoration: none; }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .nav-user  { font-size: 13px; color: #ccc; }
-    .nav-profile {
-      font-size: 13px; color: #aaa; text-decoration: none;
-      background: none; border: 1px solid #444; padding: 5px 12px;
-      border-radius: 5px; cursor: pointer; font-family: Arial, sans-serif;
-      display: inline-block;
-    }
-    .nav-profile:hover { color: #fff; border-color: #888; }
-    .nav-logout {
-      font-size: 13px; color: #aaa; background: none;
-      border: 1px solid #444; padding: 5px 12px; border-radius: 5px;
-      cursor: pointer; font-family: Arial, sans-serif;
-    }
-    .nav-logout:hover { color: #fff; border-color: #888; }
 
-  
-    .search-section {
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      padding: 16px 24px;
+    .logo {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: #1a1a1a;
     }
+
+    .logo span {
+      font-weight: 300;
+      color: #c9a03d;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      color: #5a5a5a;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: #1a1a1a;
+    }
+
+    .nav-user {
+      font-size: 14px;
+      color: #5a5a5a;
+      margin-right: 8px;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid #e0ddd8;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      color: #5a5a5a;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      border-color: #1a1a1a;
+      color: #1a1a1a;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0 64px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 56px;
+      font-weight: 450;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+      line-height: 1.2;
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+
+    .hero h1 span {
+      font-weight: 600;
+      background: linear-gradient(135deg, #1a1a1a 0%, #c9a03d 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #6b6b6b;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Search Section - Minimal */
+    .search-section {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 28px 32px;
+      margin-bottom: 48px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+      border: 1px solid #efede8;
+    }
+
     .search-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-    .search-top h2 { font-size: 16px; color: #1a1a2e; }
+
+    .search-top h2 {
+      font-size: 18px;
+      font-weight: 450;
+      color: #1a1a1a;
+    }
 
     .btn-sell {
-      background: #1a1a2e;
+      background: #1a1a1a;
       color: #fff;
       border: none;
-      padding: 9px 18px;
-      border-radius: 6px;
+      padding: 10px 24px;
+      border-radius: 40px;
       font-size: 13px;
-      font-weight: bold;
+      font-weight: 500;
       cursor: pointer;
       text-decoration: none;
-      font-family: Arial, sans-serif;
-      display: inline-block;
+      font-family: inherit;
+      transition: background 0.2s;
     }
-    .btn-sell:hover { background: #2a2a4e; }
+
+    .btn-sell:hover {
+      background: #333;
+    }
 
     .search-fields {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
+      gap: 12px;
     }
+
     .search-fields input,
     .search-fields select {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
+      padding: 10px 16px;
+      border: 1px solid #e8e5e0;
+      border-radius: 40px;
       font-size: 13px;
-      font-family: Arial, sans-serif;
+      font-family: inherit;
+      background: #fff;
       outline: none;
+      transition: border-color 0.2s;
     }
+
     .search-fields input:focus,
-    .search-fields select:focus { border-color: #1a1a2e; }
-    #keyword { flex: 1; min-width: 180px; }
+    .search-fields select:focus {
+      border-color: #c9a03d;
+    }
+
+    #keyword {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .btn-search, .btn-reset {
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
 
     .btn-search {
-      padding: 8px 18px;
-      background: #1a1a2e; color: #fff;
-      border: none; border-radius: 6px;
-      font-size: 13px; font-weight: bold;
-      cursor: pointer; font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
     }
-    .btn-search:hover { background: #2a2a4e; }
+
+    .btn-search:hover {
+      background: #333;
+    }
 
     .btn-reset {
-      padding: 8px 14px;
-      background: #eee; color: #555;
-      border: none; border-radius: 6px;
-      font-size: 13px; cursor: pointer;
-      font-family: Arial, sans-serif;
+      background: transparent;
+      border: 1px solid #e0ddd8;
+      color: #5a5a5a;
     }
-    .btn-reset:hover { background: #ddd; }
 
-  
+    .btn-reset:hover {
+      border-color: #1a1a1a;
+      color: #1a1a1a;
+    }
+
+    /* Recently Viewed Section - at bottom */
     .recent-section {
-      margin-bottom: 32px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid #e0e0e0;
+      margin-top: 64px;
+      padding-top: 48px;
+      border-top: 1px solid #efede8;
     }
 
     .recent-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
+      align-items: baseline;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
     .recent-header h3 {
-      font-size: 18px;
-      color: #1a1a2e;
+      font-size: 16px;
+      font-weight: 450;
+      letter-spacing: 0.02em;
+      color: #8a8a8a;
+      text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -129,48 +259,47 @@
     .clear-recent-btn {
       background: none;
       border: none;
-      color: #999;
       font-size: 12px;
+      color: #aaa;
       cursor: pointer;
-      font-family: Arial, sans-serif;
+      font-family: inherit;
+      transition: color 0.2s;
     }
 
     .clear-recent-btn:hover {
-      color: #c00;
+      color: #c9a03d;
     }
 
     .recent-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
     }
 
     .recent-card {
       background: #fff;
-      border: 1px solid #e8e8e8;
-      border-radius: 8px;
+      border-radius: 16px;
       overflow: hidden;
-      cursor: pointer;
-      transition: all 0.15s;
       text-decoration: none;
       color: inherit;
-      display: block;
+      transition: all 0.25s ease;
+      border: 1px solid #efede8;
     }
 
     .recent-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+      border-color: #e0ddd8;
     }
 
     .recent-card-img {
       width: 100%;
       height: 120px;
-      background: #f5f5f5;
+      background: #f5f3ef;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
+      font-size: 36px;
       overflow: hidden;
     }
 
@@ -181,13 +310,13 @@
     }
 
     .recent-card-body {
-      padding: 10px;
+      padding: 12px;
     }
 
     .recent-card-title {
       font-size: 13px;
-      font-weight: 600;
-      color: #333;
+      font-weight: 500;
+      color: #1a1a1a;
       margin-bottom: 4px;
       white-space: nowrap;
       overflow: hidden;
@@ -195,148 +324,246 @@
     }
 
     .recent-card-price {
-      font-size: 13px;
-      font-weight: bold;
-      color: #1a1a2e;
+      font-size: 14px;
+      font-weight: 500;
+      color: #c9a03d;
     }
 
     .recent-card-category {
       font-size: 10px;
-      color: #999;
-      margin-top: 4px;
-    }
-
-    .recent-empty {
-      text-align: center;
-      padding: 30px;
-      background: #f9f9f9;
-      border-radius: 8px;
       color: #aaa;
-      font-size: 13px;
+      margin-top: 4px;
+      letter-spacing: 0.02em;
     }
 
-    .content { max-width: 1100px; margin: 0 auto; padding: 24px; }
-
-    .result-count { font-size: 13px; color: #888; margin-bottom: 16px; }
+    /* Listings Grid */
+    .result-count {
+      font-size: 13px;
+      color: #8a8a8a;
+      margin-bottom: 24px;
+      letter-spacing: 0.02em;
+    }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
     }
 
     .card {
       background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
+      border-radius: 20px;
       overflow: hidden;
-      cursor: pointer;
-      transition: box-shadow 0.15s;
       text-decoration: none;
       color: inherit;
-      display: block;
+      transition: all 0.3s ease;
+      border: 1px solid #efede8;
     }
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+      border-color: #e0ddd8;
+    }
 
     .card-img {
-      width: 100%; height: 150px;
-      background: #f5f5f5;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 36px; overflow: hidden;
+      width: 100%;
+      height: 180px;
+      background: #f5f3ef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      overflow: hidden;
     }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
 
-    .card-body { padding: 12px 14px; }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
     .card-category {
-      font-size: 11px; color: #1a1a2e; font-weight: bold;
-      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 6px;
     }
-    .card-title {
-      font-size: 14px; font-weight: bold; color: #222;
-      margin-bottom: 5px; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
-    }
-    .card-price { font-size: 15px; font-weight: bold; color: #1a1a2e; margin-bottom: 8px; }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; }
-    .badge {
-      font-size: 11px; background: #f0f0f0; color: #555;
-      padding: 2px 8px; border-radius: 20px;
-    }
-    .card-seller { font-size: 11px; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px; }
 
-    
-    .empty { text-align: center; padding: 60px 20px; color: #aaa; }
-    .empty .icon { font-size: 40px; margin-bottom: 12px; }
-    .empty p { font-size: 14px; }
-    .loading { text-align: center; padding: 60px; color: #aaa; font-size: 14px; }
+    .card-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-price {
+      font-size: 18px;
+      font-weight: 500;
+      color: #c9a03d;
+      margin-bottom: 8px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 11px;
+      background: #f5f3ef;
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: #5a5a5a;
+    }
+
+    .card-seller {
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 80px 20px;
+      color: #aaa;
+    }
+
+    .empty .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 80px;
+      color: #aaa;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 80px;
+      padding: 40px 0 60px;
+      border-top: 1px solid #efede8;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #aaa;
+      letter-spacing: 0.02em;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 20px;
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .grid {
+        gap: 16px;
+      }
+    }
   </style>
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="/">BRACU Marketplace</a>
-  <div class="nav-right">
-    <span class="nav-user" id="navUser"></span>
-    <a class="nav-profile" href="/profile">👤 Profile</a>
-    <button class="nav-logout" onclick="logout()">Sign Out</button>
-  </div>
-</nav>
+<div class="container">
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">BRACU<span>Marketplace</span></a>
+      <div class="nav-links">
+        <span class="nav-user" id="navUser"></span>
+        <a href="/profile" class="nav-link">Profile</a>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+  </nav>
 
-<div class="search-section">
-  <div class="search-top">
-    <h2>Browse Listings</h2>
-    <a class="btn-sell" href="/sell">+ Sell an Item</a>
+  <!-- Hero -->
+  <div class="hero">
+    <h1>buy <span>&</span> sell<br>within the community</h1>
+    <p>BRACU Marketplace connects students, faculty, and alumni.</p>
   </div>
-  <div class="search-fields">
-    <input type="text" id="keyword" placeholder="Search by keyword…">
-    <select id="category">
-      <option value="">All Categories</option>
-      <option>Books &amp; Notes</option>
-      <option>Electronics</option>
-      <option>Clothing &amp; Accessories</option>
-      <option>Stationery &amp; Supplies</option>
-      <option>Sports &amp; Fitness</option>
-      <option>Food &amp; Beverages</option>
-      <option>Furniture &amp; Decor</option>
-      <option>Services</option>
-      <option>Other</option>
-    </select>
-    <select id="condition">
-      <option value="">Any Condition</option>
-      <option value="new">New</option>
-      <option value="like_new">Like New</option>
-      <option value="good">Good</option>
-      <option value="fair">Fair</option>
-      <option value="poor">Poor</option>
-    </select>
-    <input type="number" id="minPrice" placeholder="Min ৳" style="width:90px">
-    <input type="number" id="maxPrice" placeholder="Max ৳" style="width:90px">
-    <button class="btn-search" onclick="search()">Search</button>
-    <button class="btn-reset"  onclick="reset()">Reset</button>
-  </div>
-</div>
 
-<div class="content">
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-top">
+      <h2>Browse listings</h2>
+      <a class="btn-sell" href="/sell">+ Sell an item</a>
+    </div>
+    <div class="search-fields">
+      <input type="text" id="keyword" placeholder="Search by keyword…">
+      <select id="category">
+        <option value="">All Categories</option>
+        <option>Books &amp; Notes</option>
+        <option>Electronics</option>
+        <option>Clothing &amp; Accessories</option>
+        <option>Stationery &amp; Supplies</option>
+        <option>Sports &amp; Fitness</option>
+        <option>Food &amp; Beverages</option>
+        <option>Furniture &amp; Decor</option>
+        <option>Services</option>
+        <option>Other</option>
+      </select>
+      <select id="condition">
+        <option value="">Any Condition</option>
+        <option value="new">New</option>
+        <option value="like_new">Like New</option>
+        <option value="good">Good</option>
+        <option value="fair">Fair</option>
+        <option value="poor">Poor</option>
+      </select>
+      <input type="number" id="minPrice" placeholder="Min ৳" style="width:90px">
+      <input type="number" id="maxPrice" placeholder="Max ৳" style="width:90px">
+      <button class="btn-search" onclick="search()">Search</button>
+      <button class="btn-reset" onclick="reset()">Reset</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <p class="result-count" id="resultCount"></p>
+  <div id="grid"></div>
+
+  <!-- Recently Viewed Section (at the bottom) -->
   <div id="recentSection" class="recent-section" style="display: none;">
     <div class="recent-header">
-      <h3>🕐 Recently Viewed</h3>
+      <h3>🕐 Recently viewed</h3>
       <button class="clear-recent-btn" onclick="clearRecentlyViewed()">Clear all</button>
     </div>
     <div id="recentGrid" class="recent-grid"></div>
   </div>
 
-  <p class="result-count" id="resultCount"></p>
-  <div id="grid"></div>
+  <!-- Footer -->
+  <div class="footer">
+    <p>BRACU Marketplace — a closed community marketplace</p>
+  </div>
 </div>
 
 <script>
-  
+  // Auth check
   const token = localStorage.getItem('token');
-  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+
   if (!token || !user) {
     window.location.href = '/login';
   } else {
-    document.getElementById('navUser').textContent = 'Hi, ' + user.full_name;
+    document.getElementById('navUser').textContent = user.full_name;
   }
 
   function logout() {
@@ -345,20 +572,20 @@
     window.location.href = '/login';
   }
 
-  
+  // Load listings
   async function loadListings(params) {
     document.getElementById('grid').innerHTML = '<div class="loading">Loading listings…</div>';
     document.getElementById('resultCount').textContent = '';
 
     const qs = new URLSearchParams();
-    if (params.keyword)   qs.set('keyword',       params.keyword);
-    if (params.category)  qs.set('category',       params.category);
+    if (params.keyword) qs.set('keyword', params.keyword);
+    if (params.category) qs.set('category', params.category);
     if (params.condition) qs.set('condition_type', params.condition);
-    if (params.minPrice)  qs.set('minPrice',        params.minPrice);
-    if (params.maxPrice)  qs.set('maxPrice',        params.maxPrice);
+    if (params.minPrice) qs.set('minPrice', params.minPrice);
+    if (params.maxPrice) qs.set('maxPrice', params.maxPrice);
 
     try {
-      const res  = await fetch('/api/listings' + (qs.toString() ? '?' + qs : ''));
+      const res = await fetch('/api/listings' + (qs.toString() ? '?' + qs : ''));
       const data = await res.json();
       if (!data.success) return showError('Failed to load listings.');
       render(data.data || []);
@@ -367,38 +594,39 @@
     }
   }
 
-  const condLabel = { new:'New', like_new:'Like New', good:'Good', fair:'Fair', poor:'Poor' };
-  const catEmoji  = {
-    'Books & Notes':'📚','Electronics':'💻','Clothing & Accessories':'👕',
-    'Stationery & Supplies':'✏️','Sports & Fitness':'⚽','Food & Beverages':'🍜',
-    'Furniture & Decor':'🪑','Services':'🛠️','Other':'📦',
+  const condLabel = { new: 'New', like_new: 'Like New', good: 'Good', fair: 'Fair', poor: 'Poor' };
+  const catEmoji = {
+    'Books & Notes': '📚', 'Electronics': '💻', 'Clothing & Accessories': '👕',
+    'Stationery & Supplies': '✏️', 'Sports & Fitness': '⚽', 'Food & Beverages': '🍜',
+    'Furniture & Decor': '🪑', 'Services': '🛠️', 'Other': '📦',
   };
 
   function render(listings) {
-    const grid  = document.getElementById('grid');
+    const grid = document.getElementById('grid');
     const count = document.getElementById('resultCount');
-    count.textContent = listings.length + ' listing' + (listings.length !== 1 ? 's' : '') + ' found';
+    count.textContent = listings.length + ' listing' + (listings.length !== 1 ? 's' : '');
 
     if (!listings.length) {
-      grid.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>No listings found. Try a different search or <a href="/sell">post one</a>.</p></div>`;
+      grid.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>No listings found. Try a different search or <a href="/sell" style="color:#c9a03d;">post one</a>.</p></div>`;
       return;
     }
 
     grid.innerHTML = listings.map(l => `
       <a class="card" href="/listings?id=${l.listing_id}">
         <div class="card-img">
-          ${l.primary_image ? `<img src="${l.primary_image}" alt="${l.title}" loading="lazy">` : (catEmoji[l.category]||'📦')}
+          ${l.primary_image ? `<img src="${l.primary_image}" alt="${l.title}" loading="lazy">` : (catEmoji[l.category] || '📦')}
         </div>
         <div class="card-body">
           <div class="card-category">${l.category}</div>
-          <div class="card-title">${l.title}</div>
+          <div class="card-title">${escapeHtml(l.title)}</div>
           <div class="card-price">৳ ${Number(l.price).toLocaleString()}</div>
           <div class="card-footer">
-            <span class="badge">${condLabel[l.condition_type]||l.condition_type}</span>
-            <span class="card-seller">${l.seller_name||''}</span>
+            <span class="badge">${condLabel[l.condition_type] || l.condition_type}</span>
+            <span class="card-seller">${l.seller_name || ''}</span>
           </div>
         </div>
-      </a>`).join('');
+      </a>
+    `).join('');
   }
 
   function showError(msg) {
@@ -407,17 +635,17 @@
 
   function search() {
     loadListings({
-      keyword:   document.getElementById('keyword').value.trim(),
-      category:  document.getElementById('category').value,
+      keyword: document.getElementById('keyword').value.trim(),
+      category: document.getElementById('category').value,
       condition: document.getElementById('condition').value,
-      minPrice:  document.getElementById('minPrice').value,
-      maxPrice:  document.getElementById('maxPrice').value,
+      minPrice: document.getElementById('minPrice').value,
+      maxPrice: document.getElementById('maxPrice').value,
     });
   }
 
   function reset() {
-    ['keyword','minPrice','maxPrice'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('category').value  = '';
+    ['keyword', 'minPrice', 'maxPrice'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('category').value = '';
     document.getElementById('condition').value = '';
     loadListings({});
   }
@@ -442,7 +670,6 @@
 
       if (data.success && data.data && data.data.length > 0) {
         recentSection.style.display = 'block';
-        
         recentGrid.innerHTML = data.data.map(item => `
           <a class="recent-card" href="/listings?id=${item.listing_id}">
             <div class="recent-card-img">
@@ -459,22 +686,15 @@
         recentSection.style.display = 'none';
       }
     } catch (err) {
-      console.error('Failed to load recently viewed:', err);
       recentSection.style.display = 'none';
     }
   }
 
   function getCategoryEmoji(category) {
     const emojis = {
-      'Books & Notes': '📚',
-      'Electronics': '💻',
-      'Clothing & Accessories': '👕',
-      'Stationery & Supplies': '✏️',
-      'Sports & Fitness': '⚽',
-      'Food & Beverages': '🍜',
-      'Furniture & Decor': '🪑',
-      'Services': '🛠️',
-      'Other': '📦'
+      'Books & Notes': '📚', 'Electronics': '💻', 'Clothing & Accessories': '👕',
+      'Stationery & Supplies': '✏️', 'Sports & Fitness': '⚽', 'Food & Beverages': '🍜',
+      'Furniture & Decor': '🪑', 'Services': '🛠️', 'Other': '📦'
     };
     return emojis[category] || '📦';
   }
@@ -482,7 +702,6 @@
   async function clearRecentlyViewed() {
     const token = localStorage.getItem('token');
     if (!token) return;
-
     if (!confirm('Clear your recently viewed history?')) return;
 
     try {
@@ -491,30 +710,21 @@
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      
       if (data.success) {
         document.getElementById('recentSection').style.display = 'none';
-        alert('Recently viewed cleared!');
       }
     } catch (err) {
       console.error('Failed to clear:', err);
-      alert('Could not clear recently viewed');
     }
   }
 
   function escapeHtml(text) {
     if (!text) return '';
-    const map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    };
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
     return text.replace(/[&<>"']/g, m => map[m]);
   }
 
-
+  // Initialize
   loadListings({});
   loadRecentlyViewed();
 </script>
