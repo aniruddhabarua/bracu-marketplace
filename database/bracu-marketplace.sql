@@ -11,6 +11,12 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+CREATE DATABASE IF NOT EXISTS bracu_marketplace
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE bracu_marketplace;
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -231,6 +237,8 @@ CREATE TABLE `users` (
   `department` varchar(100) DEFAULT NULL,
   `profile_picture` varchar(255) DEFAULT NULL,
   `bio` text DEFAULT NULL,
+  `is_verified` tinyint(1) NOT NULL DEFAULT 0,
+  `member_since` datetime NOT NULL DEFAULT current_timestamp(),
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -247,6 +255,19 @@ INSERT INTO `users` (`user_id`, `full_name`, `email`, `password_hash`, `role`, `
 (4, 'Carol Faculty', 'carol@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'faculty', 'Mathematics', NULL, NULL, 1, '2026-03-28 19:47:46', '2026-03-28 19:47:46'),
 (5, 'mango', 'mango@g.bracu.ac.bd', '$2b$10$T38Pb/w4blCnVe9NvOAeRuvybNpx9XGd22mz7cSQq27yO1sNagnQS', 'student', 'CSE', NULL, NULL, 1, '2026-03-28 20:55:18', '2026-03-28 20:55:18'),
 (7, 'mango', 'mango@bracu.ac.bd', '$2b$10$mFEaNzwAXIFR.qJepe1lmOnp.QFTT2S9Gz1JJHUDmwne9Ue6tMS2i', 'student', 'CSE', NULL, NULL, 1, '2026-04-09 13:20:29', '2026-04-09 13:20:29');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `favorite_sellers`
+--
+
+CREATE TABLE `favorite_sellers` (
+  `favorite_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `seller_id` int(11) NOT NULL,
+  `followed_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -274,6 +295,15 @@ ALTER TABLE `conversations`
   ADD KEY `listing_id` (`listing_id`),
   ADD KEY `idx_conv_buyer` (`buyer_id`),
   ADD KEY `idx_conv_seller` (`seller_id`);
+
+--
+-- Indexes for table `favorite_sellers`
+--
+ALTER TABLE `favorite_sellers`
+  ADD PRIMARY KEY (`favorite_id`),
+  ADD UNIQUE KEY `uq_favorite_sellers` (`user_id`,`seller_id`),
+  ADD KEY `idx_favorite_sellers_user` (`user_id`),
+  ADD KEY `idx_favorite_sellers_seller` (`seller_id`);
 
 --
 -- Indexes for table `listings`
@@ -378,6 +408,12 @@ ALTER TABLE `conversations`
   MODIFY `conversation_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `favorite_sellers`
+--
+ALTER TABLE `favorite_sellers`
+  MODIFY `favorite_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `listings`
 --
 ALTER TABLE `listings`
@@ -454,6 +490,13 @@ ALTER TABLE `conversations`
   ADD CONSTRAINT `conversations_ibfk_1` FOREIGN KEY (`buyer_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `conversations_ibfk_2` FOREIGN KEY (`seller_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `conversations_ibfk_3` FOREIGN KEY (`listing_id`) REFERENCES `listings` (`listing_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `favorite_sellers`
+--
+ALTER TABLE `favorite_sellers`
+  ADD CONSTRAINT `favorite_sellers_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `favorite_sellers_ibfk_2` FOREIGN KEY (`seller_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `listings`

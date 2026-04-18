@@ -6,4 +6,6 @@ const { authenticate } = require('../middleware/auth');
 router.use(authenticate);
 router.get('/', RecentlyViewedController.getRecentlyViewed);
 router.post('/', RecentlyViewedController.trackView);
+router.delete('/', RecentlyViewedController.clearRecentlyViewed);
+
 module.exports = router;

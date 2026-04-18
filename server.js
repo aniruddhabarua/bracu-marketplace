@@ -11,14 +11,18 @@ const server = http.createServer(app);
 const io     = new Server(server, { cors: { origin: '*' } });
 
 // ── Route imports ─────────────────────────────────────────────
-const userRoutes         = require('./routes/userRoutes');
-const productRoutes      = require('./routes/productRoutes');
-const listingRoutes      = require('./routes/listingRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
-const paymentRoutes      = require('./routes/paymentRoutes');
-const transactionRoutes  = require('./routes/transactionRoutes');
-const reportRoutes       = require('./routes/reportRoutes');
-const wishlistRoutes     = require('./routes/wishlistRoutes');
+const userRoutes           = require('./routes/userRoutes');
+const productRoutes        = require('./routes/productRoutes');
+const listingRoutes        = require('./routes/listingRoutes');
+const notificationRoutes   = require('./routes/notificationRoutes');
+const paymentRoutes        = require('./routes/paymentRoutes');
+const transactionRoutes    = require('./routes/transactionRoutes');
+const reportRoutes         = require('./routes/reportRoutes');
+const wishlistRoutes       = require('./routes/wishlistRoutes');
+const favoriteSellersRoutes = require('./routes/favoriteSellersRoutes');
+const chatRoutes           = require('./routes/chatRoutes');
+const ratingRoutes         = require('./routes/ratingRoutes');
+const recentlyViewedRoutes = require('./routes/recentlyViewedRoutes');
 
 // ── Ensure upload directory exists ────────────────────────────
 const uploadDir = path.join(__dirname, 'public', 'uploads', 'listings');
@@ -39,6 +43,10 @@ app.use('/api/payments',       paymentRoutes);
 app.use('/api/transactions',   transactionRoutes);
 app.use('/api/reports',        reportRoutes);
 app.use('/api/wishlist',       wishlistRoutes);
+app.use('/api/favorite-sellers', favoriteSellersRoutes);
+app.use('/api/chat',           chatRoutes);
+app.use('/api/ratings',        ratingRoutes);
+app.use('/api/recently-viewed', recentlyViewedRoutes);
 
 // ── Page routes ───────────────────────────────────────────────
 app.get('/',              (req, res) => res.sendFile(path.join(__dirname, 'views', 'index.html')));

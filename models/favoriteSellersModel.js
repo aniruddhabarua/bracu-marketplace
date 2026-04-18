@@ -33,7 +33,7 @@ const FavoriteSellersModel = {
     });
   },
 
-  // Get all favorite sellers for a user with their details
+  // Get all favorite sellers for a user with their details and listings
   getFavoriteSellers: (userId, callback) => {
     const sql = `
       SELECT
@@ -47,6 +47,7 @@ const FavoriteSellersModel = {
         u.profile_picture,
         u.bio,
         u.is_verified,
+        u.member_since,
         AVG(r.rating) AS avg_rating,
         COUNT(r.review_id) AS total_reviews
       FROM favorite_sellers fs
@@ -56,7 +57,42 @@ const FavoriteSellersModel = {
       GROUP BY fs.favorite_id, u.user_id
       ORDER BY fs.followed_at DESC
     `;
-    db.query(sql, [userId], callback);
+    db.query(sql, [userId], (err, sellers) => {
+      if (err) return callback(err);
+      
+      // For each seller, fetch their listings
+      if (sellers.length === 0) {
+        return callback(null, sellers);
+      }
+      
+      let completed = 0;
+      sellers.forEach((seller) => {
+        const listingsSql = `
+          SELECT
+            l.listing_id,
+            l.title,
+            l.price,
+            l.condition_type,
+            l.status,
+            l.created_at,
+            li.image_url AS primary_image
+          FROM listings l
+          LEFT JOIN listing_images li ON li.listing_id = l.listing_id AND li.is_primary = 1
+          WHERE l.seller_id = ? AND l.status = 'available'
+          ORDER BY l.created_at DESC
+          LIMIT 4
+        `;
+        db.query(listingsSql, [seller.user_id], (listErr, listings) => {
+          if (!listErr) {
+            seller.listings = listings;
+          }
+          completed++;
+          if (completed === sellers.length) {
+            callback(null, sellers);
+          }
+        });
+      });
+    });
   },
 
   // Get favorite sellers count

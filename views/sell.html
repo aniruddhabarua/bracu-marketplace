@@ -397,3 +397,50 @@
 
         <div class="row">
           <div class="form-group" id="f-condition">
+            <label for="condition">Condition <span class="req">*</span></label>
+            <select id="condition">
+              <option value="">Select condition</option>
+              <option value="new">New</option>
+              <option value="like_new">Like New</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+              <option value="poor">Poor</option>
+            </select>
+            <p class="err-msg">Please select a condition.</p>
+          </div>
+
+          <div class="form-group" id="f-location">
+            <label for="location">Location <span class="req">*</span></label>
+            <input type="text" id="location" placeholder="e.g. BRACU Campus, Dhaka">
+            <p class="err-msg">Please enter a location.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photos -->
+      <div class="section">
+        <p class="section-title">Photos</p>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="fileInput" accept="image/*" multiple>
+          <p>Drag photos here or <strong>click to browse</strong></p>
+          <p style="font-size: 11px; color: #999; margin-top: 8px;">JPG, PNG up to 5MB each</p>
+        </div>
+        <div class="preview-grid" id="previewGrid"></div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-row">
+        <button type="submit" class="btn-submit">Post Your Item</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>BRACU Marketplace — a closed community marketplace</p>
+  </div>
+</div>
+
+<script src="/js/sell.js"></script>
+</body>
+</html>

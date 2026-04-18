@@ -44,6 +44,22 @@ const RecentlyViewedController = {
     });
   },
 
+  clearRecentlyViewed: (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Authentication required.' });
+    }
+
+    const userId = req.user.user_id;
+
+    RecentlyViewedModel.clearForUser(userId, (err) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Database error.', error: err.message });
+      }
+
+      return res.status(200).json({ success: true, message: 'Recently viewed cleared.' });
+    });
+  },
+
 };
 
 module.exports = RecentlyViewedController;

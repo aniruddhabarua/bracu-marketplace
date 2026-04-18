@@ -55,6 +55,11 @@ const RecentlyViewedModel = {
     db.query(sql, [userId, limit], callback);
   },
 
+  clearForUser: (userId, callback) => {
+    const sql = 'DELETE FROM recently_viewed WHERE user_id = ?';
+    db.query(sql, [userId], callback);
+  },
+
 };
 
 module.exports = RecentlyViewedModel;
