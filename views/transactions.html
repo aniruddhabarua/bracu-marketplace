@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction History — BRACU Marketplace</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+
+    /* ── Navbar ── */
+    nav {
+      background: #1a1a2e; padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { font-size: 18px; font-weight: bold; color: #fff; text-decoration: none; }
+    #navRight  { display: flex; align-items: center; gap: 16px; }
+    .nav-link  { color: #ccc; font-size: 14px; text-decoration: none; }
+    .nav-link:hover { color: #fff; }
+    .nav-btn {
+      background: none; border: 1px solid #555; color: #ccc;
+      padding: 5px 12px; border-radius: 5px; cursor: pointer;
+      font-size: 13px; font-family: Arial, sans-serif;
+    }
+
+    /* ── Page ── */
+    .page { max-width: 960px; margin: 28px auto; padding: 0 16px 60px; }
+
+    /* ── Summary cards ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px; margin-bottom: 28px;
+    }
+    .summary-card {
+      background: #fff; border-radius: 10px;
+      border: 1px solid #e8e8e8; padding: 18px 16px;
+      text-align: center;
+    }
+    .summary-card .s-icon { font-size: 28px; margin-bottom: 6px; }
+    .summary-card .s-val  {
+      font-size: 22px; font-weight: bold; color: #1a1a2e; margin-bottom: 2px;
+    }
+    .summary-card .s-val.green  { color: #15803d; }
+    .summary-card .s-val.red    { color: #b91c1c; }
+    .summary-card .s-val.purple { color: #6d28d9; }
+    .summary-card .s-lbl { font-size: 12px; color: #888; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: #fff; border-radius: 10px; border: 1px solid #e8e8e8;
+      padding: 14px 16px; margin-bottom: 16px;
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 12px; font-weight: bold; color: #555; }
+    .filter-group select,
+    .filter-group input {
+      padding: 7px 10px; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 13px; font-family: Arial, sans-serif; outline: none;
+      background: #fff; color: #333;
+    }
+    .filter-group select:focus,
+    .filter-group input:focus  { border-color: #1a1a2e; }
+    .btn-filter {
+      padding: 7px 18px; background: #1a1a2e; color: #fff; border: none;
+      border-radius: 6px; font-size: 13px; cursor: pointer;
+      font-family: Arial, sans-serif; align-self: flex-end;
+    }
+    .btn-filter:hover { background: #2a2a4e; }
+    .btn-reset {
+      padding: 7px 14px; background: none; color: #777;
+      border: 1px solid #ddd; border-radius: 6px; font-size: 13px;
+      cursor: pointer; font-family: Arial, sans-serif; align-self: flex-end;
+    }
+
+    /* ── Tab pills ── */
+    .tab-pills { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab-pill {
+      padding: 6px 18px; border-radius: 20px; font-size: 13px;
+      font-weight: bold; cursor: pointer; border: none;
+      background: #e5e7eb; color: #555; font-family: Arial, sans-serif;
+    }
+    .tab-pill.active { background: #1a1a2e; color: #fff; }
+
+    /* ── Transaction table ── */
+    .table-wrap { background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; }
+    .table-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 18px; border-bottom: 1px solid #f0f0f0;
+    }
+    .table-header h3 { font-size: 15px; color: #1a1a2e; }
+    .result-count   { font-size: 13px; color: #888; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #f8f9fa; padding: 11px 16px;
+      font-size: 12px; font-weight: bold; color: #555;
+      text-align: left; border-bottom: 1px solid #eee;
+    }
+    tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.12s; }
+    tbody tr:hover { background: #fafbff; }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 14px 16px; font-size: 13px; vertical-align: middle; }
+
+    /* Item cell */
+    .item-cell  { display: flex; align-items: center; gap: 10px; }
+    .item-thumb {
+      width: 44px; height: 44px; border-radius: 7px; object-fit: cover;
+      background: #f0f2f5; flex-shrink: 0;
+    }
+    .item-thumb-placeholder {
+      width: 44px; height: 44px; border-radius: 7px;
+      background: #f0f2f5; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .item-title { font-weight: bold; color: #1a1a2e; font-size: 13px; margin-bottom: 2px; }
+    .item-meta  { font-size: 11px; color: #999; }
+
+    /* Type badge */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: 11px; font-weight: bold;
+    }
+    .badge-purchase { background: #fef3c7; color: #92400e; }
+    .badge-sale     { background: #d1fae5; color: #065f46; }
+
+    /* Status badge */
+    .status-completed  { background: #d1fae5; color: #065f46; }
+    .status-pending    { background: #fef3c7; color: #92400e; }
+    .status-confirmed  { background: #dbeafe; color: #1e40af; }
+    .status-cancelled  { background: #fee2e2; color: #991b1b; }
+    .status-disputed   { background: #f3e8ff; color: #6b21a8; }
+
+    /* Payment method */
+    .method-icon { font-size: 15px; margin-right: 4px; }
+
+    /* Amount */
+    .amount-purchase { color: #b91c1c; font-weight: bold; }
+    .amount-sale     { color: #15803d; font-weight: bold; }
+
+    /* Action button */
+    .btn-detail {
+      background: none; border: 1px solid #d1d5db; padding: 5px 12px;
+      border-radius: 6px; font-size: 12px; cursor: pointer; color: #555;
+      font-family: Arial, sans-serif;
+    }
+    .btn-detail:hover { border-color: #1a1a2e; color: #1a1a2e; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center; padding: 60px 20px; color: #999;
+    }
+    .empty-icon { font-size: 52px; margin-bottom: 12px; }
+    .empty p    { font-size: 15px; }
+
+    /* ── Skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg,#e8e8e8 25%,#f5f5f5 50%,#e8e8e8 75%);
+      background-size: 400px 100%; animation: shimmer 1.3s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+
+    /* ── Detail modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-box {
+      background: #fff; border-radius: 14px; width: 100%; max-width: 520px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 22px; border-bottom: 1px solid #eee;
+    }
+    .modal-header h3 { font-size: 16px; color: #1a1a2e; }
+    .modal-close {
+      background: none; border: none; font-size: 20px; cursor: pointer;
+      color: #888; line-height: 1;
+    }
+    .modal-body { padding: 22px; }
+    .detail-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid #f5f5f5;
+      font-size: 14px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #888; }
+    .detail-value { font-weight: bold; color: #1a1a2e; text-align: right; max-width: 60%; }
+    .modal-listing-img {
+      width: 100%; height: 180px; object-fit: cover;
+      border-radius: 10px; margin-bottom: 18px;
+    }
+    .modal-listing-placeholder {
+      width: 100%; height: 180px; background: #f0f2f5;
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 48px; margin-bottom: 18px;
+    }
+
+    @media (max-width: 640px) {
+      thead { display: none; }
+      tbody tr { display: block; padding: 12px 0; }
+      td { display: block; padding: 4px 16px; border: none; }
+      td::before { content: attr(data-label); font-weight: bold; color: #555; margin-right: 6px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav>
+  <a href="/" class="nav-logo">BRACU Marketplace</a>
+  <div id="navRight">
+    <a href="/"             class="nav-link">Home</a>
+    <a href="/listings"     class="nav-link">Browse</a>
+    <a href="/profile"      class="nav-link">Profile</a>
+    <a href="/notifications"class="nav-link">🔔</a>
+    <button class="nav-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ── Main ── -->
+<div class="page">
+
+  <!-- Page title -->
+  <div style="margin-bottom:20px;">
+    <h1 style="font-size:22px;color:#1a1a2e;margin-bottom:4px;">📋 Transaction History</h1>
+    <p style="font-size:13px;color:#888;">Your complete record of past purchases and sales.</p>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-grid" id="summaryGrid">
+    <div class="summary-card"><div class="skeleton" style="height:80px;"></div></div>
+    <div class="summary-card"><div class="skeleton" style="height:80px;"></div></div>
+    <div class="summary-card"><div class="skeleton" style="height:80px;"></div></div>
+    <div class="summary-card"><div class="skeleton" style="height:80px;"></div></div>
+  </div>
+
+  <!-- Tab pills -->
+  <div class="tab-pills">
+    <button class="tab-pill active" onclick="setTab('all',   this)">All</button>
+    <button class="tab-pill"        onclick="setTab('purchase', this)">🛒 Purchases</button>
+    <button class="tab-pill"        onclick="setTab('sale',     this)">💰 Sales</button>
+  </div>
+
+  <!-- Filters toolbar -->
+  <div class="toolbar">
+    <div class="filter-group">
+      <label>Order Status</label>
+      <select id="filterStatus">
+        <option value="">All statuses</option>
+        <option value="completed">Completed</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="pending">Pending</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="disputed">Disputed</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>From Date</label>
+      <input type="date" id="filterFrom">
+    </div>
+    <div class="filter-group">
+      <label>To Date</label>
+      <input type="date" id="filterTo">
+    </div>
+    <button class="btn-filter" onclick="applyFilters()">Apply</button>
+    <button class="btn-reset"  onclick="resetFilters()">Reset</button>
+  </div>
+
+  <!-- Results table -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h3>Transactions</h3>
+      <span class="result-count" id="resultCount">Loading…</span>
+    </div>
+    <div id="tableContainer">
+      <!-- Skeleton rows -->
+      <table><tbody id="txnTableBody">
+        ${Array(5).fill(`
+          <tr>
+            <td><div class="skeleton" style="height:16px;width:180px;"></div></td>
+            <td><div class="skeleton" style="height:16px;width:60px;"></div></td>
+            <td><div class="skeleton" style="height:16px;width:80px;"></div></td>
+            <td><div class="skeleton" style="height:16px;width:70px;"></div></td>
+            <td><div class="skeleton" style="height:16px;width:50px;"></div></td>
+          </tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Transaction detail modal ── -->
+<div class="modal-overlay" id="detailModal" style="display:none;" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Transaction Detail</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">Loading…</div>
+  </div>
+</div>
+
+<!-- Socket.IO + notification bell -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/notifications.js"></script>
+
+<script>
+  const TOKEN = localStorage.getItem('token');
+  const USER  = JSON.parse(localStorage.getItem('user') || 'null');
+  if (!TOKEN || !USER) window.location.href = '/login';
+
+  let allData    = [];
+  let activeTab  = 'all';
+
+  const METHOD_ICONS = {
+    bkash: '📱', nagad: '📱', rocket: '📱',
+    bank: '🏦', online: '💳', offline: '💵',
+  };
+
+  // ── Load summary cards ──────────────────────────────────────
+  async function loadSummary() {
+    try {
+      const res  = await fetch('/api/transactions/summary', {
+        headers: { Authorization: `Bearer ${TOKEN}` },
+      });
+      const data = await res.json();
+      if (!data.success) return;
+      const d = data.data;
+
+      document.getElementById('summaryGrid').innerHTML = `
+        <div class="summary-card">
+          <div class="s-icon">🛒</div>
+          <div class="s-val red">৳ ${fmt(d.total_spent)}</div>
+          <div class="s-lbl">Total Spent</div>
+        </div>
+        <div class="summary-card">
+          <div class="s-icon">💰</div>
+          <div class="s-val green">৳ ${fmt(d.total_earned)}</div>
+          <div class="s-lbl">Total Earned</div>
+        </div>
+        <div class="summary-card">
+          <div class="s-icon">${d.net >= 0 ? '📈' : '📉'}</div>
+          <div class="s-val ${d.net >= 0 ? 'green' : 'red'}">৳ ${fmt(Math.abs(d.net))}</div>
+          <div class="s-lbl">Net ${d.net >= 0 ? 'Profit' : 'Spend'}</div>
+        </div>
+        <div class="summary-card">
+          <div class="s-icon">📦</div>
+          <div class="s-val purple">${d.total_transactions}</div>
+          <div class="s-lbl">Transactions</div>
+        </div>`;
+    } catch {}
+  }
+
+  // ── Load transaction list ────────────────────────────────────
+  async function loadHistory() {
+    document.getElementById('resultCount').textContent = 'Loading…';
+
+    const status = document.getElementById('filterStatus').value;
+    const from   = document.getElementById('filterFrom').value;
+    const to     = document.getElementById('filterTo').value;
+
+    const q = new URLSearchParams();
+    if (activeTab !== 'all') q.set('type', activeTab);
+    if (status) q.set('order_status', status);
+    if (from)   q.set('from', from);
+    if (to)     q.set('to',   to);
+
+    try {
+      const res  = await fetch(`/api/transactions?${q}`, {
+        headers: { Authorization: `Bearer ${TOKEN}` },
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      allData = data.data || [];
+      renderTable(allData);
+
+    } catch (err) {
+      document.getElementById('tableContainer').innerHTML =
+        `<p style="text-align:center;padding:32px;color:#c00;">Failed to load. Please refresh.</p>`;
+    }
+  }
+
+  // ── Render the table ─────────────────────────────────────────
+  function renderTable(rows) {
+    document.getElementById('resultCount').textContent =
+      `${rows.length} transaction${rows.length !== 1 ? 's' : ''}`;
+
+    if (rows.length === 0) {
+      document.getElementById('tableContainer').innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📋</div>
+          <p>No transactions found.</p>
+        </div>`;
+      return;
+    }
+
+    document.getElementById('tableContainer').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(t => `
+            <tr>
+              <td data-label="Item">
+                <div class="item-cell">
+                  ${t.listing_image
+                    ? `<img src="${t.listing_image}" class="item-thumb" alt="">`
+                    : `<div class="item-thumb-placeholder">📦</div>`}
+                  <div>
+                    <div class="item-title">${t.listing_title}</div>
+                    <div class="item-meta">${t.listing_category} · ${t.listing_condition}</div>
+                  </div>
+                </div>
+              </td>
+              <td data-label="Type">
+                <span class="badge badge-${t.type}">${t.type === 'purchase' ? '🛒 Purchase' : '💰 Sale'}</span>
+              </td>
+              <td data-label="Amount">
+                <span class="amount-${t.type}">
+                  ${t.type === 'purchase' ? '−' : '+'}৳ ${fmt(t.amount)}
+                </span>
+              </td>
+              <td data-label="Method">
+                <span class="method-icon">${METHOD_ICONS[t.payment_method] || '💳'}</span>
+                ${t.payment_method}
+              </td>
+              <td data-label="Status">
+                <span class="badge status-${t.order_status}">${t.order_status}</span>
+              </td>
+              <td data-label="Date" style="white-space:nowrap;color:#888;">
+                ${formatDate(t.created_at)}
+              </td>
+              <td>
+                <button class="btn-detail"
+                        onclick="showDetail(${t.transaction_id})">Detail</button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  // ── Show transaction detail modal ────────────────────────────
+  async function showDetail(txnId) {
+    document.getElementById('detailModal').style.display = 'flex';
+    document.getElementById('modalBody').innerHTML =
+      '<p style="text-align:center;padding:40px;color:#888;">Loading…</p>';
+
+    try {
+      const res  = await fetch(`/api/transactions/${txnId}`, {
+        headers: { Authorization: `Bearer ${TOKEN}` },
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      const t = data.data;
+
+      const isBuyer = t.buyer_id === USER.user_id;
+
+      document.getElementById('modalBody').innerHTML = `
+        ${t.listing_image
+          ? `<img src="${t.listing_image}" class="modal-listing-img" alt="${t.listing_title}">`
+          : `<div class="modal-listing-placeholder">📦</div>`}
+
+        <div class="detail-row">
+          <span class="detail-label">Item</span>
+          <span class="detail-value">${t.listing_title}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Transaction Type</span>
+          <span class="detail-value">
+            <span class="badge badge-${t.type}">${t.type === 'purchase' ? '🛒 Purchase' : '💰 Sale'}</span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount</span>
+          <span class="detail-value" style="color:${t.type==='purchase'?'#b91c1c':'#15803d'};">
+            ${t.type === 'purchase' ? '−' : '+'}৳ ${fmt(t.amount)}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Method</span>
+          <span class="detail-value">${METHOD_ICONS[t.payment_method]||'💳'} ${t.payment_method}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Order Status</span>
+          <span class="detail-value">
+            <span class="badge status-${t.order_status}">${t.order_status}</span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Status</span>
+          <span class="detail-value">${t.payment_status}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">${isBuyer ? 'Seller' : 'Buyer'}</span>
+          <span class="detail-value">${isBuyer ? t.seller_name : t.buyer_name}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">${t.listing_category}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Condition</span>
+          <span class="detail-value">${t.listing_condition}</span>
+        </div>
+        ${t.listing_location ? `
+        <div class="detail-row">
+          <span class="detail-label">Location</span>
+          <span class="detail-value">${t.listing_location}</span>
+        </div>` : ''}
+        ${t.notes ? `
+        <div class="detail-row">
+          <span class="detail-label">Notes</span>
+          <span class="detail-value">${t.notes}</span>
+        </div>` : ''}
+        <div class="detail-row">
+          <span class="detail-label">Transaction Date</span>
+          <span class="detail-value">${formatDate(t.created_at, true)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Order ID</span>
+          <span class="detail-value">#${t.order_id}</span>
+        </div>`;
+
+    } catch {
+      document.getElementById('modalBody').innerHTML =
+        '<p style="color:#c00;text-align:center;padding:32px;">Failed to load detail.</p>';
+    }
+  }
+
+  function closeModal(e) {
+    if (!e || e.target === document.getElementById('detailModal')) {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+  }
+
+  // ── Tabs & Filters ───────────────────────────────────────────
+  function setTab(tab, btn) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadHistory();
+  }
+
+  function applyFilters() { loadHistory(); }
+
+  function resetFilters() {
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterFrom').value   = '';
+    document.getElementById('filterTo').value     = '';
+    loadHistory();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function fmt(n) { return parseFloat(n || 0).toLocaleString('en-BD'); }
+
+  function formatDate(dateStr, full = false) {
+    const d = new Date(dateStr);
+    if (full) return d.toLocaleString('en-BD', {
+      day:'numeric', month:'short', year:'numeric',
+      hour:'2-digit', minute:'2-digit',
+    });
+    return d.toLocaleDateString('en-BD', {
+      day:'numeric', month:'short', year:'numeric',
+    });
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
+
+  // ── Init ─────────────────────────────────────────────────────
+  loadSummary();
+  loadHistory();
+</script>
+</body>
+</html>
