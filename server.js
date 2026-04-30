@@ -23,6 +23,8 @@ const favoriteSellersRoutes = require('./routes/favoriteSellersRoutes');
 const chatRoutes           = require('./routes/chatRoutes');
 const ratingRoutes         = require('./routes/ratingRoutes');
 const recentlyViewedRoutes = require('./routes/recentlyViewedRoutes');
+const announcementRoutes   = require('./routes/announcementRoutes');
+
 
 // ── Ensure upload directory exists ────────────────────────────
 const uploadDir = path.join(__dirname, 'public', 'uploads', 'listings');
@@ -47,6 +49,8 @@ app.use('/api/favorite-sellers', favoriteSellersRoutes);
 app.use('/api/chat',           chatRoutes);
 app.use('/api/ratings',        ratingRoutes);
 app.use('/api/recently-viewed', recentlyViewedRoutes);
+app.use('/api/announcements',   announcementRoutes);
+
 
 // ── Page routes ───────────────────────────────────────────────
 app.get('/',              (req, res) => res.sendFile(path.join(__dirname, 'views', 'index.html')));

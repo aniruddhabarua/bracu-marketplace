@@ -24,17 +24,17 @@ const UserController = {
         return res.status(200).json({
           success: true,
           data: {
-            user_id:        profile.user_id,
-            full_name:      profile.full_name,
-            email:          profile.email,
-            role:           profile.role,
-            department:     profile.department,
+            user_id: profile.user_id,
+            full_name: profile.full_name,
+            email: profile.email,
+            role: profile.role,
+            department: profile.department,
             profile_picture: profile.profile_picture,
-            bio:            profile.bio,
-            is_verified:    profile.is_verified === 1,
-            member_since:   profile.created_at,
-            avg_rating:     profile.avg_rating    || null,
-            total_reviews:  profile.total_reviews || 0,
+            bio: profile.bio,
+            is_verified: profile.is_verified === 1,
+            member_since: profile.created_at,
+            avg_rating: profile.avg_rating || null,
+            total_reviews: profile.total_reviews || 0,
             listings,
           },
         });
@@ -59,9 +59,9 @@ const UserController = {
     const profile_picture = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     const fields = {};
-    if (full_name !== undefined)       fields.full_name       = full_name;
-    if (department !== undefined)      fields.department      = department;
-    if (bio !== undefined)             fields.bio             = bio;
+    if (full_name !== undefined) fields.full_name = full_name;
+    if (department !== undefined) fields.department = department;
+    if (bio !== undefined) fields.bio = bio;
     if (profile_picture !== undefined) fields.profile_picture = profile_picture;
 
     UserModel.updateProfile(userId, fields, (err, result) => {
@@ -108,13 +108,13 @@ const UserController = {
     });
   },
 
-  ,
+
   // POST /api/users/verify
   verifyUser: (req, res) => {
     const { userId, type } = req.body;
     UserModel.verifyUser(userId, type, (err) => {
-      if (err) return res.status(500).json({ success:false, message: err.message });
-      return res.status(200).json({ success:true, message:"User verified successfully" });
+      if (err) return res.status(500).json({ success: false, message: err.message });
+      return res.status(200).json({ success: true, message: "User verified successfully" });
     });
   }
 };

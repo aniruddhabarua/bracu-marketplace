@@ -478,7 +478,121 @@
         gap: 16px;
       }
     }
+    /* Announcement Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: #fff;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 24px;
+      padding: 32px;
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .modal-close {
+      background: #f5f3ef;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: #8a8a8a;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #eee;
+      color: #1a1a1a;
+    }
+
+    .announcement-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #efede8;
+    }
+
+    .announcement-item:last-child {
+      border-bottom: none;
+    }
+
+    .announcement-tag {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .tag-announcement { background: #e3f2fd; color: #1976d2; }
+    .tag-rule { background: #fff3e0; color: #f57c00; }
+    .tag-update { background: #e8f5e9; color: #388e3c; }
+
+    .announcement-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .announcement-body {
+      font-size: 13px;
+      color: #5a5a5a;
+      line-height: 1.6;
+    }
+
+    .announcement-meta {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 8px;
+    }
   </style>
+
 </head>
 <body>
 
@@ -489,6 +603,7 @@
       <a href="/" class="logo">BRACU<span>Marketplace</span></a>
       <div class="nav-links">
         <span class="nav-user" id="navUser"></span>
+        <a href="#" class="nav-link" onclick="openAnnouncements(); return false;">Announcements</a>
         <a href="/profile" class="nav-link">Profile</a>
         <button class="btn-logout" onclick="logout()">Sign Out</button>
       </div>
@@ -543,11 +658,24 @@
     <div id="recentGrid" class="recent-grid"></div>
   </div>
 
-  <!-- Footer -->
-  <div class="footer">
-    <p>BRACU Marketplace — a closed community marketplace</p>
+    <!-- Footer -->
+    <div class="footer">
+      <p>BRACU Marketplace — a closed community marketplace</p>
+    </div>
   </div>
-</div>
+
+  <!-- Announcement Modal -->
+  <div class="modal-overlay" id="announcementModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Marketplace Announcements</h2>
+        <button class="modal-close" onclick="closeAnnouncements()">&times;</button>
+      </div>
+      <div id="announcementList">
+        <div class="loading">Loading announcements…</div>
+      </div>
+    </div>
+  </div>
 
 <script>
   // Auth check
@@ -718,9 +846,56 @@
     return text.replace(/[&<>"']/g, m => map[m]);
   }
 
+  // Announcement Board Functions
+  async function loadAnnouncements(manual = false) {
+    try {
+      const res = await fetch('/api/announcements');
+      const data = await res.json();
+      if (data.success && data.data && data.data.length > 0) {
+        renderAnnouncements(data.data);
+        if (!manual) {
+           // Maybe only show automatically once per session? 
+           // For now, let's just show it.
+           openAnnouncementsModal();
+        }
+      } else if (manual) {
+        document.getElementById('announcementList').innerHTML = '<div class="empty">No announcements yet.</div>';
+        openAnnouncementsModal();
+      }
+    } catch (err) {
+      console.error('Failed to load announcements:', err);
+      if (manual) alert('Could not load announcements.');
+    }
+  }
+
+  function renderAnnouncements(items) {
+    const list = document.getElementById('announcementList');
+    list.innerHTML = items.map(item => `
+      <div class="announcement-item">
+        <span class="announcement-tag tag-${item.category.toLowerCase()}">${item.category}</span>
+        <div class="announcement-title">${escapeHtml(item.title)}</div>
+        <div class="announcement-body">${escapeHtml(item.content)}</div>
+        <div class="announcement-meta">Posted by ${item.admin_name} • ${new Date(item.created_at).toLocaleDateString()}</div>
+      </div>
+    `).join('');
+  }
+
+  function openAnnouncements() {
+    loadAnnouncements(true);
+  }
+
+  function openAnnouncementsModal() {
+    document.getElementById('announcementModal').classList.add('active');
+  }
+
+  function closeAnnouncements() {
+    document.getElementById('announcementModal').classList.remove('active');
+  }
+
   // Initialize
   loadListings({});
   loadRecentlyViewed();
+  loadAnnouncements();
 </script>
 </body>
 </html>
