@@ -468,6 +468,36 @@
     }
     .btn-submit-rating:disabled { background: #ccc; cursor: not-allowed; }
     .btn-submit-rating:hover:not(:disabled) { background: #333; }
+
+    /* Modern Refined Report Button (Large) */
+    .btn-report {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 50px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-report:hover {
+      border-color: #ff4d4f;
+      color: #ff4d4f;
+      background: #fffbfb;
+    }
+    .btn-report.minimal {
+      border: 1px solid transparent;
+      background: transparent;
+    }
+    .btn-report.minimal:hover {
+      border-color: #ff4d4f;
+      background: #fffbfb;
+    }
   </style>
 </head>
 <body>
@@ -501,6 +531,48 @@
       </div>
       <div class="modal-body" id="sellerProfileContent">
         Loading...
+      </div>
+      <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; display: flex; justify-content: center;">
+        <button class="btn-report" id="reportSellerBtn">
+          <span>🚩</span> Report Seller
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+  <div id="reportModal" class="modal-overlay" style="display:none;">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2>Report User</h2>
+        <button class="modal-close" onclick="closeReportModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Please help us understand what's wrong. Your report is anonymous.</p>
+        
+        <form id="reportForm">
+          <input type="hidden" id="reportedUserId">
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Reason</label>
+            <select id="reportReason" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none; font-family: inherit;">
+              <option value="">Select a reason</option>
+              <option value="Spam or misleading">Spam or misleading</option>
+              <option value="Inappropriate content">Inappropriate content</option>
+              <option value="Fake or scam listing">Fake or scam listing</option>
+              <option value="Harassment or abuse">Harassment or abuse</option>
+              <option value="Prohibited item">Prohibited item</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Additional Details (Optional)</label>
+            <textarea id="reportDetails" placeholder="Provide more context..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none; font-family: inherit; height: 80px; resize: none;"></textarea>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn-submit-rating" style="background: #f5f5f5; color: #333;" onclick="closeReportModal()">Cancel</button>
+            <button type="submit" class="btn-submit-rating" style="background: #ff4d4f;">Submit Report</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

@@ -212,6 +212,28 @@
     }
     .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .alert-error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    /* Modern Refined Report Button (Large) */
+    .btn-report {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 50px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-report:hover {
+      border-color: #ff4d4f;
+      color: #ff4d4f;
+      background: #fffbfb;
+    }
   </style>
 </head>
 <body>
@@ -321,6 +343,13 @@
               ${u.bio ? `<div class="bio">${u.bio}</div>` : ''}
             </div>
           </div>
+          ${!isOwnProfile ? `
+          <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; display: flex; justify-content: flex-end;">
+            <button class="btn-report" onclick="openReportModal(${u.user_id})">
+              <span>🚩</span> Report User
+            </button>
+          </div>
+          ` : ''}
         </div>
 
         <!-- LISTINGS -->
@@ -364,6 +393,38 @@
         <!-- REVIEWS -->
         <h3 class="section-header">⭐ Reviews (${totalReviews})</h3>
         <div id="reviewsList" class="reviews-list"></div>
+
+        <!-- REPORT MODAL -->
+        <div id="reportModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
+          <div style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:400px;">
+            <h3 style="margin-bottom:8px; font-size:18px;">Report User</h3>
+            <p style="margin-bottom:20px; color:#666; font-size:13px;">Help us understand the issue. Your report is anonymous.</p>
+            
+            <form onsubmit="handleReportSubmit(event)">
+              <input type="hidden" id="reportedUserId" value="${u.user_id}">
+              <div class="form-group">
+                <label>Reason</label>
+                <select id="reportReason" required>
+                  <option value="">Select a reason</option>
+                  <option value="Spam or misleading">Spam or misleading</option>
+                  <option value="Inappropriate content">Inappropriate content</option>
+                  <option value="Fake or scam listing">Fake or scam listing</option>
+                  <option value="Harassment or abuse">Harassment or abuse</option>
+                  <option value="Prohibited item">Prohibited item</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Details (Optional)</label>
+                <textarea id="reportDetails" placeholder="Tell us more..."></textarea>
+              </div>
+              <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="button" class="btn-submit" style="background:#f0f0f0; color:#333; flex:1;" onclick="closeReportModal()">Cancel</button>
+                <button type="submit" class="btn-submit" style="background:#ff4d4f; flex:1;">Submit Report</button>
+              </div>
+            </form>
+          </div>
+        </div>
       `;
 
       renderListings(sellerListings);
@@ -451,6 +512,41 @@
 
       showAlert('Review submitted successfully!');
       setTimeout(() => loadProfile(), 1000); // reload to show new review
+    } catch (err) {
+      showAlert('Something went wrong.', 'error');
+    }
+  }
+
+  // ── Reporting ────────────────────────────────────────────────
+  function openReportModal() {
+    document.getElementById('reportModal').style.display = 'flex';
+  }
+
+  function closeReportModal() {
+    document.getElementById('reportModal').style.display = 'none';
+  }
+
+  async function handleReportSubmit(e) {
+    e.preventDefault();
+    const reportedId = document.getElementById('reportedUserId').value;
+    const reason = document.getElementById('reportReason').value;
+    const details = document.getElementById('reportDetails').value;
+
+    try {
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reported_type: 'user', reported_id: reportedId, reason, details }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) return showAlert(data.message || 'Failed to submit report.', 'error');
+
+      showAlert('Report submitted. Thank you.');
+      closeReportModal();
     } catch (err) {
       showAlert('Something went wrong.', 'error');
     }

@@ -208,6 +208,7 @@ function renderListing(listing, isFollowing = false) {
                 </h3>
                 <p>${listing.seller_department || 'BRACU Student'}</p>
                 <div class="seller-rating">${stars}</div>
+                <button class="btn-report minimal" onclick="event.stopPropagation(); openReportModal(${listing.seller_id}, 'user')">🚩 Report Seller</button>
               </div>
             </div>
 
@@ -221,6 +222,9 @@ function renderListing(listing, isFollowing = false) {
                 ${isFollowing ? '⭐ Following' : '☆ Follow Seller'}
               </button>
               <button class="btn btn-secondary" onclick="openRatingModal(${listing.listing_id}, ${listing.seller_id}, '${seller}')">⭐ Rate Seller</button>
+              <div style="text-align:center; margin-top:16px;">
+                <button class="btn-report" onclick="openReportModal(${listing.listing_id}, 'listing')">🚩 Report Listing</button>
+              </div>
             `}
 
             <div class="posted-date">Seller member since ${new Date(listing.created_at).getFullYear()}</div>
@@ -472,6 +476,17 @@ async function showSellerProfile(sellerId) {
     `;
 
     document.getElementById('sellerProfileContent').innerHTML = profileHtml;
+    
+    // Set up report button
+    const reportBtn = document.getElementById('reportSellerBtn');
+    if (reportBtn) {
+      reportBtn.onclick = () => {
+        document.getElementById('reportedUserId').value = sellerId;
+        document.getElementById('reportModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      };
+    }
+
     document.getElementById('sellerModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
 
@@ -563,16 +578,78 @@ async function submitRating(listingId, sellerId) {
   }
 }
 
+function openReportModal(reportedId, type = 'user') {
+  document.getElementById('reportedUserId').value = reportedId;
+  document.getElementById('reportModal').setAttribute('data-type', type);
+  document.getElementById('reportModal').querySelector('h2').textContent = `Report ${type === 'user' ? 'User' : 'Listing'}`;
+  document.getElementById('reportModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReportModal() {
+  document.getElementById('reportModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+async function handleReportSubmit(e) {
+  e.preventDefault();
+  const reportedId = document.getElementById('reportedUserId').value;
+  const reason = document.getElementById('reportReason').value;
+  const details = document.getElementById('reportDetails').value;
+  const type = document.getElementById('reportModal').getAttribute('data-type') || 'user';
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+
+  if (!reason) return alert('Please select a reason');
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+
+  try {
+    const res = await fetch('/api/reports', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        reported_type: type,
+        reported_id: reportedId,
+        reason,
+        details
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Report submitted. Our team will review it shortly.');
+      closeReportModal();
+    } else {
+      alert('❌ ' + (data.message || 'Failed to submit report'));
+    }
+  } catch (error) {
+    console.error('Error submitting report:', error);
+    alert('Could not submit report');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Report';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const sellerModal = document.getElementById('sellerModal');
   const ratingModal = document.getElementById('ratingModal');
+  const reportModal = document.getElementById('reportModal');
+  const reportForm  = document.getElementById('reportForm');
 
-  [sellerModal, ratingModal].forEach(m => {
+  if (reportForm) reportForm.onsubmit = handleReportSubmit;
+
+  [sellerModal, ratingModal, reportModal].forEach(m => {
     if (m) {
       m.addEventListener('click', (e) => {
         if (e.target === m) {
           if (m.id === 'sellerModal') closeSellerModal();
-          else closeRatingModal();
+          else if (m.id === 'ratingModal') closeRatingModal();
+          else closeReportModal();
         }
       });
     }
