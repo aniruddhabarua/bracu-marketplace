@@ -33,8 +33,8 @@ const UserController = {
             bio: profile.bio,
             is_verified: profile.is_verified === 1,
             member_since: profile.created_at,
-            avg_rating: profile.avg_rating || null,
-            total_reviews: profile.total_reviews || 0,
+            avg_rating: profile.avg_rating ? parseFloat(profile.avg_rating) : null,
+            total_reviews: parseInt(profile.total_reviews || 0),
             listings,
           },
         });

@@ -208,6 +208,49 @@
       td { display: block; padding: 4px 16px; border: none; }
       td::before { content: attr(data-label); font-weight: bold; color: #555; margin-right: 6px; font-size: 11px; }
     }
+
+    /* ── Rating form ── */
+    .rating-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 2px dashed #eee;
+    }
+    .rating-stars {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0;
+      justify-content: center;
+    }
+    .star-btn {
+      background: none;
+      border: none;
+      font-size: 32px;
+      cursor: pointer;
+      color: #ddd;
+      transition: color 0.1s;
+    }
+    .star-btn.active { color: #ffc107; }
+    .rating-comment {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      margin-bottom: 12px;
+      resize: vertical;
+    }
+    .btn-submit-rating {
+      width: 100%;
+      padding: 12px;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-submit-rating:disabled { background: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -456,7 +499,125 @@
   }
 
   // ── Show transaction detail modal ────────────────────────────
+  async function checkAndShowRating(txn) {
+    const ratingArea = document.getElementById('ratingArea');
+    try {
+      // Check if already reviewed
+      const res = await fetch(`/api/ratings/listing/${txn.listing_id}`);
+      const data = await res.json();
+      
+      // Look for current user's review
+      const myReview = data.reviews ? data.reviews.find(r => r.reviewer_id === USER.user_id) : null;
+
+      if (myReview) {
+        ratingArea.innerHTML = `
+          <div class="rating-section" style="text-align: center;">
+            <p style="font-size: 12px; color: #888; margin-bottom: 8px;">Your Review</p>
+            <div style="color: #ffc107; font-size: 20px; margin-bottom: 8px;">
+              ${'★'.repeat(myReview.rating)}${'☆'.repeat(5 - myReview.rating)}
+            </div>
+            <p style="font-size: 13px; font-style: italic; color: #555;">"${myReview.comment || 'No comment'}"</p>
+          </div>`;
+      } else {
+        ratingArea.innerHTML = `
+          <div class="rating-section">
+            <h4 style="font-size: 14px; color: #1a1a2e; margin-bottom: 4px; text-align: center;">How was your experience?</h4>
+            <p style="font-size: 12px; color: #888; text-align: center; margin-bottom: 16px;">Rate ${txn.seller_name} for this transaction.</p>
+            
+            <div class="rating-stars" id="starContainer">
+              <button class="star-btn" data-val="1">★</button>
+              <button class="star-btn" data-val="2">★</button>
+              <button class="star-btn" data-val="3">★</button>
+              <button class="star-btn" data-val="4">★</button>
+              <button class="star-btn" data-val="5">★</button>
+            </div>
+            
+            <textarea id="ratingComment" class="rating-comment" placeholder="Write a short review (optional)..."></textarea>
+            
+            <button id="submitRatingBtn" class="btn-submit-rating" disabled onclick="submitRating(${txn.listing_id}, ${txn.seller_id})">
+              Submit Review
+            </button>
+          </div>`;
+        
+        setupStarRating();
+      }
+    } catch (err) {
+      console.error('Error checking rating:', err);
+    }
+  }
+
+  let selectedRating = 0;
+  function setupStarRating() {
+    const stars = document.querySelectorAll('.star-btn');
+    const submitBtn = document.getElementById('submitRatingBtn');
+    
+    stars.forEach(btn => {
+      btn.onclick = () => {
+        selectedRating = parseInt(btn.dataset.val);
+        stars.forEach((s, idx) => {
+          s.classList.toggle('active', idx < selectedRating);
+        });
+        submitBtn.disabled = false;
+      };
+      
+      btn.onmouseover = () => {
+        const val = parseInt(btn.dataset.val);
+        stars.forEach((s, idx) => {
+          if (idx < val) s.style.color = '#ffc107';
+          else s.style.color = '#ddd';
+        });
+      };
+      
+      btn.onmouseout = () => {
+        stars.forEach((s, idx) => {
+          s.style.color = ''; // reset to class color
+        });
+      };
+    });
+  }
+
+  async function submitRating(listingId, sellerId) {
+    const comment = document.getElementById('ratingComment').value;
+    const btn = document.getElementById('submitRatingBtn');
+    
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    
+    try {
+      const res = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${TOKEN}`
+        },
+        body: JSON.stringify({
+          listing_id: listingId,
+          seller_id: sellerId,
+          rating: selectedRating,
+          comment: comment
+        })
+      });
+      
+      const data = await res.json();
+      if (data.message === 'Review submitted successfully') {
+        alert('✅ Thank you! Your review has been submitted.');
+        // Refresh the detail view
+        showDetail(currentTxnId); 
+      } else {
+        alert('❌ ' + (data.error || 'Failed to submit review'));
+        btn.disabled = false;
+        btn.textContent = 'Submit Review';
+      }
+    } catch (err) {
+      alert('❌ Error submitting review');
+      btn.disabled = false;
+      btn.textContent = 'Submit Review';
+    }
+  }
+
+  let currentTxnId = null;
   async function showDetail(txnId) {
+    currentTxnId = txnId;
     document.getElementById('detailModal').style.display = 'flex';
     document.getElementById('modalBody').innerHTML =
       '<p style="text-align:center;padding:40px;color:#888;">Loading…</p>';
@@ -535,7 +696,14 @@
         <div class="detail-row">
           <span class="detail-label">Order ID</span>
           <span class="detail-value">#${t.order_id}</span>
-        </div>`;
+        </div>
+        
+        <div id="ratingArea"></div>`;
+
+      // If it's a completed purchase, show rating option
+      if (t.type === 'purchase' && t.order_status === 'completed') {
+        checkAndShowRating(t);
+      }
 
     } catch {
       document.getElementById('modalBody').innerHTML =

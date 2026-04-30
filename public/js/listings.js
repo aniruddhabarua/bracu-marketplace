@@ -145,7 +145,7 @@ function renderListing(listing, isFollowing = false) {
   const seller = listing.seller_name || 'Unknown';
   const sellerAvatar = listing.seller_avatar ? `<img src="${listing.seller_avatar}" alt="${seller}">` : '👤';
   const avgRating = listing.avg_rating ? Math.round(listing.avg_rating) : 0;
-  const stars = avgRating > 0 ? '⭐'.repeat(avgRating) : 'No ratings yet';
+  const stars = avgRating > 0 ? '⭐'.repeat(avgRating) + ` (${listing.total_reviews || 0})` : 'No ratings yet';
 
   const isOwn = user && user.user_id === listing.seller_id;
 
@@ -220,6 +220,7 @@ function renderListing(listing, isFollowing = false) {
               <button class="btn btn-secondary" id="followBtn" onclick="toggleFollowSeller(${listing.seller_id}, '${seller}')">
                 ${isFollowing ? '⭐ Following' : '☆ Follow Seller'}
               </button>
+              <button class="btn btn-secondary" onclick="openRatingModal(${listing.listing_id}, ${listing.seller_id}, '${seller}')">⭐ Rate Seller</button>
             `}
 
             <div class="posted-date">Seller member since ${new Date(listing.created_at).getFullYear()}</div>
@@ -389,6 +390,11 @@ async function showSellerProfile(sellerId) {
     const sellerAvatar = seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}">` : '👤';
     const stars = seller.avg_rating ? '⭐'.repeat(Math.round(seller.avg_rating)) : 'No ratings yet';
 
+    // Fetch reviews
+    const reviewsRes = await fetch(`/api/ratings/seller/${sellerId}`);
+    const reviewsData = await reviewsRes.json();
+    const reviews = reviewsData.reviews || [];
+
     const profileHtml = `
       <div style="text-align: center; margin-bottom: 24px;">
         <div style="width: 100px; height: 100px; margin: 0 auto 16px; border-radius: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden;">
@@ -442,6 +448,27 @@ async function showSellerProfile(sellerId) {
           </div>
         ` : '<p style="margin: 0; color: #aaa; font-size: 13px;">No active listings</p>'}
       </div>
+
+      <div style="border-top: 1px solid #eee; padding-top: 16px; margin-top: 16px;">
+        <p style="margin: 0 0 12px; color: #999; font-size: 11px; font-weight: bold; text-transform: uppercase;">Recent Reviews (${reviews.length})</p>
+        ${reviews.length > 0 ? `
+          <div style="max-height: 240px; overflow-y: auto; padding-right: 4px;">
+            ${reviews.map(r => `
+              <div style="padding: 12px; background: #fdfcf9; border-radius: 12px; border: 1px solid #f0efeb; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <span style="font-size: 13px; font-weight: 600; color: #1a1a2e;">${escapeHtml(r.reviewer_name)}</span>
+                  <span style="color: #ffc107; font-size: 14px;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                </div>
+                <p style="font-size: 13px; color: #5a5a5a; margin: 0; font-style: italic;">"${escapeHtml(r.comment || 'No comment provided')}"</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                  <span style="font-size: 11px; color: #aaa;">📦 ${escapeHtml(r.listing_title || 'Item')}</span>
+                  <span style="font-size: 11px; color: #bbb;">${new Date(r.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p style="margin: 0; color: #aaa; font-size: 13px; text-align: center; padding: 20px;">No reviews yet</p>'}
+      </div>
     `;
 
     document.getElementById('sellerProfileContent').innerHTML = profileHtml;
@@ -459,14 +486,95 @@ function closeSellerModal() {
   document.body.style.overflow = 'auto';
 }
 
+// ── Rating Functions ──
+let selectedRating = 0;
+function openRatingModal(listingId, sellerId, sellerName) {
+  selectedRating = 0;
+  document.getElementById('ratingSellerName').textContent = `Reviewing ${sellerName}`;
+  document.getElementById('ratingComment').value = '';
+  document.querySelectorAll('.star-btn').forEach(s => s.classList.remove('active'));
+  document.getElementById('submitRatingBtn').disabled = true;
+  
+  const submitBtn = document.getElementById('submitRatingBtn');
+  submitBtn.onclick = () => submitRating(listingId, sellerId);
+  
+  document.getElementById('ratingModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setupStarRating();
+}
+
+function closeRatingModal() {
+  document.getElementById('ratingModal').classList.remove('open');
+  document.body.style.overflow = 'auto';
+}
+
+function setupStarRating() {
+  const stars = document.querySelectorAll('.star-btn');
+  const submitBtn = document.getElementById('submitRatingBtn');
+  
+  stars.forEach(btn => {
+    btn.onclick = () => {
+      selectedRating = parseInt(btn.dataset.val);
+      stars.forEach((s, idx) => {
+        s.classList.toggle('active', idx < selectedRating);
+      });
+      submitBtn.disabled = false;
+    };
+  });
+}
+
+async function submitRating(listingId, sellerId) {
+  const comment = document.getElementById('ratingComment').value;
+  const submitBtn = document.getElementById('submitRatingBtn');
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+  
+  try {
+    const res = await fetch('/api/ratings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        listing_id: listingId,
+        seller_id: sellerId,
+        rating: selectedRating,
+        comment: comment
+      })
+    });
+    
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Review submitted successfully! Thank you.');
+      closeRatingModal();
+      location.reload(); // Reload to update average rating
+    } else {
+      alert('❌ ' + (data.error || 'Failed to submit review'));
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Review';
+    }
+  } catch (error) {
+    console.error('Error submitting review:', error);
+    alert('Could not submit review');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Review';
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('sellerModal');
-  if (modal) {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        closeSellerModal();
-      }
-    });
-  }
+  const sellerModal = document.getElementById('sellerModal');
+  const ratingModal = document.getElementById('ratingModal');
+
+  [sellerModal, ratingModal].forEach(m => {
+    if (m) {
+      m.addEventListener('click', (e) => {
+        if (e.target === m) {
+          if (m.id === 'sellerModal') closeSellerModal();
+          else closeRatingModal();
+        }
+      });
+    }
+  });
 });

@@ -281,16 +281,15 @@ async function loadSellerRatings(userId) {
     // Fetch reviews for this seller
     // Note: This assumes there's a /api/reviews endpoint or similar
     // If not, you can comment this out for now
-    const res = await fetch(`/api/reviews?seller_id=${userId}`, {
+    const res = await fetch(`/api/ratings/seller/${userId}`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
 
     if (res.ok) {
       const data = await res.json();
-      const reviews = data.data || [];
+      const reviews = data.reviews || [];
       renderReviews(reviews);
     } else {
-      // Endpoint might not exist yet - show placeholder
       renderReviews([]);
     }
 

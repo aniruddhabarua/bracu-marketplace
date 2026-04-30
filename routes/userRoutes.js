@@ -96,7 +96,15 @@ router.get('/api/auth/me', authenticate, (req, res) => {
   UserModel.getPublicProfile(req.user.user_id, (err, rows) => {
     if (err || !rows.length)
       return res.status(500).json({ success: false, message: 'Error fetching profile.' });
-    return res.status(200).json({ success: true, data: rows[0] });
+    const profile = rows[0];
+    return res.status(200).json({ 
+      success: true, 
+      data: {
+        ...profile,
+        avg_rating: profile.avg_rating ? parseFloat(profile.avg_rating) : null,
+        total_reviews: parseInt(profile.total_reviews || 0)
+      } 
+    });
   });
 });
 

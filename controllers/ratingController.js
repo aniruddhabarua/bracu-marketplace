@@ -102,7 +102,7 @@ const getSellerRatings = async (req, res) => {
 // Delete your own review
 const deleteRating = async (req, res) => {
   try {
-    const reviewer_id = req.user?.id;
+    const reviewer_id = req.user?.user_id;
     if (!reviewer_id) return res.status(401).json({ error: 'Unauthorized' });
 
     const { id } = req.params;
