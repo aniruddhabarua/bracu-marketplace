@@ -3,19 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 17, 2026 at 05:42 PM
+-- Generation Time: May 01, 2026 at 02:35 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-CREATE DATABASE IF NOT EXISTS bracu_marketplace
-  DEFAULT CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE bracu_marketplace;
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -40,6 +34,19 @@ CREATE TABLE `conversations` (
   `listing_id` int(11) DEFAULT NULL,
   `last_message_at` datetime NOT NULL DEFAULT current_timestamp(),
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `favorite_sellers`
+--
+
+CREATE TABLE `favorite_sellers` (
+  `favorite_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `seller_id` int(11) NOT NULL,
+  `followed_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -238,6 +245,7 @@ CREATE TABLE `users` (
   `profile_picture` varchar(255) DEFAULT NULL,
   `bio` text DEFAULT NULL,
   `is_verified` tinyint(1) NOT NULL DEFAULT 0,
+  `verification_type` varchar(50) DEFAULT NULL,
   `member_since` datetime NOT NULL DEFAULT current_timestamp(),
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -248,26 +256,13 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `full_name`, `email`, `password_hash`, `role`, `department`, `profile_picture`, `bio`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Admin User', 'admin@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Administration', NULL, NULL, 1, '2026-03-28 19:47:46', '2026-03-28 22:37:25'),
-(2, 'Alice Student', 'alice@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'CSE', NULL, NULL, 1, '2026-03-28 19:47:46', '2026-03-28 19:47:46'),
-(3, 'Bob Student', 'bob@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'EEE', NULL, NULL, 1, '2026-03-28 19:47:46', '2026-03-28 19:47:46'),
-(4, 'Carol Faculty', 'carol@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'faculty', 'Mathematics', NULL, NULL, 1, '2026-03-28 19:47:46', '2026-03-28 19:47:46'),
-(5, 'mango', 'mango@g.bracu.ac.bd', '$2b$10$T38Pb/w4blCnVe9NvOAeRuvybNpx9XGd22mz7cSQq27yO1sNagnQS', 'student', 'CSE', NULL, NULL, 1, '2026-03-28 20:55:18', '2026-03-28 20:55:18'),
-(7, 'mango', 'mango@bracu.ac.bd', '$2b$10$mFEaNzwAXIFR.qJepe1lmOnp.QFTT2S9Gz1JJHUDmwne9Ue6tMS2i', 'student', 'CSE', NULL, NULL, 1, '2026-04-09 13:20:29', '2026-04-09 13:20:29');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `favorite_sellers`
---
-
-CREATE TABLE `favorite_sellers` (
-  `favorite_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `seller_id` int(11) NOT NULL,
-  `followed_at` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `users` (`user_id`, `full_name`, `email`, `password_hash`, `role`, `department`, `profile_picture`, `bio`, `is_verified`, `verification_type`, `member_since`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Admin User', 'admin@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Administration', NULL, NULL, 0, NULL, '2026-05-01 12:35:19', 1, '2026-03-28 19:47:46', '2026-03-28 22:37:25'),
+(2, 'Alice Student', 'alice@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'CSE', NULL, NULL, 0, NULL, '2026-05-01 12:35:19', 1, '2026-03-28 19:47:46', '2026-03-28 19:47:46'),
+(3, 'Bob Student', 'bob@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'EEE', NULL, NULL, 0, NULL, '2026-05-01 12:35:19', 1, '2026-03-28 19:47:46', '2026-03-28 19:47:46'),
+(4, 'Carol Faculty', 'carol@bracu.ac.bd', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'faculty', 'Mathematics', NULL, NULL, 0, NULL, '2026-05-01 12:35:19', 1, '2026-03-28 19:47:46', '2026-03-28 19:47:46'),
+(5, 'mango', 'mango@g.bracu.ac.bd', '$2b$10$T38Pb/w4blCnVe9NvOAeRuvybNpx9XGd22mz7cSQq27yO1sNagnQS', 'student', 'CSE', NULL, NULL, 0, NULL, '2026-05-01 12:35:19', 1, '2026-03-28 20:55:18', '2026-03-28 20:55:18'),
+(7, 'mango', 'mango@bracu.ac.bd', '$2b$10$mFEaNzwAXIFR.qJepe1lmOnp.QFTT2S9Gz1JJHUDmwne9Ue6tMS2i', 'student', 'CSE', NULL, NULL, 0, NULL, '2026-05-01 12:35:19', 1, '2026-04-09 13:20:29', '2026-04-09 13:20:29');
 
 -- --------------------------------------------------------
 

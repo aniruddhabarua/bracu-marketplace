@@ -16,7 +16,6 @@ const VALID_CATEGORIES = [
 
 const ListingController = {
 
-
   createListing: (req, res) => {
     const seller_id = req.user.user_id;
     const { title, description, price, category, condition_type, location } = req.body;
@@ -65,10 +64,8 @@ const ListingController = {
 
       const listingId = result.insertId;
 
-      
-      const files = req.files || [];          
+      const files = req.files || [];
       if (files.length === 0) {
-        
         return res.status(201).json({
           success:    true,
           message:    'Listing created successfully.',
@@ -79,7 +76,7 @@ const ListingController = {
       let saved = 0;
       files.forEach((file, index) => {
         const imageUrl = `/uploads/listings/${file.filename}`;
-        const isPrimary = index === 0;        
+        const isPrimary = index === 0;
 
         ListingModel.addImage(listingId, imageUrl, isPrimary, (imgErr) => {
           if (imgErr) console.error('Image save error:', imgErr.message);
@@ -97,7 +94,6 @@ const ListingController = {
     });
   },
 
-  
   getListings: (req, res) => {
     const filters = {
       keyword:        req.query.keyword        || '',
@@ -116,7 +112,6 @@ const ListingController = {
     });
   },
 
- 
   getCategories: (req, res) => {
     ListingModel.getCategories((err, rows) => {
       if (err)
@@ -127,7 +122,6 @@ const ListingController = {
     });
   },
 
-  
   getListing: (req, res) => {
     const listingId = parseInt(req.params.id);
     console.log('=== getListing called ===');
@@ -157,7 +151,6 @@ const ListingController = {
     });
   },
 
-  
   updateListing: (req, res) => {
     const listingId = parseInt(req.params.id);
     const userId    = req.user.user_id;
@@ -192,7 +185,6 @@ const ListingController = {
     });
   },
 
-  
   deleteListing: (req, res) => {
     const listingId = parseInt(req.params.id);
     const userId    = req.user.user_id;
@@ -202,7 +194,6 @@ const ListingController = {
       return res.status(400).json({ success: false, message: 'Invalid listing ID.' });
 
     if (isAdmin) {
-     
       ListingModel.delete(listingId, (err) => {
         if (err) return res.status(500).json({ success: false, message: 'Database error.' });
         return res.status(200).json({ success: true, message: 'Listing deleted.' });
@@ -220,43 +211,41 @@ const ListingController = {
     }
   },
 
-};
+  updateStatus: (req, res) => {
+    const listingId = parseInt(req.params.id);
+    const userId = req.user.user_id;
+    const { status } = req.body;
 
-
-updateStatus: (req, res) => {
-  const listingId = parseInt(req.params.id);
-  const userId = req.user.user_id;
-  const { status } = req.body;
-
-  if (isNaN(listingId)) {
-    return res.status(400).json({ success: false, message: 'Invalid listing ID.' });
-  }
-
-  const validStatuses = ['available', 'reserved', 'sold'];
-  if (!validStatuses.includes(status)) {
-    return res.status(400).json({ success: false, message: 'Status must be available, reserved, or sold.' });
-  }
-
-
-  ListingModel.isOwner(listingId, userId, (err, owns) => {
-    if (err) {
-      return res.status(500).json({ success: false, message: 'Database error.' });
-    }
-    if (!owns) {
-      return res.status(403).json({ success: false, message: 'You can only update your own listings.' });
+    if (isNaN(listingId)) {
+      return res.status(400).json({ success: false, message: 'Invalid listing ID.' });
     }
 
-    ListingModel.updateStatus(listingId, status, (err2, result) => {
-      if (err2) {
-        return res.status(500).json({ success: false, message: 'Database error.', error: err2.message });
+    const validStatuses = ['available', 'reserved', 'sold'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Status must be available, reserved, or sold.' });
+    }
+
+    ListingModel.isOwner(listingId, userId, (err, owns) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Database error.' });
       }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ success: false, message: 'Listing not found.' });
+      if (!owns) {
+        return res.status(403).json({ success: false, message: 'You can only update your own listings.' });
       }
 
-      return res.status(200).json({ success: true, message: `Listing status updated to ${status}.` });
+      ListingModel.updateStatus(listingId, status, (err2, result) => {
+        if (err2) {
+          return res.status(500).json({ success: false, message: 'Database error.', error: err2.message });
+        }
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ success: false, message: 'Listing not found.' });
+        }
+
+        return res.status(200).json({ success: true, message: `Listing status updated to ${status}.` });
+      });
     });
-  });
-},
+  },
+
+};
 
 module.exports = ListingController;
