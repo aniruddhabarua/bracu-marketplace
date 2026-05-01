@@ -222,4 +222,41 @@ const ListingController = {
 
 };
 
+
+updateStatus: (req, res) => {
+  const listingId = parseInt(req.params.id);
+  const userId = req.user.user_id;
+  const { status } = req.body;
+
+  if (isNaN(listingId)) {
+    return res.status(400).json({ success: false, message: 'Invalid listing ID.' });
+  }
+
+  const validStatuses = ['available', 'reserved', 'sold'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ success: false, message: 'Status must be available, reserved, or sold.' });
+  }
+
+
+  ListingModel.isOwner(listingId, userId, (err, owns) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Database error.' });
+    }
+    if (!owns) {
+      return res.status(403).json({ success: false, message: 'You can only update your own listings.' });
+    }
+
+    ListingModel.updateStatus(listingId, status, (err2, result) => {
+      if (err2) {
+        return res.status(500).json({ success: false, message: 'Database error.', error: err2.message });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Listing not found.' });
+      }
+
+      return res.status(200).json({ success: true, message: `Listing status updated to ${status}.` });
+    });
+  });
+},
+
 module.exports = ListingController;
