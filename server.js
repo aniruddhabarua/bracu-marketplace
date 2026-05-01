@@ -1,4 +1,3 @@
-// server.js
 require('dotenv').config();
 const express    = require('express');
 const http       = require('http');
@@ -10,7 +9,6 @@ const app    = express();
 const server = http.createServer(app);
 const io     = new Server(server, { cors: { origin: '*' } });
 
-// ── Route imports ─────────────────────────────────────────────
 const userRoutes           = require('./routes/userRoutes');
 const productRoutes        = require('./routes/productRoutes');
 const listingRoutes        = require('./routes/listingRoutes');
@@ -24,19 +22,16 @@ const chatRoutes           = require('./routes/chatRoutes');
 const ratingRoutes         = require('./routes/ratingRoutes');
 const recentlyViewedRoutes = require('./routes/recentlyViewedRoutes');
 const announcementRoutes   = require('./routes/announcementRoutes');
+const adminRoutes          = require('./routes/adminRoutes');  // <-- ADD THIS LINE
 
-
-// ── Ensure upload directory exists ────────────────────────────
 const uploadDir = path.join(__dirname, 'public', 'uploads', 'listings');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-// ── Middleware ────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => { req.io = io; next(); });
 
-// ── API routes ────────────────────────────────────────────────
 app.use('/',                   userRoutes);
 app.use('/',                   productRoutes);
 app.use('/api/listings',       listingRoutes);
@@ -50,9 +45,8 @@ app.use('/api/chat',           chatRoutes);
 app.use('/api/ratings',        ratingRoutes);
 app.use('/api/recently-viewed', recentlyViewedRoutes);
 app.use('/api/announcements',   announcementRoutes);
+app.use('/api',                 adminRoutes);  // <-- ADD THIS LINE
 
-
-// ── Page routes ───────────────────────────────────────────────
 app.get('/',              (req, res) => res.sendFile(path.join(__dirname, 'views', 'index.html')));
 app.get('/login',         (req, res) => res.sendFile(path.join(__dirname, 'views', 'login.html')));
 app.get('/login.html',    (req, res) => res.sendFile(path.join(__dirname, 'views', 'login.html')));
@@ -64,10 +58,8 @@ app.get('/transactions',  (req, res) => res.sendFile(path.join(__dirname, 'views
 app.get('/admin',         (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
 app.get('/admin.html',    (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
 
-// ── Socket.IO ─────────────────────────────────────────────────
 require('./socket')(io);
 
-// ── Start ─────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
 

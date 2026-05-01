@@ -292,13 +292,14 @@
 
     .filter-bar {
       display: flex;
-      gap: 8px;
+      gap: 12px;
       margin-bottom: 20px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .filter-chip {
-      padding: 6px 18px;
+      padding: 8px 18px;
       border-radius: 30px;
       border: 1px solid #e2e8f0;
       background: white;
@@ -317,6 +318,28 @@
       background: #0f172a;
       border-color: #0f172a;
       color: white;
+    }
+
+    .search-input {
+      padding: 8px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 30px;
+      font-size: 13px;
+      width: 250px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #3b82f6;
+    }
+
+    .role-select {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      font-size: 12px;
+      background: white;
+      cursor: pointer;
     }
 
     .table-card {
@@ -382,19 +405,35 @@
       color: #475569;
     }
 
-    .badge.listing {
-      background: #ede9fe;
-      color: #5b21b6;
+    .badge.active {
+      background: #dcfce7;
+      color: #166534;
     }
 
-    .badge.user {
-      background: #fce7f3;
-      color: #9d174d;
+    .badge.suspended {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge.available {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge.reserved {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge.sold {
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .action-btns {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .btn-sm {
@@ -405,16 +444,6 @@
       cursor: pointer;
       border: none;
       transition: all 0.2s;
-    }
-
-    .btn-resolve {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .btn-resolve:hover {
-      background: #16a34a;
-      color: white;
     }
 
     .btn-dismiss {
@@ -433,6 +462,35 @@
 
     .btn-danger:hover {
       background: #ef4444;
+      color: white;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .btn-warning:hover {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .btn-success:hover {
+      background: #16a34a;
       color: white;
     }
 
@@ -472,7 +530,9 @@
       background: white;
       border-radius: 24px;
       width: 90%;
-      max-width: 440px;
+      max-width: 550px;
+      max-height: 85vh;
+      overflow-y: auto;
       padding: 28px;
     }
 
@@ -488,19 +548,22 @@
       margin-bottom: 20px;
     }
 
-    .modal textarea {
+    .modal textarea, .modal input {
       width: 100%;
       padding: 12px;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       font-family: inherit;
       font-size: 13px;
-      resize: vertical;
-      min-height: 80px;
       margin-bottom: 16px;
     }
 
-    .modal textarea:focus {
+    .modal textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal textarea:focus, .modal input:focus {
       outline: none;
       border-color: #3b82f6;
     }
@@ -559,6 +622,58 @@
 
     .toast.error {
       background: #dc2626;
+    }
+
+    .user-avatar-sm {
+      width: 32px;
+      height: 32px;
+      background: #f1f5f9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .verified-badge {
+      color: #22c55e;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .detail-label {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .detail-value {
+      font-weight: 500;
+      color: #0f172a;
+      text-align: right;
+    }
+
+    .report-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .report-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -647,11 +762,11 @@
 
       <div class="panel" id="panel-reports">
         <div class="filter-bar">
-          <div class="filter-chip active" onclick="filterReports('', this)">All</div>
-          <div class="filter-chip" onclick="filterReports('pending', this)">Pending</div>
-          <div class="filter-chip" onclick="filterReports('reviewed', this)">Reviewed</div>
-          <div class="filter-chip" onclick="filterReports('resolved', this)">Resolved</div>
-          <div class="filter-chip" onclick="filterReports('dismissed', this)">Dismissed</div>
+          <div class="filter-chip" data-status="all" onclick="filterReports('all', this)">All</div>
+          <div class="filter-chip" data-status="pending" onclick="filterReports('pending', this)">Pending</div>
+          <div class="filter-chip" data-status="reviewed" onclick="filterReports('reviewed', this)">Reviewed</div>
+          <div class="filter-chip" data-status="resolved" onclick="filterReports('resolved', this)">Resolved</div>
+          <div class="filter-chip" data-status="dismissed" onclick="filterReports('dismissed', this)">Dismissed</div>
         </div>
         <div class="table-card" id="reportsTable">
           <div class="loading">Loading reports...</div>
@@ -659,12 +774,36 @@
       </div>
 
       <div class="panel" id="panel-listings">
+        <div class="filter-bar">
+          <input type="text" id="listingSearch" class="search-input" placeholder="Search listings..." onkeyup="loadListings()">
+          <select id="listingStatusFilter" class="filter-chip" onchange="loadListings()" style="background: white;">
+            <option value="all">All Status</option>
+            <option value="available">Available</option>
+            <option value="reserved">Reserved</option>
+            <option value="sold">Sold</option>
+          </select>
+        </div>
         <div class="table-card" id="listingsTable">
           <div class="loading">Loading listings...</div>
         </div>
       </div>
 
       <div class="panel" id="panel-users">
+        <div class="filter-bar">
+          <input type="text" id="userSearch" class="search-input" placeholder="Search by name or email..." onkeyup="loadUsers()">
+          <select id="userRoleFilter" class="filter-chip" onchange="loadUsers()" style="background: white;">
+            <option value="all">All Roles</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+            <option value="staff">Staff</option>
+            <option value="alumni">Alumni</option>
+          </select>
+          <select id="userStatusFilter" class="filter-chip" onchange="loadUsers()" style="background: white;">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        </div>
         <div class="table-card" id="usersTable">
           <div class="loading">Loading users...</div>
         </div>
@@ -673,14 +812,50 @@
   </main>
 </div>
 
-<div class="modal-overlay" id="resolveModal">
+<div class="modal-overlay" id="dismissModal">
   <div class="modal">
-    <h3 id="modalTitle">Resolve Report</h3>
-    <p id="modalDesc">Add an optional note for the reporter.</p>
-    <textarea id="adminNote" placeholder="Optional admin note..."></textarea>
+    <h3>Dismiss Report</h3>
+    <p>Add a note explaining why this report is being dismissed.</p>
+    <textarea id="dismissNote" placeholder="Optional admin note..."></textarea>
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-confirm" id="modalConfirmBtn">Confirm</button>
+      <button class="btn-cancel" onclick="closeDismissModal()">Cancel</button>
+      <button class="btn-confirm" id="dismissConfirmBtn">Dismiss Report</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="warningModal">
+  <div class="modal">
+    <h3>Send Warning to User</h3>
+    <p id="warningUserInfo"></p>
+    <textarea id="warningMessage" placeholder="Write a warning message to this user..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeWarningModal()">Cancel</button>
+      <button class="btn-confirm" id="warningConfirmBtn">Send Warning</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="userActionModal">
+  <div class="modal">
+    <h3>Take Action Against User</h3>
+    <p id="actionUserInfo"></p>
+    <div class="action-btns" style="flex-direction: column; gap: 10px; margin: 20px 0;">
+      <button class="btn-sm btn-warning" id="sendWarningBtn">📧 Send Warning Message</button>
+      <button class="btn-sm btn-danger" id="suspendUserBtn">🔨 Suspend User</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeUserActionModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="userDetailModal">
+  <div class="modal">
+    <h3 id="userDetailTitle">User Details</h3>
+    <div id="userDetailContent"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeUserDetailModal()">Close</button>
     </div>
   </div>
 </div>
@@ -704,11 +879,12 @@
     overview: ['Dashboard', 'Overview of marketplace activity'],
     reports: ['Reports', 'Review and resolve reported content'],
     listings: ['Listings', 'Manage all marketplace listings'],
-    users: ['Users', 'View all registered users'],
+    users: ['Users', 'Manage all registered users'],
   };
 
   let currentPanel = 'overview';
-  let allReports = [];
+  let currentReportFilter = 'all';
+  let currentReportsData = [];
 
   function showPanel(name) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -727,12 +903,17 @@
     currentPanel = name;
 
     if (name === 'overview') loadOverview();
-    if (name === 'reports') loadReports();
+    if (name === 'reports') loadReports(currentReportFilter);
     if (name === 'listings') loadListings();
     if (name === 'users') loadUsers();
   }
 
-  function refreshCurrent() { showPanel(currentPanel); }
+  function refreshCurrent() { 
+    if (currentPanel === 'overview') loadOverview();
+    if (currentPanel === 'reports') loadReports(currentReportFilter);
+    if (currentPanel === 'listings') loadListings();
+    if (currentPanel === 'users') loadUsers();
+  }
 
   function showToast(msg, type = '') {
     const t = document.getElementById('toast');
@@ -743,33 +924,30 @@
 
   async function loadOverview() {
     try {
-      const res = await fetch('/api/reports', { headers });
+      const res = await fetch('/api/admin/stats', { headers });
       const data = await res.json();
-      const reports = data.data || [];
-
-      const pending = reports.filter(r => r.status === 'pending').length;
-      const resolved = reports.filter(r => r.status === 'resolved').length;
-
-      document.getElementById('stat-pending').textContent = pending;
-      document.getElementById('stat-resolved').textContent = resolved;
-
-      const badge = document.getElementById('reportsBadge');
-      if (pending > 0) {
-        badge.textContent = pending;
-        badge.style.display = '';
-      } else {
-        badge.style.display = 'none';
+      
+      if (data.success) {
+        document.getElementById('stat-pending').textContent = data.data.pending_reports;
+        document.getElementById('stat-users').textContent = data.data.total_users;
+        document.getElementById('stat-listings').textContent = data.data.active_listings;
+        document.getElementById('stat-resolved').textContent = data.data.resolved_reports;
+        
+        const badge = document.getElementById('reportsBadge');
+        if (data.data.pending_reports > 0) {
+          badge.textContent = data.data.pending_reports > 99 ? '99+' : data.data.pending_reports;
+          badge.style.display = '';
+        } else {
+          badge.style.display = 'none';
+        }
       }
-
-      const lRes = await fetch('/api/listings', { headers });
-      const lData = await lRes.json();
-      document.getElementById('stat-listings').textContent = lData.count || 0;
-      document.getElementById('stat-users').textContent = '—';
-
-      const recent = reports.filter(r => r.status === 'pending').slice(0, 5);
-      renderOverviewReports(recent);
+      
+      const reportsRes = await fetch('/api/admin/reports?status=pending', { headers });
+      const reportsData = await reportsRes.json();
+      const pendingReports = (reportsData.data || []).slice(0, 5);
+      renderOverviewReports(pendingReports);
     } catch (err) {
-      document.getElementById('stat-pending').textContent = 'Err';
+      console.error('Error loading overview:', err);
     }
   }
 
@@ -781,18 +959,23 @@
     }
     el.innerHTML = `
       <table>
-        <thead><tr><th>Reporter</th><th>Type</th><th>Reason</th><th>Date</th><th>Action</th></tr></thead>
+        <thead><tr><th>Reporter</th><th>Reported User/Item</th><th>Reason</th><th>Date</th><th>Action</th></tr></thead>
         <tbody>
           ${reports.map(r => `
             <tr>
-              <td>${r.reporter_name || '—'}</td>
-              <td><span class="badge ${r.reported_type}">${r.reported_type}</span></td>
-              <td>${r.reason}</td>
+              <td>${escapeHtml(r.reporter_name || '—')}</td>
+              <td>
+                ${r.reported_type === 'listing' ? 
+                  `<a href="/listings?id=${r.reported_id}" target="_blank" class="report-link">📦 ${escapeHtml(r.reported_title || 'Item')}</a>` : 
+                  `<span>👤 ${escapeHtml(r.reported_user_name || 'User #' + r.reported_id)}</span>`
+                }
+              </td>
+              <td>${escapeHtml(r.reason)}</td>
               <td>${formatDate(r.created_at)}</td>
               <td>
                 <div class="action-btns">
-                  <button class="btn-sm btn-resolve" onclick="openModal(${r.report_id}, 'resolved')">Resolve</button>
-                  <button class="btn-sm btn-dismiss" onclick="openModal(${r.report_id}, 'dismissed')">Dismiss</button>
+                  <button class="btn-sm btn-dismiss" onclick="openDismissModal(${r.report_id})">Dismiss</button>
+                  <button class="btn-sm btn-primary" onclick="takeActionOnReport(${r.report_id}, ${r.reported_user_id || r.reported_id}, '${escapeHtml(r.reported_user_name || 'User')}')">Take Action</button>
                 </div>
               </td>
             </tr>
@@ -801,66 +984,96 @@
       </table>`;
   }
 
-  async function loadReports(status = '') {
+  async function loadReports(status = 'all') {
     const el = document.getElementById('reportsTable');
-    el.innerHTML = '<div class="loading">Loading...</div>';
+    el.innerHTML = '<div class="loading">Loading reports...</div>';
+    currentReportFilter = status;
+    
     try {
-      const url = status ? `/api/reports?status=${status}` : '/api/reports';
+      const url = status === 'all' ? '/api/admin/reports' : `/api/admin/reports?status=${status}`;
       const res = await fetch(url, { headers });
       const data = await res.json();
-      allReports = data.data || [];
-      renderReportsTable(allReports);
+      currentReportsData = data.data || [];
+      
+      if (!currentReportsData.length) {
+        el.innerHTML = `<div class="empty-state"><div class="empty-icon">🚩</div><p>No ${status !== 'all' ? status + ' ' : ''}reports found</p></div>`;
+        return;
+      }
+      
+      renderReportsTable(currentReportsData);
     } catch (err) {
       el.innerHTML = '<div class="empty-state"><p>Failed to load reports.</p></div>';
     }
   }
 
-  function filterReports(status, chip) {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    const filtered = status ? allReports.filter(r => r.status === status) : allReports;
-    renderReportsTable(filtered);
-  }
-
   function renderReportsTable(reports) {
     const el = document.getElementById('reportsTable');
-    if (!reports.length) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">🚩</div><p>No reports found</p></div>`;
-      return;
-    }
+    
     el.innerHTML = `
       <table>
         <thead>
-          <tr><th>ID</th><th>Reporter</th><th>Type</th><th>Reported ID</th><th>Reason</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+          <tr>
+            <th>ID</th>
+            <th>Reporter</th>
+            <th>Type</th>
+            <th>Reported Item/User</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
           ${reports.map(r => `
             <tr>
               <td>#${r.report_id}</td>
-              <td>${r.reporter_name || '—'}</td>
+              <td>${escapeHtml(r.reporter_name || '—')}<br><small style="color:#888">${escapeHtml(r.reporter_email)}</small></td>
               <td><span class="badge ${r.reported_type}">${r.reported_type}</span></td>
-              <td>${r.reported_id}</td>
-              <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.reason}">${r.reason}</td>
+              <td>
+                ${r.reported_type === 'listing' ? 
+                  `<div><a href="/listings?id=${r.reported_id}" target="_blank" class="report-link">📦 ${escapeHtml(r.reported_title || 'View Item')}</a></div>
+                   <div style="font-size:11px; color:#666; margin-top:4px;">Seller: ${escapeHtml(r.reported_user_name || 'Unknown')}</div>
+                   <div style="font-size:10px; color:#888;">Status: ${r.listing_status || 'Unknown'}</div>` : 
+                  `<div>👤 ${escapeHtml(r.reported_user_name || 'User #' + r.reported_id)}</div>
+                   <div style="font-size:11px; color:#666; margin-top:4px;">User ID: ${r.reported_id}</div>`
+                }
+              </td>
+              <td style="max-width:180px;" title="${escapeHtml(r.reason)}">${escapeHtml(r.reason)}${r.details ? '<br><small style="color:#888">' + escapeHtml(r.details.substring(0, 50)) + '</small>' : ''}</td>
               <td><span class="badge ${r.status}">${r.status}</span></td>
               <td>${formatDate(r.created_at)}</td>
               <td>
                 ${r.status === 'pending' ? `
                   <div class="action-btns">
-                    <button class="btn-sm btn-resolve" onclick="openModal(${r.report_id}, 'resolved')">Resolve</button>
-                    <button class="btn-sm btn-dismiss" onclick="openModal(${r.report_id}, 'dismissed')">Dismiss</button>
+                    <button class="btn-sm btn-dismiss" onclick="openDismissModal(${r.report_id})">Dismiss</button>
+                    <button class="btn-sm btn-primary" onclick="takeActionOnReport(${r.report_id}, ${r.reported_user_id || r.reported_id}, '${escapeHtml(r.reported_user_name || 'User')}')">Take Action</button>
                   </div>` : '<span style="color:#94a3b8;">—</span>'}
-              </td>
-            </tr>
+               </td>
+             </tr>
           `).join('')}
         </tbody>
       </table>`;
   }
 
+  function filterReports(status, chip) {
+    document.querySelectorAll('#panel-reports .filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    loadReports(status);
+  }
+
   async function loadListings() {
     const el = document.getElementById('listingsTable');
-    el.innerHTML = '<div class="loading">Loading...</div>';
+    const search = document.getElementById('listingSearch')?.value || '';
+    const status = document.getElementById('listingStatusFilter')?.value || 'all';
+    
+    el.innerHTML = '<div class="loading">Loading listings...</div>';
     try {
-      const res = await fetch('/api/listings', { headers });
+      let url = '/api/admin/listings';
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (status && status !== 'all') params.append('status', status);
+      if (params.toString()) url += '?' + params.toString();
+      
+      const res = await fetch(url, { headers });
       const data = await res.json();
       const listings = data.data || [];
 
@@ -876,11 +1089,11 @@
             ${listings.map(l => `
               <tr>
                 <td>#${l.listing_id}</td>
-                <td style="font-weight:500">${escapeHtml(l.title)}</td>
-                <td>${l.seller_name || '—'}</td>
-                <td>${l.category}</td>
+                <td style="font-weight:500"><a href="/listings?id=${l.listing_id}" target="_blank" class="report-link">${escapeHtml(l.title)}</a></td>
+                <td>${escapeHtml(l.seller_name || '—')}</td>
+                <td>${escapeHtml(l.category)}</td>
                 <td>৳${Number(l.price).toLocaleString()}</td>
-                <td><span class="badge ${l.status === 'available' ? 'resolved' : l.status === 'sold' ? 'reviewed' : 'dismissed'}">${l.status}</span></td>
+                <td><span class="badge ${l.status}">${l.status}</span></td>
                 <td>${formatDate(l.created_at)}</td>
                 <td><button class="btn-sm btn-danger" onclick="deleteListing(${l.listing_id}, this)">Remove</button></td>
               </tr>
@@ -894,19 +1107,295 @@
 
   async function loadUsers() {
     const el = document.getElementById('usersTable');
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><p>User management feature coming soon.</p></div>`;
+    const search = document.getElementById('userSearch')?.value || '';
+    const role = document.getElementById('userRoleFilter')?.value || 'all';
+    const status = document.getElementById('userStatusFilter')?.value || 'all';
+    
+    el.innerHTML = '<div class="loading">Loading users...</div>';
+    try {
+      let url = '/api/admin/users';
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (role && role !== 'all') params.append('role', role);
+      if (status && status !== 'all') params.append('status', status);
+      if (params.toString()) url += '?' + params.toString();
+      
+      const res = await fetch(url, { headers });
+      const data = await res.json();
+      
+      if (!data.success) {
+        el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>${data.message || 'Failed to load users'}</p></div>`;
+        return;
+      }
+      
+      const users = data.data || [];
+
+      if (!users.length) {
+        el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><p>No users found</p></div>`;
+        return;
+      }
+
+      renderUsersTable(users);
+    } catch (err) {
+      console.error('Error loading users:', err);
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load users. Please try again.</p></div>';
+    }
   }
+
+  function renderUsersTable(users) {
+    const el = document.getElementById('usersTable');
+    
+    el.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>ID</th><th>User</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th><th>Joined</th><th>Listings</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          ${users.map(u => `
+            <tr>
+              <td>#${u.user_id}</td>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar-sm">${u.profile_picture ? `<img src="${u.profile_picture}" style="width:100%;height:100%;object-fit:cover;">` : '👤'}</div>
+                  <div><strong>${escapeHtml(u.full_name)}</strong>${u.is_verified ? '<span class="verified-badge">✓</span>' : ''}</div>
+                </div>
+              </td>
+              <td>${escapeHtml(u.email)}</td>
+              <td>
+                <select class="role-select" onchange="updateUserRole(${u.user_id}, this.value)">
+                  <option value="student" ${u.role === 'student' ? 'selected' : ''}>Student</option>
+                  <option value="faculty" ${u.role === 'faculty' ? 'selected' : ''}>Faculty</option>
+                  <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
+                  <option value="alumni" ${u.role === 'alumni' ? 'selected' : ''}>Alumni</option>
+                </select>
+              </td>
+              <td>${u.department || '—'}</td>
+              <td><span class="badge ${u.is_active === 1 ? 'active' : 'suspended'}">${u.is_active === 1 ? 'Active' : 'Suspended'}</span></td>
+              <td>${formatDate(u.created_at)}</td>
+              <td>${u.listing_count || 0}</td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-sm btn-primary" onclick="viewUserDetails(${u.user_id})">View</button>
+                  <button class="btn-sm btn-warning" onclick="sendWarningToUser(${u.user_id}, '${escapeHtml(u.full_name)}')">⚠️ Warn</button>
+                  ${u.is_active === 1 ?
+                    `<button class="btn-sm btn-danger" onclick="toggleUserStatus(${u.user_id}, false)">Suspend</button>` :
+                    `<button class="btn-sm btn-success" onclick="toggleUserStatus(${u.user_id}, true)">Activate</button>`
+                  }
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  async function updateUserRole(userId, newRole) {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ role: newRole })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`User role updated to ${newRole}`, 'success');
+        loadUsers();
+      } else {
+        showToast(data.message || 'Failed to update role', 'error');
+      }
+    } catch (err) {
+      showToast('Server error', 'error');
+    }
+  }
+
+  async function toggleUserStatus(userId, activate) {
+    const action = activate ? 'activate' : 'suspend';
+    if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+    
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/status`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ is_active: activate ? 1 : 0 })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`User ${action}ed successfully`, 'success');
+        loadUsers();
+        loadOverview();
+      } else {
+        showToast(data.message || `Failed to ${action} user`, 'error');
+      }
+    } catch (err) {
+      showToast('Server error', 'error');
+    }
+  }
+
+  async function viewUserDetails(userId) {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { headers });
+      const data = await res.json();
+      if (!data.success) {
+        showToast('Failed to load user details', 'error');
+        return;
+      }
+      
+      const u = data.data;
+      document.getElementById('userDetailTitle').textContent = `${escapeHtml(u.full_name)} - Details`;
+      document.getElementById('userDetailContent').innerHTML = `
+        <div class="detail-row"><span class="detail-label">User ID</span><span class="detail-value">#${u.user_id}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${escapeHtml(u.email)}</span></div>
+        <div class="detail-row"><span class="detail-label">Role</span><span class="detail-value">${u.role}</span></div>
+        <div class="detail-row"><span class="detail-label">Department</span><span class="detail-value">${u.department || 'Not specified'}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${u.is_active === 1 ? 'Active' : 'Suspended'}</span></div>
+        <div class="detail-row"><span class="detail-label">Verified</span><span class="detail-value">${u.is_verified ? 'Yes' : 'No'}</span></div>
+        <div class="detail-row"><span class="detail-label">Member Since</span><span class="detail-value">${formatDate(u.created_at, true)}</span></div>
+        <div class="detail-row"><span class="detail-label">Total Listings</span><span class="detail-value">${u.listing_count || 0}</span></div>
+        <div class="detail-row"><span class="detail-label">Avg Rating</span><span class="detail-value">${u.avg_rating ? parseFloat(u.avg_rating).toFixed(1) : 'No ratings'}</span></div>
+        <div class="detail-row"><span class="detail-label">Pending Reports</span><span class="detail-value">${u.pending_reports || 0}</span></div>
+        ${u.bio ? `<div class="detail-row"><span class="detail-label">Bio</span><span class="detail-value">${escapeHtml(u.bio)}</span></div>` : ''}
+      `;
+      document.getElementById('userDetailModal').classList.add('open');
+    } catch (err) {
+      showToast('Failed to load user details', 'error');
+    }
+  }
+
+  function closeUserDetailModal() {
+    document.getElementById('userDetailModal').classList.remove('open');
+  }
+
+  async function sendWarningToUser(userId, userName) {
+    document.getElementById('warningUserInfo').innerHTML = `Sending warning to: <strong>${escapeHtml(userName)}</strong> (ID: ${userId})`;
+    document.getElementById('warningMessage').value = '';
+    document.getElementById('warningModal').classList.add('open');
+    
+    document.getElementById('warningConfirmBtn').onclick = async () => {
+      const message = document.getElementById('warningMessage').value.trim();
+      if (!message) {
+        showToast('Please enter a warning message', 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/admin/send-warning', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ user_id: userId, message: message })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Warning sent to ${userName}`, 'success');
+          closeWarningModal();
+        } else {
+          showToast(data.message || 'Failed to send warning', 'error');
+        }
+      } catch (err) {
+        showToast('Server error', 'error');
+      }
+    };
+  }
+
+  function closeWarningModal() {
+    document.getElementById('warningModal').classList.remove('open');
+  }
+
+  let currentReportId = null;
+  let currentActionUserId = null;
+  let currentActionUserName = '';
+
+  function takeActionOnReport(reportId, userId, userName) {
+    currentReportId = reportId;
+    currentActionUserId = userId;
+    currentActionUserName = userName;
+    
+    document.getElementById('actionUserInfo').innerHTML = `User: <strong>${escapeHtml(userName)}</strong> (ID: ${userId})`;
+    document.getElementById('userActionModal').classList.add('open');
+    
+    document.getElementById('sendWarningBtn').onclick = () => {
+      closeUserActionModal();
+      sendWarningToUser(userId, userName);
+    };
+    
+    document.getElementById('suspendUserBtn').onclick = () => {
+      if (confirm(`Are you sure you want to SUSPEND ${userName}? They will not be able to log in until reactivated.`)) {
+        toggleUserStatus(userId, false);
+        closeUserActionModal();
+        dismissReportAfterAction(currentReportId);
+      }
+    };
+  }
+
+  async function dismissReportAfterAction(reportId) {
+    try {
+      const res = await fetch(`/api/admin/reports/${reportId}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ status: 'dismissed', admin_note: 'Action taken against user' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        loadReports(currentReportFilter);
+        loadOverview();
+      }
+    } catch (err) {
+      console.error('Error updating report:', err);
+    }
+  }
+
+  function closeUserActionModal() {
+    document.getElementById('userActionModal').classList.remove('open');
+    currentReportId = null;
+    currentActionUserId = null;
+    currentActionUserName = '';
+  }
+
+  function openDismissModal(reportId) {
+    currentReportId = reportId;
+    document.getElementById('dismissNote').value = '';
+    document.getElementById('dismissModal').classList.add('open');
+  }
+
+  function closeDismissModal() {
+    document.getElementById('dismissModal').classList.remove('open');
+    currentReportId = null;
+  }
+
+  document.getElementById('dismissConfirmBtn').addEventListener('click', async () => {
+    if (!currentReportId) return;
+    const adminNote = document.getElementById('dismissNote').value.trim();
+    
+    try {
+      const res = await fetch(`/api/admin/reports/${currentReportId}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ status: 'dismissed', admin_note: adminNote })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Report dismissed', 'success');
+        closeDismissModal();
+        loadReports(currentReportFilter);
+        loadOverview();
+      } else {
+        showToast(data.message || 'Failed', 'error');
+      }
+    } catch (err) {
+      showToast('Server error', 'error');
+    }
+  });
 
   async function deleteListing(id, btn) {
     if (!confirm(`Remove listing #${id}? This cannot be undone.`)) return;
     btn.disabled = true;
     btn.textContent = '...';
     try {
-      const res = await fetch(`/api/listings/${id}`, { method: 'DELETE', headers });
+      const res = await fetch(`/api/admin/listings/${id}`, { method: 'DELETE', headers });
       const data = await res.json();
       if (data.success) {
         showToast('Listing removed.', 'success');
         loadListings();
+        loadOverview();
       } else {
         showToast(data.message || 'Failed.', 'error');
         btn.disabled = false;
@@ -919,55 +1408,13 @@
     }
   }
 
-  let modalReportId = null;
-  let modalAction = null;
-
-  function openModal(reportId, action) {
-    modalReportId = reportId;
-    modalAction = action;
-    document.getElementById('modalTitle').textContent = action === 'resolved' ? 'Resolve Report' : 'Dismiss Report';
-    document.getElementById('modalDesc').textContent = action === 'resolved'
-      ? 'The reporter will be notified that their report was resolved.'
-      : 'The reporter will be notified that their report was dismissed.';
-    document.getElementById('modalConfirmBtn').textContent = action === 'resolved' ? 'Resolve' : 'Dismiss';
-    document.getElementById('adminNote').value = '';
-    document.getElementById('resolveModal').classList.add('open');
-  }
-
-  function closeModal() {
-    document.getElementById('resolveModal').classList.remove('open');
-    modalReportId = null;
-    modalAction = null;
-  }
-
-  document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
-    if (!modalReportId) return;
-    const adminNote = document.getElementById('adminNote').value.trim();
-
-    try {
-      const res = await fetch(`/api/reports/${modalReportId}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ status: modalAction, admin_note: adminNote }),
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        showToast(`Report marked as ${modalAction}.`, 'success');
-        closeModal();
-        loadReports();
-        loadOverview();
-      } else {
-        showToast(data.message || 'Failed.', 'error');
-      }
-    } catch (err) {
-      showToast('Server error.', 'error');
-    }
-  });
-
-  function formatDate(str) {
+  function formatDate(str, full = false) {
     if (!str) return '—';
-    return new Date(str).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const d = new Date(str);
+    if (full) {
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   function escapeHtml(text) {
