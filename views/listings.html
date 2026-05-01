@@ -498,6 +498,29 @@
       border-color: #ff4d4f;
       background: #fffbfb;
     }
+
+        .status-btn {
+      transition: all 0.2s ease;
+      font-family: inherit;
+      font-weight: 500;
+    }
+
+    .status-btn:hover:not(.active) {
+      background: #e8e5e0 !important;
+      color: #1a1a1a !important;
+    }
+
+    .status-btn.active {
+      cursor: default;
+      opacity: 0.9;
+    }
+
+    .status-badge {
+      display: inline-block;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
   </style>
 </head>
 <body>
