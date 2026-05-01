@@ -12,89 +12,90 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
-      background: #faf9f7;
-      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
       line-height: 1.5;
     }
 
     .container {
-      max-width: 700px;
+      max-width: 800px;
       margin: 0 auto;
-      padding: 0 32px;
+      padding: 0 24px;
     }
 
-   
     .nav {
-      padding: 28px 0;
-      border-bottom: 1px solid #e8e5e0;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.95);
     }
 
     .nav-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      height: 70px;
     }
 
     .logo {
-      font-size: 20px;
-      font-weight: 500;
-      letter-spacing: -0.02em;
+      font-size: 22px;
+      font-weight: 700;
       text-decoration: none;
-      color: #1a1a1a;
-    }
-
-    .logo span {
-      font-weight: 300;
-      color: #c9a03d;
+      background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .nav-back {
       text-decoration: none;
-      font-size: 13px;
-      color: #aaa;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
       transition: color 0.2s;
     }
 
     .nav-back:hover {
-      color: #c9a03d;
+      color: #3b82f6;
     }
 
-    
     .hero {
       margin: 48px 0 32px;
     }
 
     .hero h1 {
       font-size: 36px;
-      font-weight: 500;
+      font-weight: 700;
       letter-spacing: -0.02em;
       margin-bottom: 8px;
     }
 
     .hero p {
-      font-size: 15px;
-      color: #5a5a5a;
+      font-size: 16px;
+      color: #64748b;
     }
 
-    
     .form-card {
-      background: #fff;
+      background: #ffffff;
       border-radius: 24px;
-      border: 1px solid #efede8;
+      border: 1px solid #e2e8f0;
       padding: 32px;
       margin-bottom: 48px;
     }
 
     .section-title {
       font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.05em;
+      font-weight: 600;
       text-transform: uppercase;
-      color: #aaa;
+      letter-spacing: 0.05em;
+      color: #3b82f6;
       margin-bottom: 20px;
       padding-bottom: 8px;
-      border-bottom: 1px solid #efede8;
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .section {
@@ -108,13 +109,13 @@
     .form-group label {
       display: block;
       font-size: 13px;
-      font-weight: 500;
-      color: #1a1a1a;
+      font-weight: 600;
+      color: #0f172a;
       margin-bottom: 6px;
     }
 
     .form-group label .req {
-      color: #c9a03d;
+      color: #ef4444;
     }
 
     .form-group input,
@@ -122,7 +123,7 @@
     .form-group textarea {
       width: 100%;
       padding: 12px 16px;
-      border: 1px solid #e0ddd8;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       font-size: 14px;
       font-family: inherit;
@@ -133,24 +134,25 @@
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-color: #c9a03d;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    .form-group input.error,
-    .form-group select.error,
-    .form-group textarea.error {
-      border-color: #d32f2f;
+    .has-error input,
+    .has-error select,
+    .has-error textarea {
+      border-color: #ef4444;
     }
 
     .hint {
       font-size: 11px;
-      color: #aaa;
+      color: #94a3b8;
       margin-top: 5px;
     }
 
     .err-msg {
       font-size: 11px;
-      color: #d32f2f;
+      color: #ef4444;
       margin-top: 5px;
       display: none;
     }
@@ -165,38 +167,34 @@
       gap: 16px;
     }
 
-    
+    @media (max-width: 640px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .upload-area {
-      border: 2px dashed #e0ddd8;
+      border: 2px dashed #e2e8f0;
       border-radius: 16px;
       padding: 32px;
       text-align: center;
       cursor: pointer;
-      position: relative;
-      transition: border-color 0.2s;
-      background: #faf9f7;
+      transition: all 0.2s;
+      background: #f8fafc;
     }
 
     .upload-area:hover {
-      border-color: #c9a03d;
-    }
-
-    .upload-area input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
+      border-color: #3b82f6;
+      background: #eff6ff;
     }
 
     .upload-area p {
       font-size: 13px;
-      color: #aaa;
+      color: #64748b;
     }
 
     .upload-area strong {
-      color: #c9a03d;
+      color: #3b82f6;
     }
 
     .preview-grid {
@@ -211,12 +209,12 @@
       width: 90px;
       height: 90px;
       border-radius: 12px;
-      border: 2px solid #e0ddd8;
+      border: 2px solid #e2e8f0;
       overflow: hidden;
     }
 
     .preview-item.primary {
-      border-color: #c9a03d;
+      border-color: #3b82f6;
     }
 
     .preview-item img {
@@ -225,26 +223,26 @@
       object-fit: cover;
     }
 
-    .preview-item .cover-tag {
+    .cover-tag {
       position: absolute;
       bottom: 4px;
       left: 4px;
-      background: #c9a03d;
-      color: #fff;
+      background: #3b82f6;
+      color: white;
       font-size: 9px;
-      font-weight: 500;
+      font-weight: 600;
       padding: 2px 6px;
       border-radius: 4px;
     }
 
-    .preview-item .remove {
+    .remove-image {
       position: absolute;
       top: 3px;
       right: 3px;
       width: 20px;
       height: 20px;
       background: rgba(0, 0, 0, 0.6);
-      color: #fff;
+      color: white;
       border: none;
       border-radius: 50%;
       font-size: 12px;
@@ -254,11 +252,10 @@
       justify-content: center;
     }
 
-    .preview-item .remove:hover {
-      background: #d32f2f;
+    .remove-image:hover {
+      background: #ef4444;
     }
 
-    
     .submit-row {
       display: flex;
       justify-content: flex-end;
@@ -266,28 +263,27 @@
     }
 
     .btn-submit {
-      padding: 12px 32px;
-      background: #1a1a1a;
-      color: #fff;
+      padding: 14px 36px;
+      background: #0f172a;
+      color: white;
       border: none;
       border-radius: 40px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      font-family: inherit;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
 
     .btn-submit:hover:not(:disabled) {
-      background: #333;
+      background: #1e293b;
+      transform: translateY(-1px);
     }
 
     .btn-submit:disabled {
-      opacity: 0.6;
+      background: #cbd5e1;
       cursor: not-allowed;
     }
 
-    
     .alert {
       padding: 14px 20px;
       border-radius: 12px;
@@ -297,47 +293,42 @@
     }
 
     .alert.error {
-      background: #ffebee;
-      color: #c62828;
-      border: 1px solid #ffcdd2;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
       display: block;
     }
 
     .alert.success {
-      background: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #c8e6c9;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
       display: block;
     }
 
-    
     .footer {
       margin-top: 60px;
-      padding: 40px 0 60px;
-      border-top: 1px solid #efede8;
+      padding: 40px 0;
+      border-top: 1px solid #e2e8f0;
       text-align: center;
     }
 
     .footer p {
-      font-size: 12px;
-      color: #aaa;
+      font-size: 13px;
+      color: #94a3b8;
     }
-
-   
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Navigation -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="/" class="logo">BRACU<span>Marketplace</span></a>
+      <a href="/" class="logo">BRACU Marketplace</a>
       <a href="/" class="nav-back">← Back to listings</a>
     </div>
   </nav>
 
-  
   <div class="hero">
     <h1>Sell an item</h1>
     <p>Fill in the details below to post your item on the marketplace.</p>
@@ -347,7 +338,6 @@
 
   <div class="form-card">
     <form id="sellForm" novalidate>
-      <!-- Item Details -->
       <div class="section">
         <p class="section-title">Item Details</p>
 
@@ -360,13 +350,12 @@
 
         <div class="form-group" id="f-description">
           <label for="description">Description <span class="req">*</span></label>
-          <textarea id="description" placeholder="Describe condition, edition, what's included..." maxlength="1000"></textarea>
+          <textarea id="description" placeholder="Describe condition, edition, what's included..." maxlength="1000" rows="5"></textarea>
           <p class="hint"><span id="descCount">0</span>/1000 characters</p>
           <p class="err-msg">Please write at least 10 characters.</p>
         </div>
       </div>
 
-   
       <div class="section">
         <p class="section-title">Pricing & Category</p>
 
@@ -417,25 +406,22 @@
         </div>
       </div>
 
-      <!-- Photos -->
       <div class="section">
         <p class="section-title">Photos</p>
         <div class="upload-area" id="uploadArea">
-          <input type="file" id="fileInput" accept="image/*" multiple>
-          <p>Drag photos here or <strong>click to browse</strong></p>
-          <p style="font-size: 11px; color: #999; margin-top: 8px;">JPG, PNG up to 5MB each</p>
+          <p>📸 Drag photos here or <strong>click to browse</strong></p>
+          <p style="font-size: 11px; margin-top: 8px;">JPG, PNG up to 5MB each (max 5 images)</p>
         </div>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple style="display: none;">
         <div class="preview-grid" id="previewGrid"></div>
       </div>
 
-      <!-- Submit -->
       <div class="submit-row">
         <button type="submit" class="btn-submit">Post Your Item</button>
       </div>
     </form>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
     <p>BRACU Marketplace — a closed community marketplace</p>
   </div>

@@ -12,93 +12,101 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
-      background: #faf9f7;
-      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
       line-height: 1.5;
     }
 
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 32px;
+      padding: 0 24px;
     }
 
     .nav {
-      padding: 28px 0;
-      border-bottom: 1px solid #e8e5e0;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.95);
     }
 
     .nav-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      height: 70px;
     }
 
     .logo {
-      font-size: 20px;
-      font-weight: 500;
-      letter-spacing: -0.02em;
+      font-size: 22px;
+      font-weight: 700;
       text-decoration: none;
-      color: #1a1a1a;
-    }
-
-    .logo span {
-      font-weight: 300;
-      color: #c9a03d;
+      background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .nav-links {
       display: flex;
-      gap: 32px;
+      gap: 24px;
       align-items: center;
     }
 
     .nav-link {
       text-decoration: none;
       font-size: 14px;
-      font-weight: 400;
-      color: #5a5a5a;
+      font-weight: 500;
+      color: #475569;
       transition: color 0.2s;
     }
 
     .nav-link:hover {
-      color: #1a1a1a;
+      color: #3b82f6;
     }
 
     .nav-user {
       font-size: 14px;
-      color: #5a5a5a;
+      font-weight: 500;
+      color: #0f172a;
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 20px;
     }
 
     .btn-logout {
       background: none;
-      border: 1px solid #e0ddd8;
-      padding: 8px 18px;
-      border-radius: 40px;
+      border: 1px solid #e2e8f0;
+      padding: 8px 20px;
+      border-radius: 30px;
       font-size: 13px;
-      font-family: inherit;
+      font-weight: 500;
       cursor: pointer;
-      color: #5a5a5a;
+      color: #475569;
       transition: all 0.2s;
     }
 
     .btn-logout:hover {
-      border-color: #1a1a1a;
-      color: #1a1a1a;
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fef2f2;
     }
 
     .back-link {
       display: inline-block;
-      margin: 32px 0 24px;
-      font-size: 13px;
-      color: #aaa;
+      margin: 24px 0;
+      font-size: 14px;
+      color: #64748b;
       text-decoration: none;
       transition: color 0.2s;
     }
 
     .back-link:hover {
-      color: #c9a03d;
+      color: #3b82f6;
     }
 
     .alert {
@@ -109,27 +117,27 @@
     }
 
     .alert-success {
-      background: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #c8e6c9;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
     }
 
     .loading, .error {
       text-align: center;
       padding: 80px 20px;
-      color: #aaa;
+      color: #94a3b8;
     }
 
     .error {
-      color: #d32f2f;
+      color: #ef4444;
     }
 
     .listing-container {
-      background: #fff;
+      background: #ffffff;
       border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid #efede8;
+      border: 1px solid #e2e8f0;
       margin-bottom: 48px;
+      overflow: hidden;
     }
 
     .listing-main {
@@ -137,6 +145,14 @@
       grid-template-columns: 1fr 1fr;
       gap: 48px;
       padding: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .listing-main {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 24px;
+      }
     }
 
     .image-gallery {
@@ -148,8 +164,8 @@
     .main-image {
       width: 100%;
       height: 400px;
-      background: #f5f3ef;
-      border-radius: 20px;
+      background: #f1f5f9;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -171,8 +187,8 @@
 
     .thumbnail {
       height: 80px;
-      background: #f5f3ef;
-      border-radius: 12px;
+      background: #f1f5f9;
+      border-radius: 10px;
       cursor: pointer;
       border: 2px solid transparent;
       overflow: hidden;
@@ -180,11 +196,11 @@
     }
 
     .thumbnail:hover {
-      border-color: #e0ddd8;
+      border-color: #cbd5e1;
     }
 
     .thumbnail.active {
-      border-color: #c9a03d;
+      border-color: #3b82f6;
     }
 
     .thumbnail img {
@@ -194,10 +210,10 @@
     }
 
     .listing-info h1 {
-      font-size: 32px;
-      font-weight: 500;
+      font-size: 28px;
+      font-weight: 700;
       letter-spacing: -0.02em;
-      color: #1a1a1a;
+      color: #0f172a;
       margin-bottom: 16px;
     }
 
@@ -207,34 +223,34 @@
       gap: 16px;
       margin-bottom: 20px;
       padding-bottom: 20px;
-      border-bottom: 1px solid #efede8;
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .price-tag {
       font-size: 32px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .status-badge {
+      display: inline-block;
+      border-radius: 20px;
       font-weight: 500;
-      color: #c9a03d;
+      font-size: 12px;
+      padding: 4px 12px;
     }
 
     .badge {
       display: inline-block;
-      background: #f5f3ef;
+      background: #f1f5f9;
       padding: 6px 14px;
-      border-radius: 40px;
+      border-radius: 30px;
       font-size: 12px;
-      color: #5a5a5a;
-    }
-
-    .badge.condition {
-      background: #f5f3ef;
-    }
-
-    .badge.category {
-      background: #f5f3ef;
+      color: #475569;
     }
 
     .description {
-      color: #5a5a5a;
+      color: #475569;
       line-height: 1.6;
       font-size: 15px;
       margin-bottom: 28px;
@@ -246,7 +262,7 @@
       gap: 16px;
       margin-bottom: 28px;
       padding-bottom: 28px;
-      border-bottom: 1px solid #efede8;
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .detail-item {
@@ -254,19 +270,74 @@
     }
 
     .detail-label {
-      color: #aaa;
+      color: #94a3b8;
       font-size: 11px;
-      letter-spacing: 0.03em;
+      font-weight: 600;
       text-transform: uppercase;
       margin-bottom: 4px;
     }
 
     .detail-value {
-      color: #1a1a1a;
+      color: #0f172a;
+      font-weight: 500;
+    }
+
+    .status-selector {
+      margin: 16px 0;
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 16px;
+    }
+
+    .status-selector label {
+      font-size: 13px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .status-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .status-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 40px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .status-btn.available-active {
+      background: #22c55e;
+      color: white;
+      border-color: #22c55e;
+    }
+
+    .status-btn.reserved-active {
+      background: #f59e0b;
+      color: white;
+      border-color: #f59e0b;
+    }
+
+    .status-btn.sold-active {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+
+    .status-btn:hover:not(.available-active):not(.reserved-active):not(.sold-active) {
+      background: #f1f5f9;
     }
 
     .seller-card {
-      background: #faf9f7;
+      background: #f8fafc;
       border-radius: 20px;
       padding: 24px;
     }
@@ -275,14 +346,14 @@
       display: flex;
       gap: 16px;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       cursor: pointer;
     }
 
     .seller-avatar {
       width: 56px;
       height: 56px;
-      background: #f5f3ef;
+      background: #e2e8f0;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -299,20 +370,20 @@
 
     .seller-info h3 {
       font-size: 16px;
-      font-weight: 500;
-      color: #1a1a1a;
+      font-weight: 600;
+      color: #0f172a;
       margin-bottom: 4px;
     }
 
     .seller-info p {
       font-size: 12px;
-      color: #aaa;
+      color: #64748b;
     }
 
     .seller-rating {
       font-size: 13px;
-      color: #c9a03d;
-      margin-bottom: 16px;
+      color: #f59e0b;
+      margin-top: 6px;
     }
 
     .btn {
@@ -324,39 +395,153 @@
       font-weight: 500;
       cursor: pointer;
       text-align: center;
-      text-decoration: none;
-      font-family: inherit;
       margin-bottom: 10px;
       transition: all 0.2s;
     }
 
     .btn-primary {
-      background: #1a1a1a;
+      background: #0f172a;
       color: #fff;
       border: none;
     }
 
     .btn-primary:hover {
-      background: #333;
+      background: #1e293b;
+      transform: translateY(-1px);
     }
 
     .btn-secondary {
       background: transparent;
-      color: #1a1a1a;
-      border: 1px solid #e0ddd8;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
     }
 
     .btn-secondary:hover {
-      border-color: #c9a03d;
+      border-color: #3b82f6;
+      color: #3b82f6;
+    }
+
+    .btn-report {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 30px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-report:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fef2f2;
     }
 
     .posted-date {
       font-size: 11px;
-      color: #aaa;
+      color: #94a3b8;
       text-align: center;
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid #e8e5e0;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .review-section {
+      margin-top: 48px;
+      padding: 32px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .review-section h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .review-form {
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .star-btn {
+      background: none;
+      border: none;
+      font-size: 32px;
+      cursor: pointer;
+      color: #cbd5e1;
+      transition: color 0.1s;
+    }
+
+    .star-btn.active,
+    .star-btn:hover {
+      color: #f59e0b;
+    }
+
+    .review-textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 100px;
+      margin-bottom: 16px;
+    }
+
+    .review-textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .review-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .review-author {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .review-stars {
+      color: #f59e0b;
+      font-size: 13px;
+    }
+
+    .review-comment {
+      color: #475569;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .review-date {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 8px;
     }
 
     .modal-overlay {
@@ -364,6 +549,7 @@
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
       z-index: 1000;
       align-items: center;
       justify-content: center;
@@ -374,7 +560,7 @@
     }
 
     .modal {
-      background: #fff;
+      background: #ffffff;
       border-radius: 24px;
       max-width: 500px;
       width: 90%;
@@ -384,7 +570,7 @@
 
     .modal-header {
       padding: 24px;
-      border-bottom: 1px solid #efede8;
+      border-bottom: 1px solid #e2e8f0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -392,7 +578,7 @@
 
     .modal-header h2 {
       font-size: 20px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .modal-close {
@@ -400,7 +586,7 @@
       border: none;
       font-size: 24px;
       cursor: pointer;
-      color: #aaa;
+      color: #94a3b8;
     }
 
     .modal-body {
@@ -409,125 +595,30 @@
 
     .footer {
       margin-top: 80px;
-      padding: 40px 0 60px;
-      border-top: 1px solid #efede8;
+      padding: 40px 0;
+      border-top: 1px solid #e2e8f0;
       text-align: center;
     }
 
     .footer p {
-      font-size: 12px;
-      color: #aaa;
-    }
-
-    .rating-stars {
-      display: flex;
-      gap: 8px;
-      margin: 16px 0;
-      justify-content: center;
-    }
-
-    .star-btn {
-      background: none;
-      border: none;
-      font-size: 32px;
-      cursor: pointer;
-      color: #ddd;
-      transition: color 0.1s;
-    }
-
-    .star-btn.active {
-      color: #ffc107;
-    }
-
-    .rating-comment {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      font-family: inherit;
-      font-size: 14px;
-      margin-bottom: 16px;
-      resize: vertical;
-      outline: none;
-    }
-
-    .rating-comment:focus {
-      border-color: #c9a03d;
+      font-size: 13px;
+      color: #94a3b8;
     }
 
     .btn-submit-rating {
       width: 100%;
-      padding: 14px;
-      background: #1a1a1a;
+      padding: 12px;
+      background: #0f172a;
       color: #fff;
       border: none;
       border-radius: 40px;
       font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
     .btn-submit-rating:disabled {
-      background: #ccc;
+      background: #cbd5e1;
       cursor: not-allowed;
-    }
-
-    .btn-submit-rating:hover:not(:disabled) {
-      background: #333;
-    }
-
-    .btn-report {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 20px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 50px;
-      color: #64748b;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-report:hover {
-      border-color: #ff4d4f;
-      color: #ff4d4f;
-      background: #fffbfb;
-    }
-
-    .btn-report.minimal {
-      border: 1px solid transparent;
-      background: transparent;
-    }
-
-    .btn-report.minimal:hover {
-      border-color: #ff4d4f;
-      background: #fffbfb;
-    }
-
-    .status-btn {
-      transition: all 0.2s ease;
-      font-family: inherit;
-      font-weight: 500;
-    }
-
-    .status-btn:hover:not(.active) {
-      background: #e8e5e0 !important;
-      color: #1a1a1a !important;
-    }
-
-    .status-btn.active {
-      cursor: default;
-      opacity: 0.9;
-    }
-
-    .status-badge {
-      display: inline-block;
-      border-radius: 20px;
-      font-weight: 500;
     }
   </style>
 </head>
@@ -536,7 +627,7 @@
 <div class="container">
   <nav class="nav">
     <div class="nav-inner">
-      <a href="/" class="logo">BRACU<span>Marketplace</span></a>
+      <a href="/" class="logo">BRACU Marketplace</a>
       <div class="nav-links">
         <span class="nav-user" id="navUser"></span>
         <a href="/profile" class="nav-link">Profile</a>
@@ -550,86 +641,72 @@
   <div id="alertBox"></div>
   <div id="loadingBox" class="loading">Loading listing…</div>
   <div id="errorBox" style="display:none;" class="error"></div>
-  <div id="listingBox" style="display:none;"></div>
-
-  <div id="sellerModal" class="modal-overlay">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>Seller Profile</h2>
-        <button class="modal-close" onclick="closeSellerModal()">✕</button>
-      </div>
-      <div class="modal-body" id="sellerProfileContent">
-        Loading...
-      </div>
-      <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; display: flex; justify-content: center;">
-        <button class="btn-report" id="reportSellerBtn">
-          <span>🚩</span> Report Seller
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="reportModal" class="modal-overlay" style="display:none;">
-    <div class="modal" style="max-width: 400px;">
-      <div class="modal-header">
-        <h2>Report User</h2>
-        <button class="modal-close" onclick="closeReportModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Please help us understand what's wrong. Your report is anonymous.</p>
-        
-        <form id="reportForm">
-          <input type="hidden" id="reportedUserId">
-          <div style="margin-bottom: 15px;">
-            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Reason</label>
-            <select id="reportReason" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none; font-family: inherit;">
-              <option value="">Select a reason</option>
-              <option value="Spam or misleading">Spam or misleading</option>
-              <option value="Inappropriate content">Inappropriate content</option>
-              <option value="Fake or scam listing">Fake or scam listing</option>
-              <option value="Harassment or abuse">Harassment or abuse</option>
-              <option value="Prohibited item">Prohibited item</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Additional Details (Optional)</label>
-            <textarea id="reportDetails" placeholder="Provide more context..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none; font-family: inherit; height: 80px; resize: none;"></textarea>
-          </div>
-          <div style="display: flex; gap: 10px;">
-            <button type="button" class="btn-submit-rating" style="background: #f5f5f5; color: #333;" onclick="closeReportModal()">Cancel</button>
-            <button type="submit" class="btn-submit-rating" style="background: #ff4d4f;">Submit Report</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div id="ratingModal" class="modal-overlay">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>Rate Seller</h2>
-        <button class="modal-close" onclick="closeRatingModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <div id="ratingFormArea">
-          <p id="ratingSellerName" style="text-align: center; color: #5a5a5a; font-size: 14px; margin-bottom: 8px;"></p>
-          <div class="rating-stars" id="starContainer">
-            <button class="star-btn" data-val="1">★</button>
-            <button class="star-btn" data-val="2">★</button>
-            <button class="star-btn" data-val="3">★</button>
-            <button class="star-btn" data-val="4">★</button>
-            <button class="star-btn" data-val="5">★</button>
-          </div>
-          <textarea id="ratingComment" class="rating-comment" placeholder="Describe your experience with this seller..."></textarea>
-          <button id="submitRatingBtn" class="btn-submit-rating" disabled>Submit Review</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="listingBox"></div>
 
   <div class="footer">
     <p>BRACU Marketplace — a closed community marketplace</p>
+  </div>
+</div>
+
+<div id="sellerModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Seller Profile</h2>
+      <button class="modal-close" onclick="closeSellerModal()">✕</button>
+    </div>
+    <div class="modal-body" id="sellerProfileContent">Loading...</div>
+  </div>
+</div>
+
+<div id="reportModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Report</h2>
+      <button class="modal-close" onclick="closeReportModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="reportForm">
+        <input type="hidden" id="reportedUserId">
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Reason</label>
+          <select id="reportReason" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px;">
+            <option value="">Select a reason</option>
+            <option value="Spam or misleading">Spam or misleading</option>
+            <option value="Inappropriate content">Inappropriate content</option>
+            <option value="Fake or scam listing">Fake or scam listing</option>
+            <option value="Harassment or abuse">Harassment or abuse</option>
+            <option value="Prohibited item">Prohibited item</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Additional Details</label>
+          <textarea id="reportDetails" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; min-height: 80px;"></textarea>
+        </div>
+        <button type="submit" style="width: 100%; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 40px; font-weight: 500; cursor: pointer;">Submit Report</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="ratingModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Rate Seller</h2>
+      <button class="modal-close" onclick="closeRatingModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="ratingSellerName" style="text-align: center; margin-bottom: 16px;"></p>
+      <div class="rating-stars" style="justify-content: center;">
+        <button class="star-btn" data-val="1">★</button>
+        <button class="star-btn" data-val="2">★</button>
+        <button class="star-btn" data-val="3">★</button>
+        <button class="star-btn" data-val="4">★</button>
+        <button class="star-btn" data-val="5">★</button>
+      </div>
+      <textarea id="ratingComment" class="review-textarea" placeholder="Describe your experience with this seller..."></textarea>
+      <button id="submitRatingBtn" class="btn-submit-rating" disabled>Submit Review</button>
+    </div>
   </div>
 </div>
 
