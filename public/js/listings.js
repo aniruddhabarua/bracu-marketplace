@@ -276,6 +276,69 @@ async function loadReviewSection(listingId, sellerId, sellerName) {
   }
 }
 
+async function loadSimilarProducts(listingId) {
+  try {
+    const res = await fetch(`/api/listings/${listingId}/similar?limit=6`);
+    const data = await res.json();
+    
+    if (!data.success || !data.data || data.data.length === 0) {
+      return;
+    }
+    
+    const products = data.data;
+    const catEmoji = {
+      'Books & Notes':'📚','Electronics':'💻','Clothing & Accessories':'👕',
+      'Stationery & Supplies':'✏️','Sports & Fitness':'⚽','Food & Beverages':'🍜',
+      'Furniture & Decor':'🪑','Services':'🛠️','Other':'📦',
+    };
+    
+    let productsHtml = `
+      <div style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #efede8;">
+        <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 24px;">🛍️ Similar Products</h3>
+        <div class="similar-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+    `;
+    
+    products.forEach(product => {
+      const image = product.primary_image ? `<img src="${product.primary_image}" alt="${product.title}" style="width: 100%; height: 160px; object-fit: cover;">` 
+                   : `<div style="width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 60px;">${catEmoji[product.category] || '📦'}</div>`;
+      
+      const rating = product.avg_rating ? Math.round(product.avg_rating) : 0;
+      const stars = rating > 0 ? '⭐'.repeat(rating) : '☆☆☆☆☆';
+      
+      productsHtml += `
+        <a href="/listings.html?id=${product.listing_id}" style="text-decoration: none; color: inherit;">
+          <div class="similar-product-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; transition: all 0.2s; cursor: pointer;">
+            <div style="position: relative; overflow: hidden;">
+              ${image}
+            </div>
+            <div style="padding: 16px;">
+              <h4 style="font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 8px; line-height: 1.3; white-space: normal; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(product.title)}</h4>
+              <p style="font-size: 13px; color: #475569; margin-bottom: 8px;">${product.category}</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <p style="font-size: 16px; font-weight: 700; color: #0f172a;">৳ ${Number(product.price).toLocaleString()}</p>
+              </div>
+              <p style="font-size: 12px; color: #94a3b8;">${stars} (${product.total_reviews || 0})</p>
+            </div>
+          </div>
+        </a>
+      `;
+    });
+    
+    productsHtml += `
+        </div>
+      </div>
+    `;
+    
+    const container = document.getElementById('listingBox');
+    if (container) {
+      container.innerHTML += productsHtml;
+    }
+    
+  } catch (error) {
+    console.error('Error loading similar products:', error);
+  }
+}
+
 function renderListing(listing, isFollowing = false) {
   document.getElementById('loadingBox').style.display = 'none';
 
@@ -456,6 +519,9 @@ function renderListing(listing, isFollowing = false) {
   } else {
     loadExistingReviews(listing.listing_id);
   }
+  
+  // Load similar products after reviews
+  loadSimilarProducts(listing.listing_id);
 }
 
 async function updateListingStatus(listingId, status) {

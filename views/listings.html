@@ -597,6 +597,30 @@
       margin-top: 8px;
     }
 
+    .similar-product-card {
+      transition: all 0.3s ease;
+    }
+
+    .similar-product-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .similar-product-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .similar-product-card img {
+      transition: transform 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .similar-products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+      }
+    }
+
     .modal-overlay {
       display: none;
       position: fixed;
