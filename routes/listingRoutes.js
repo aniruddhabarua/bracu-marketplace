@@ -31,6 +31,7 @@ router.get('/:id',          ListingController.getListing);
 router.post('/',   authenticate, upload.array('images', 5), ListingController.createListing);
 router.put('/:id', authenticate, ListingController.updateListing);
 router.delete('/:id', authenticate, ListingController.deleteListing);
+router.patch('/:id/status', authenticate, ListingController.updateStatus);
 
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError || err.message) {
