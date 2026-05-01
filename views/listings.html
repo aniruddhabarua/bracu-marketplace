@@ -248,13 +248,10 @@
     .status-chip {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
       padding: 8px 20px;
       border-radius: 40px;
       font-size: 13px;
       font-weight: 600;
-      background: #f1f5f9;
-      color: #475569;
     }
 
     .status-chip.available {
@@ -262,28 +259,14 @@
       color: #166534;
     }
 
-    .status-chip.available::before {
-      content: "✓";
-      font-weight: bold;
-    }
-
     .status-chip.preorder {
       background: #fef3c7;
       color: #92400e;
     }
 
-    .status-chip.preorder::before {
-      content: "📅";
-    }
-
     .status-chip.sold {
       background: #fee2e2;
       color: #991b1b;
-    }
-
-    .status-chip.sold::before {
-      content: "✕";
-      font-weight: bold;
     }
 
     .badge {
@@ -360,10 +343,6 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
 
     .status-btn.available-active {
@@ -595,30 +574,6 @@
       font-size: 11px;
       color: #94a3b8;
       margin-top: 8px;
-    }
-
-    .similar-product-card {
-      transition: all 0.3s ease;
-    }
-
-    .similar-product-card:hover {
-      border-color: #3b82f6;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-      transform: translateY(-2px);
-    }
-
-    .similar-product-card:hover img {
-      transform: scale(1.05);
-    }
-
-    .similar-product-card img {
-      transition: transform 0.3s ease;
-    }
-
-    @media (max-width: 768px) {
-      .similar-products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-      }
     }
 
     .modal-overlay {
@@ -903,9 +858,9 @@
     };
 
     const statusConfig = {
-      available: { label: 'Available', icon: '✓', class: 'available' },
-      reserved: { label: 'Pre-order', icon: '📅', class: 'preorder' },
-      sold: { label: 'Sold', icon: '✕', class: 'sold' }
+      available: { label: 'Available', class: 'available' },
+      reserved: { label: 'Pre-order', class: 'preorder' },
+      sold: { label: 'Sold', class: 'sold' }
     };
 
     const images = listing.images && listing.images.length > 0 ? listing.images : (listing.primary_image ? [{ image_url: listing.primary_image }] : []);
@@ -951,11 +906,9 @@
             <h1>${escapeHtml(listing.title)}</h1>
 
             <div class="price-section">
-              <div class="price-tag">₹ ${Number(listing.price).toLocaleString()}</div>
+              <div class="price-tag">৳ ${Number(listing.price).toLocaleString()}</div>
               <div class="status-container">
-                <span class="status-chip ${currentStatus.class}">
-                  ${currentStatus.icon} ${currentStatus.label}
-                </span>
+                <span class="status-chip ${currentStatus.class}">${currentStatus.label}</span>
               </div>
             </div>
 
@@ -987,19 +940,19 @@
 
             ${isOwn ? `
               <div class="status-selector">
-                <label>📦 Update Product Status:</label>
+                <label>Update Product Status:</label>
                 <div class="status-buttons">
                   <button class="status-btn ${listing.status === 'available' ? 'available-active' : ''}" 
                           onclick="updateListingStatus(${listing.listing_id}, 'available')">
-                    ✓ Available
+                    Available
                   </button>
                   <button class="status-btn ${listing.status === 'reserved' ? 'preorder-active' : ''}" 
                           onclick="updateListingStatus(${listing.listing_id}, 'reserved')">
-                    📅 Pre-order
+                    Pre-order
                   </button>
                   <button class="status-btn ${listing.status === 'sold' ? 'sold-active' : ''}" 
                           onclick="updateListingStatus(${listing.listing_id}, 'sold')">
-                    ✕ Sold
+                    Sold
                   </button>
                 </div>
               </div>
