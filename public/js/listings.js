@@ -13,8 +13,6 @@ function logout() {
   window.location.href = '/login';
 }
 
-
-
 async function trackRecentView(listingId) {
   if (!token || !listingId) return;
   
@@ -32,7 +30,6 @@ async function trackRecentView(listingId) {
     console.error('Failed to track view:', err);
   }
 }
-
 
 const urlParams = new URLSearchParams(window.location.search);
 const listingId = urlParams.get('id');
@@ -63,10 +60,8 @@ async function loadListing(id) {
 
     const listing = data.data;
     
-
     trackRecentView(listingId);
     
-  
     let isFollowing = false;
     if (user && user.user_id !== listing.seller_id) {
       isFollowing = await checkFollowStatus(listing.seller_id);
@@ -80,7 +75,6 @@ async function loadListing(id) {
   }
 }
 
-
 async function checkFollowStatus(sellerId) {
   try {
     const res = await fetch(`/api/favorite-sellers/check/${sellerId}`, {
@@ -93,7 +87,6 @@ async function checkFollowStatus(sellerId) {
     return false;
   }
 }
-
 
 function renderListing(listing, isFollowing = false) {
   document.getElementById('loadingBox').style.display = 'none';
@@ -121,9 +114,20 @@ function renderListing(listing, isFollowing = false) {
     poor:'Poor'
   };
 
- 
+  const statusLabels = {
+    available: '✅ Available',
+    reserved: '🔄 Reserved',
+    sold: '❌ Sold'
+  };
+
+  const statusColors = {
+    available: '#22c55e',
+    reserved: '#f59e0b',
+    sold: '#ef4444'
+  };
+
   const images = listing.images && listing.images.length > 0 ? listing.images : [listing.primary_image];
-  const imagesWithFallback = images.filter(img => img); // Remove null/undefined
+  const imagesWithFallback = images.filter(img => img);
 
   let mainImageHtml = '';
   if (imagesWithFallback.length > 0) {
@@ -131,7 +135,6 @@ function renderListing(listing, isFollowing = false) {
   } else {
     mainImageHtml = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 80px;">${catEmoji[listing.category] || '📦'}</div>`;
   }
-
 
   let thumbnailsHtml = '';
   if (imagesWithFallback.length > 1) {
@@ -153,7 +156,6 @@ function renderListing(listing, isFollowing = false) {
     <div class="listing-container">
       <div class="listing-main">
         
-        <!-- LEFT: IMAGES -->
         <div class="image-gallery">
           <div class="main-image">
             ${mainImageHtml}
@@ -161,12 +163,14 @@ function renderListing(listing, isFollowing = false) {
           ${thumbnailsHtml ? `<div class="thumbnails">${thumbnailsHtml}</div>` : ''}
         </div>
 
-        <!-- RIGHT: INFO -->
         <div class="listing-info">
           <h1>${escapeHtml(listing.title)}</h1>
 
           <div class="listing-meta">
             <div class="price-tag">৳ ${Number(listing.price).toLocaleString()}</div>
+            <div class="status-badge" style="background: ${statusColors[listing.status] || '#888'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">
+              ${statusLabels[listing.status] || listing.status}
+            </div>
           </div>
 
           <div style="margin-bottom: 16px;">
@@ -195,7 +199,29 @@ function renderListing(listing, isFollowing = false) {
             </div>
           </div>
 
-          <!-- SELLER CARD -->
+          ${isOwn ? `
+            <div class="status-selector" style="margin: 16px 0; padding: 12px; background: #f5f3ef; border-radius: 12px;">
+              <label style="font-size: 13px; font-weight: 500; display: block; margin-bottom: 8px;">📦 Product Status:</label>
+              <div style="display: flex; gap: 12px;">
+                <button class="status-btn ${listing.status === 'available' ? 'active' : ''}" 
+                        onclick="updateListingStatus(${listing.listing_id}, 'available')"
+                        style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; background: ${listing.status === 'available' ? '#22c55e' : '#fff'}; color: ${listing.status === 'available' ? '#fff' : '#333'}; cursor: pointer;">
+                  ✅ Available
+                </button>
+                <button class="status-btn ${listing.status === 'reserved' ? 'active' : ''}" 
+                        onclick="updateListingStatus(${listing.listing_id}, 'reserved')"
+                        style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; background: ${listing.status === 'reserved' ? '#f59e0b' : '#fff'}; color: ${listing.status === 'reserved' ? '#fff' : '#333'}; cursor: pointer;">
+                  🔄 Reserved
+                </button>
+                <button class="status-btn ${listing.status === 'sold' ? 'active' : ''}" 
+                        onclick="updateListingStatus(${listing.listing_id}, 'sold')"
+                        style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; background: ${listing.status === 'sold' ? '#ef4444' : '#fff'}; color: ${listing.status === 'sold' ? '#fff' : '#333'}; cursor: pointer;">
+                  ❌ Sold
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
           <div class="seller-card">
             <div class="seller-header" style="cursor: pointer;" onclick="showSellerProfile(${listing.seller_id})">
               <div class="seller-avatar">
@@ -221,7 +247,6 @@ function renderListing(listing, isFollowing = false) {
               <button class="btn btn-secondary" id="followBtn" onclick="toggleFollowSeller(${listing.seller_id}, '${seller}')">
                 ${isFollowing ? '⭐ Following' : '☆ Follow Seller'}
               </button>
-              <button class="btn btn-secondary" onclick="openRatingModal(${listing.listing_id}, ${listing.seller_id}, '${seller}')">⭐ Rate Seller</button>
               <div style="text-align:center; margin-top:16px;">
                 <button class="btn-report" onclick="openReportModal(${listing.listing_id}, 'listing')">🚩 Report Listing</button>
               </div>
@@ -238,20 +263,47 @@ function renderListing(listing, isFollowing = false) {
   document.getElementById('listingBox').style.display = 'block';
 }
 
-
+async function updateListingStatus(listingId, status) {
+  const statusLabels = {
+    available: 'Available',
+    reserved: 'Reserved',
+    sold: 'Sold'
+  };
+  
+  if (!confirm(`Mark this listing as ${statusLabels[status]}?`)) return;
+  
+  try {
+    const res = await fetch(`/api/listings/${listingId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ Listing marked as ${statusLabels[status]}`);
+      location.reload();
+    } else {
+      alert('❌ ' + (data.message || 'Failed to update status'));
+    }
+  } catch (error) {
+    console.error('Error updating status:', error);
+    alert('Could not update status');
+  }
+}
 
 function switchImage(imageSrc, thumbnailEl) {
-
   const mainImg = document.getElementById('mainImage');
   if (mainImg) {
     mainImg.src = imageSrc;
   }
 
-
   document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
   thumbnailEl.classList.add('active');
 }
-
 
 function contactSeller(sellerName) {
   alert(`💬 Chat with ${sellerName} feature coming soon!`);
@@ -369,7 +421,6 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-
 async function showSellerProfile(sellerId) {
   try {
     const res = await fetch(`/api/users/${sellerId}`, {
@@ -394,7 +445,6 @@ async function showSellerProfile(sellerId) {
     const sellerAvatar = seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}">` : '👤';
     const stars = seller.avg_rating ? '⭐'.repeat(Math.round(seller.avg_rating)) : 'No ratings yet';
 
-    // Fetch reviews
     const reviewsRes = await fetch(`/api/ratings/seller/${sellerId}`);
     const reviewsData = await reviewsRes.json();
     const reviews = reviewsData.reviews || [];
@@ -477,7 +527,6 @@ async function showSellerProfile(sellerId) {
 
     document.getElementById('sellerProfileContent').innerHTML = profileHtml;
     
-    // Set up report button
     const reportBtn = document.getElementById('reportSellerBtn');
     if (reportBtn) {
       reportBtn.onclick = () => {
@@ -501,7 +550,6 @@ function closeSellerModal() {
   document.body.style.overflow = 'auto';
 }
 
-// ── Rating Functions ──
 let selectedRating = 0;
 function openRatingModal(listingId, sellerId, sellerName) {
   selectedRating = 0;
@@ -564,7 +612,7 @@ async function submitRating(listingId, sellerId) {
     if (res.ok) {
       alert('✅ Review submitted successfully! Thank you.');
       closeRatingModal();
-      location.reload(); // Reload to update average rating
+      location.reload();
     } else {
       alert('❌ ' + (data.error || 'Failed to submit review'));
       submitBtn.disabled = false;
