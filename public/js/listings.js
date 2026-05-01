@@ -88,6 +88,194 @@ async function checkFollowStatus(sellerId) {
   }
 }
 
+async function hasUserPurchased(listingId) {
+  try {
+    const res = await fetch(`/api/transactions?listing_id=${listingId}&order_status=completed`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (data.success && data.data) {
+      return data.data.some(t => t.type === 'purchase' && t.order_status === 'completed');
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking purchase status:', error);
+    return false;
+  }
+}
+
+async function loadExistingReviews(listingId) {
+  try {
+    const res = await fetch(`/api/ratings/listing/${listingId}`);
+    const data = await res.json();
+    
+    const reviewContainer = document.getElementById('reviewSection');
+    if (!reviewContainer) return;
+    
+    const reviews = data.reviews || [];
+    const avgRating = data.average_rating;
+    const totalReviews = data.total_reviews || 0;
+    
+    let reviewsHtml = `
+      <div class="reviews-header">
+        <h3 style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">⭐ Customer Reviews</h3>
+    `;
+    
+    if (avgRating) {
+      reviewsHtml += `<p style="color: #c9a03d; margin-bottom: 16px;">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5-Math.round(avgRating))} (${avgRating} / 5) • ${totalReviews} review${totalReviews !== 1 ? 's' : ''}</p>`;
+    } else {
+      reviewsHtml += `<p style="color: #aaa; margin-bottom: 16px;">No reviews yet</p>`;
+    }
+    
+    reviewsHtml += `</div>`;
+    
+    if (reviews.length > 0) {
+      reviewsHtml += `
+        <div class="reviews-list" style="display: flex; flex-direction: column; gap: 16px;">
+          ${reviews.map(review => `
+            <div class="review-card" style="background: #fff; border: 1px solid #efede8; border-radius: 16px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <strong style="color: #1a1a1a;">${escapeHtml(review.reviewer_name || 'Anonymous')}</strong>
+                  <span style="color: #ffc107;">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
+                </div>
+                <span style="font-size: 11px; color: #aaa;">${formatDate(review.created_at)}</span>
+              </div>
+              ${review.comment ? `<p style="color: #5a5a5a; line-height: 1.5; margin-top: 8px;">"${escapeHtml(review.comment)}"</p>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      reviewsHtml += '<p style="color: #aaa; text-align: center; padding: 32px;">Be the first to review this item!</p>';
+    }
+    
+    if (reviewContainer.innerHTML.includes('review-form')) {
+      let existingDiv = reviewContainer.querySelector('#existingReviews');
+      if (!existingDiv) {
+        existingDiv = document.createElement('div');
+        existingDiv.id = 'existingReviews';
+        reviewContainer.appendChild(existingDiv);
+      }
+      existingDiv.innerHTML = reviewsHtml;
+    } else {
+      reviewContainer.innerHTML = reviewsHtml;
+    }
+    
+  } catch (error) {
+    console.error('Error loading reviews:', error);
+  }
+}
+
+let selectedProductRating = 0;
+
+function selectRating(rating) {
+  selectedProductRating = rating;
+  const stars = document.querySelectorAll('#reviewSection .star-btn');
+  stars.forEach((star, idx) => {
+    if (idx < rating) {
+      star.classList.add('active');
+      star.style.color = '#ffc107';
+    } else {
+      star.classList.remove('active');
+      star.style.color = '#ddd';
+    }
+  });
+}
+
+async function submitProductReview(listingId, sellerId) {
+  if (!selectedProductRating) {
+    alert('Please select a rating (1-5 stars)');
+    return;
+  }
+  
+  const comment = document.getElementById('reviewComment').value.trim();
+  const submitBtn = event.target;
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+  
+  try {
+    const res = await fetch('/api/ratings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        listing_id: listingId,
+        seller_id: sellerId,
+        rating: selectedProductRating,
+        comment: comment
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (res.ok || data.message === 'Review submitted successfully') {
+      alert('✅ Thank you for your review!');
+      location.reload();
+    } else {
+      alert('❌ ' + (data.error || 'Failed to submit review'));
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Review';
+    }
+  } catch (error) {
+    console.error('Error submitting review:', error);
+    alert('Could not submit review. Please try again.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Review';
+  }
+}
+
+async function loadReviewSection(listingId, sellerId, sellerName) {
+  try {
+    const purchasesRes = await fetch(`/api/transactions?listing_id=${listingId}&order_status=completed`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const purchasesData = await purchasesRes.json();
+    
+    const hasPurchased = purchasesData.success && purchasesData.data && 
+                         purchasesData.data.some(t => t.type === 'purchase');
+    
+    const reviewsRes = await fetch(`/api/ratings/listing/${listingId}`);
+    const reviewsData = await reviewsRes.json();
+    const hasReviewed = reviewsData.reviews && 
+                        reviewsData.reviews.some(r => r.reviewer_id === user.user_id);
+    
+    const reviewSection = document.getElementById('reviewSection');
+    if (!reviewSection) return;
+    
+    if (hasPurchased && !hasReviewed) {
+      reviewSection.innerHTML = `
+        <h3 style="font-size: 18px; font-weight: 500; margin-bottom: 16px;">✍️ Write a Review</h3>
+        <div class="review-form" style="background: #faf9f7; border-radius: 20px; padding: 24px;">
+          <p style="margin-bottom: 12px; color: #5a5a5a;">You purchased this item. Share your experience with ${escapeHtml(sellerName)}!</p>
+          <div class="rating-stars" style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <button class="star-btn" data-val="1" onclick="selectRating(1)">★</button>
+            <button class="star-btn" data-val="2" onclick="selectRating(2)">★</button>
+            <button class="star-btn" data-val="3" onclick="selectRating(3)">★</button>
+            <button class="star-btn" data-val="4" onclick="selectRating(4)">★</button>
+            <button class="star-btn" data-val="5" onclick="selectRating(5)">★</button>
+          </div>
+          <textarea id="reviewComment" class="review-textarea" 
+                    placeholder="What did you think about this item? Your feedback helps the community..." 
+                    style="width: 100%; padding: 12px; border: 1px solid #e0ddd8; border-radius: 12px; font-family: inherit; resize: vertical; min-height: 100px; margin-bottom: 16px;"></textarea>
+          <button class="btn btn-primary" onclick="submitProductReview(${listingId}, ${sellerId})" 
+                  style="width: auto; padding: 10px 24px; display: inline-block;">Submit Review</button>
+        </div>
+        <div id="existingReviews"></div>
+      `;
+      loadExistingReviews(listingId);
+    } else {
+      loadExistingReviews(listingId);
+    }
+  } catch (error) {
+    console.error('Error loading review section:', error);
+    loadExistingReviews(listingId);
+  }
+}
+
 function renderListing(listing, isFollowing = false) {
   document.getElementById('loadingBox').style.display = 'none';
 
@@ -256,11 +444,18 @@ function renderListing(listing, isFollowing = false) {
           </div>
         </div>
       </div>
+      <div id="reviewSection" style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #efede8;"></div>
     </div>
   `;
 
   document.getElementById('listingBox').innerHTML = html;
   document.getElementById('listingBox').style.display = 'block';
+  
+  if (!isOwn && token) {
+    loadReviewSection(listing.listing_id, listing.seller_id, seller);
+  } else {
+    loadExistingReviews(listing.listing_id);
+  }
 }
 
 async function updateListingStatus(listingId, status) {

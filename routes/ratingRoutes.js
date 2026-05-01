@@ -1,4 +1,3 @@
-// routes/ratingRoutes.js
 const express = require('express');
 const router = express.Router();
 const {
@@ -9,7 +8,6 @@ const {
 } = require('../controllers/ratingController');
 
 const { authenticate } = require('../middleware/auth');
-
 
 router.get('/listing/:listing_id', getListingRatings);
 router.get('/seller/:seller_id', getSellerRatings);

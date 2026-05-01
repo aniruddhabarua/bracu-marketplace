@@ -1,7 +1,6 @@
 const db = require('../config/db');
 
 const Rating = {
-  // ── Create ────────────────────────────────────────────────────
   create({ reviewer_id, seller_id, listing_id, rating, comment }) {
     const sql = `
       INSERT INTO reviews (reviewer_id, seller_id, listing_id, rating, comment, created_at)
@@ -10,7 +9,6 @@ const Rating = {
     return db.promise().query(sql, [reviewer_id, seller_id, listing_id, rating, comment]);
   },
 
-  // ── Read: reviews for a specific listing ─────────────────────
   getByListing(listing_id) {
     const sql = `
       SELECT
@@ -29,7 +27,6 @@ const Rating = {
     return db.promise().query(sql, [listing_id]);
   },
 
-  // ── Read: reviews received by a seller (profile page) ────────
   getBySeller(seller_id) {
     const sql = `
       SELECT
@@ -51,7 +48,6 @@ const Rating = {
     return db.promise().query(sql, [seller_id]);
   },
 
-  // ── Aggregate: average rating + count for a seller ───────────
   getSellerStats(seller_id) {
     const sql = `
       SELECT
@@ -63,7 +59,6 @@ const Rating = {
     return db.promise().query(sql, [seller_id]);
   },
 
-  // ── Aggregate: average rating + count for a listing ──────────
   getListingStats(listing_id) {
     const sql = `
       SELECT
@@ -75,7 +70,6 @@ const Rating = {
     return db.promise().query(sql, [listing_id]);
   },
 
-  // ── Guard: has this user already reviewed this listing? ───────
   hasReviewed({ reviewer_id, listing_id }) {
     const sql = `
       SELECT review_id FROM reviews
@@ -85,7 +79,6 @@ const Rating = {
     return db.promise().query(sql, [reviewer_id, listing_id]);
   },
 
-  // ── Delete (owner or admin) ───────────────────────────────────
   delete({ id, reviewer_id }) {
     const sql = `DELETE FROM reviews WHERE review_id = ? AND reviewer_id = ?`;
     return db.promise().query(sql, [id, reviewer_id]);

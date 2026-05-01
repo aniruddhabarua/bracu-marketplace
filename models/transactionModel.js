@@ -1,11 +1,7 @@
-// models/transactionModel.js
-// All DB queries for Transaction History
 const db = require('../config/db');
 
 const TransactionModel = {
 
-  // ── Full transaction history for a user ───────────────────────
-  // Returns both purchases and sales, enriched with order + listing info
   getHistory: (userId, filters, callback) => {
     let sql = `
       SELECT
@@ -38,19 +34,21 @@ const TransactionModel = {
 
     const params = [userId];
 
-    // Optional type filter: 'purchase' or 'sale'
+    if (filters.listing_id) {
+      sql += ' AND l.listing_id = ?';
+      params.push(filters.listing_id);
+    }
+
     if (filters.type && ['purchase', 'sale'].includes(filters.type)) {
       sql += ' AND th.type = ?';
       params.push(filters.type);
     }
 
-    // Optional order status filter
     if (filters.order_status) {
       sql += ' AND o.order_status = ?';
       params.push(filters.order_status);
     }
 
-    // Optional date range
     if (filters.from) {
       sql += ' AND th.created_at >= ?';
       params.push(filters.from);
@@ -65,8 +63,6 @@ const TransactionModel = {
     db.query(sql, params, callback);
   },
 
-  // ── Summary stats for a user ──────────────────────────────────
-  // Total spent, total earned, counts
   getSummary: (userId, callback) => {
     const sql = `
       SELECT
@@ -82,7 +78,6 @@ const TransactionModel = {
     db.query(sql, [userId], callback);
   },
 
-  // ── Single transaction detail ─────────────────────────────────
   findById: (transactionId, userId, callback) => {
     const sql = `
       SELECT
@@ -119,7 +114,6 @@ const TransactionModel = {
     db.query(sql, [transactionId, userId], callback);
   },
 
-  // ── Monthly breakdown (for chart data) ────────────────────────
   getMonthlyBreakdown: (userId, callback) => {
     const sql = `
       SELECT
