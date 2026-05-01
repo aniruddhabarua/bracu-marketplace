@@ -169,14 +169,23 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 80px;
       overflow: hidden;
+      position: relative;
     }
 
     .main-image img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      background: #f8fafc;
+    }
+
+    .main-image .image-placeholder {
+      font-size: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
     }
 
     .thumbnails {
@@ -217,27 +226,64 @@
       margin-bottom: 16px;
     }
 
-    .listing-meta {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
+    .price-section {
       margin-bottom: 20px;
       padding-bottom: 20px;
       border-bottom: 1px solid #e2e8f0;
     }
 
     .price-tag {
-      font-size: 32px;
+      font-size: 36px;
       font-weight: 700;
       color: #0f172a;
+      margin-bottom: 12px;
     }
 
-    .status-badge {
-      display: inline-block;
-      border-radius: 20px;
-      font-weight: 500;
-      font-size: 12px;
-      padding: 4px 12px;
+    .status-container {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .status-chip.available {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-chip.available::before {
+      content: "✓";
+      font-weight: bold;
+    }
+
+    .status-chip.preorder {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-chip.preorder::before {
+      content: "📅";
+    }
+
+    .status-chip.sold {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-chip.sold::before {
+      content: "✕";
+      font-weight: bold;
     }
 
     .badge {
@@ -284,9 +330,9 @@
 
     .status-selector {
       margin: 16px 0;
-      padding: 16px;
+      padding: 20px;
       background: #f8fafc;
-      border-radius: 16px;
+      border-radius: 20px;
     }
 
     .status-selector label {
@@ -294,17 +340,19 @@
       font-weight: 600;
       display: block;
       margin-bottom: 12px;
+      color: #0f172a;
     }
 
     .status-buttons {
       display: flex;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
     .status-btn {
       flex: 1;
-      padding: 10px;
-      border-radius: 40px;
+      padding: 12px 16px;
+      border-radius: 12px;
       border: 1px solid #e2e8f0;
       background: #ffffff;
       font-family: inherit;
@@ -312,28 +360,33 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
     .status-btn.available-active {
-      background: #22c55e;
-      color: white;
+      background: #dcfce7;
       border-color: #22c55e;
+      color: #166534;
     }
 
-    .status-btn.reserved-active {
-      background: #f59e0b;
-      color: white;
+    .status-btn.preorder-active {
+      background: #fef3c7;
       border-color: #f59e0b;
+      color: #92400e;
     }
 
     .status-btn.sold-active {
-      background: #ef4444;
-      color: white;
+      background: #fee2e2;
       border-color: #ef4444;
+      color: #991b1b;
     }
 
-    .status-btn:hover:not(.available-active):not(.reserved-active):not(.sold-active) {
+    .status-btn:hover:not(.available-active):not(.preorder-active):not(.sold-active) {
       background: #f1f5f9;
+      transform: translateY(-1px);
     }
 
     .seller-card {
@@ -665,7 +718,7 @@
       <button class="modal-close" onclick="closeReportModal()">✕</button>
     </div>
     <div class="modal-body">
-      <form id="reportForm">
+      <form id="reportForm" onsubmit="handleReportSubmit(event)">
         <input type="hidden" id="reportedUserId">
         <div style="margin-bottom: 15px;">
           <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Reason</label>
@@ -710,6 +763,581 @@
   </div>
 </div>
 
-<script src="/js/listings.js"></script>
+<script>
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+  if (!token || !user) {
+    window.location.href = '/login';
+  } else {
+    document.getElementById('navUser').textContent = 'Hi, ' + user.full_name;
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
+
+  async function trackRecentView(listingId) {
+    if (!token || !listingId) return;
+    try {
+      await fetch('/api/recently-viewed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ listing_id: listingId })
+      });
+    } catch (err) {
+      console.error('Failed to track view:', err);
+    }
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const listingId = urlParams.get('id');
+  const isNewListing = urlParams.get('new') === '1';
+
+  if (!listingId) {
+    showError('No listing ID provided');
+  } else {
+    loadListing(listingId);
+  }
+
+  async function loadListing(id) {
+    try {
+      const res = await fetch(`/api/listings/${id}`, {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+      });
+
+      if (!res.ok) {
+        showError('Listing not found');
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.success) {
+        showError('Could not load listing');
+        return;
+      }
+
+      const listing = data.data;
+      
+      trackRecentView(listingId);
+      
+      let isFollowing = false;
+      if (user && user.user_id !== listing.seller_id) {
+        isFollowing = await checkFollowStatus(listing.seller_id);
+      }
+
+      renderListing(listing, isFollowing);
+
+    } catch (error) {
+      console.error('Error loading listing:', error);
+      showError('Could not reach server');
+    }
+  }
+
+  async function checkFollowStatus(sellerId) {
+    try {
+      const res = await fetch(`/api/favorite-sellers/check/${sellerId}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json();
+      return data.success ? data.is_favorite : false;
+    } catch (error) {
+      console.error('Error checking follow status:', error);
+      return false;
+    }
+  }
+
+  function renderListing(listing, isFollowing = false) {
+    document.getElementById('loadingBox').style.display = 'none';
+
+    if (isNewListing) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.innerHTML = `
+        <div class="alert alert-success">
+          ✅ <strong>Success!</strong> Your listing "<strong>${escapeHtml(listing.title)}</strong>" has been posted!
+        </div>
+      `;
+    }
+
+    const catEmoji = {
+      'Books & Notes':'📚','Electronics':'💻','Clothing & Accessories':'👕',
+      'Stationery & Supplies':'✏️','Sports & Fitness':'⚽','Food & Beverages':'🍜',
+      'Furniture & Decor':'🪑','Services':'🛠️','Other':'📦',
+    };
+
+    const condLabel = {
+      new:'New',
+      like_new:'Like New',
+      good:'Good',
+      fair:'Fair',
+      poor:'Poor'
+    };
+
+    const statusConfig = {
+      available: { label: 'Available', icon: '✓', class: 'available' },
+      reserved: { label: 'Pre-order', icon: '📅', class: 'preorder' },
+      sold: { label: 'Sold', icon: '✕', class: 'sold' }
+    };
+
+    const images = listing.images && listing.images.length > 0 ? listing.images : (listing.primary_image ? [{ image_url: listing.primary_image }] : []);
+    const imagesWithFallback = images.filter(img => img && img.image_url);
+
+    let mainImageHtml = '';
+    if (imagesWithFallback.length > 0) {
+      const imgUrl = imagesWithFallback[0].image_url;
+      mainImageHtml = `<img src="${imgUrl}" alt="${listing.title}" id="mainImage" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>📦</div>'">`;
+    } else {
+      mainImageHtml = `<div class="image-placeholder">${catEmoji[listing.category] || '📦'}</div>`;
+    }
+
+    let thumbnailsHtml = '';
+    if (imagesWithFallback.length > 1) {
+      thumbnailsHtml = imagesWithFallback.map((img, idx) => `
+        <div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="switchImage('${img.image_url}', this)">
+          <img src="${img.image_url}" alt="Image ${idx + 1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>📦</text></svg>'">
+        </div>
+      `).join('');
+    }
+
+    const seller = listing.seller_name || 'Unknown';
+    const sellerAvatar = listing.seller_avatar ? `<img src="${listing.seller_avatar}" alt="${seller}">` : '👤';
+    const avgRating = listing.avg_rating ? Math.round(listing.avg_rating) : 0;
+    const stars = avgRating > 0 ? '⭐'.repeat(avgRating) + ` (${listing.total_reviews || 0})` : 'No ratings yet';
+
+    const isOwn = user && user.user_id === listing.seller_id;
+    const currentStatus = statusConfig[listing.status] || statusConfig.available;
+
+    const html = `
+      <div class="listing-container">
+        <div class="listing-main">
+          
+          <div class="image-gallery">
+            <div class="main-image">
+              ${mainImageHtml}
+            </div>
+            ${thumbnailsHtml ? `<div class="thumbnails">${thumbnailsHtml}</div>` : ''}
+          </div>
+
+          <div class="listing-info">
+            <h1>${escapeHtml(listing.title)}</h1>
+
+            <div class="price-section">
+              <div class="price-tag">₹ ${Number(listing.price).toLocaleString()}</div>
+              <div class="status-container">
+                <span class="status-chip ${currentStatus.class}">
+                  ${currentStatus.icon} ${currentStatus.label}
+                </span>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <span class="badge condition">${condLabel[listing.condition_type] || listing.condition_type}</span>
+              <span class="badge category">${listing.category}</span>
+            </div>
+
+            <p class="description">${escapeHtml(listing.description)}</p>
+
+            <div class="details-grid">
+              <div class="detail-item">
+                <div class="detail-label">Category</div>
+                <div class="detail-value">${listing.category}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Condition</div>
+                <div class="detail-value">${condLabel[listing.condition_type] || listing.condition_type}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Location</div>
+                <div class="detail-value">${listing.location || 'Not specified'}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Posted</div>
+                <div class="detail-value">${formatDate(listing.created_at)}</div>
+              </div>
+            </div>
+
+            ${isOwn ? `
+              <div class="status-selector">
+                <label>📦 Update Product Status:</label>
+                <div class="status-buttons">
+                  <button class="status-btn ${listing.status === 'available' ? 'available-active' : ''}" 
+                          onclick="updateListingStatus(${listing.listing_id}, 'available')">
+                    ✓ Available
+                  </button>
+                  <button class="status-btn ${listing.status === 'reserved' ? 'preorder-active' : ''}" 
+                          onclick="updateListingStatus(${listing.listing_id}, 'reserved')">
+                    📅 Pre-order
+                  </button>
+                  <button class="status-btn ${listing.status === 'sold' ? 'sold-active' : ''}" 
+                          onclick="updateListingStatus(${listing.listing_id}, 'sold')">
+                    ✕ Sold
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="seller-card">
+              <div class="seller-header" onclick="showSellerProfile(${listing.seller_id})">
+                <div class="seller-avatar">
+                  ${sellerAvatar}
+                </div>
+                <div class="seller-info">
+                  <h3>
+                    ${seller}
+                    ${listing.seller_is_verified ? '<span style="color: #4caf50; font-size: 12px; margin-left: 6px;">✅ Verified</span>' : ''}
+                  </h3>
+                  <p>${listing.seller_department || 'BRACU Student'}</p>
+                  <div class="seller-rating">${stars}</div>
+                </div>
+              </div>
+
+              ${isOwn ? `
+                <button class="btn btn-secondary" onclick="deleteListing(${listing.listing_id})">🗑️ Delete Listing</button>
+              ` : `
+                <button class="btn btn-primary" onclick="initiateOrder(${listing.listing_id}, ${listing.seller_id}, ${listing.price})">💰 Buy Now</button>
+                <button class="btn btn-secondary" onclick="addToWishlist(${listing.listing_id})">❤️ Save to Wishlist</button>
+                <button class="btn btn-secondary" id="followBtn" onclick="toggleFollowSeller(${listing.seller_id}, '${seller}')">
+                  ${isFollowing ? '⭐ Following' : '☆ Follow Seller'}
+                </button>
+                <div style="text-align:center; margin-top:16px;">
+                  <button class="btn-report" onclick="openReportModal(${listing.listing_id}, 'listing')">🚩 Report Listing</button>
+                </div>
+              `}
+
+              <div class="posted-date">Seller member since ${new Date(listing.created_at).getFullYear()}</div>
+            </div>
+          </div>
+        </div>
+        <div id="reviewSection" style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #efede8;"></div>
+      </div>
+    `;
+
+    document.getElementById('listingBox').innerHTML = html;
+    document.getElementById('listingBox').style.display = 'block';
+    
+    loadExistingReviews(listing.listing_id);
+  }
+
+  function switchImage(imageSrc, thumbnailEl) {
+    const mainImg = document.getElementById('mainImage');
+    if (mainImg) {
+      mainImg.src = imageSrc;
+    }
+
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    thumbnailEl.classList.add('active');
+  }
+
+  async function loadExistingReviews(listingId) {
+    try {
+      const res = await fetch(`/api/ratings/listing/${listingId}`);
+      const data = await res.json();
+      
+      const reviewSection = document.getElementById('reviewSection');
+      if (!reviewSection) return;
+      
+      const reviews = data.reviews || [];
+      const avgRating = data.average_rating;
+      const totalReviews = data.total_reviews || 0;
+      
+      let reviewsHtml = `
+        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">⭐ Customer Reviews</h3>
+      `;
+      
+      if (avgRating) {
+        reviewsHtml += `<p style="color: #f59e0b; margin-bottom: 16px;">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5-Math.round(avgRating))} (${avgRating} / 5) • ${totalReviews} review${totalReviews !== 1 ? 's' : ''}</p>`;
+      } else {
+        reviewsHtml += `<p style="color: #aaa; margin-bottom: 16px;">No reviews yet</p>`;
+      }
+      
+      if (reviews.length > 0) {
+        reviewsHtml += `
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            ${reviews.map(review => `
+              <div class="review-card">
+                <div class="review-header">
+                  <span class="review-author">${escapeHtml(review.reviewer_name || 'Anonymous')}</span>
+                  <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
+                </div>
+                ${review.comment ? `<div class="review-comment">"${escapeHtml(review.comment)}"</div>` : ''}
+                <div class="review-date">${formatDate(review.created_at)}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        reviewsHtml += '<p style="color: #aaa; text-align: center; padding: 32px;">Be the first to review this item!</p>';
+      }
+      
+      reviewSection.innerHTML = reviewsHtml;
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+    }
+  }
+
+  async function updateListingStatus(listingId, status) {
+    const statusLabels = { available: 'Available', reserved: 'Pre-order', sold: 'Sold' };
+    if (!confirm(`Mark this listing as ${statusLabels[status]}?`)) return;
+    
+    try {
+      const res = await fetch(`/api/listings/${listingId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ Listing marked as ${statusLabels[status]}`);
+        location.reload();
+      } else {
+        alert('❌ ' + (data.message || 'Failed to update status'));
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Could not update status');
+    }
+  }
+
+  async function toggleFollowSeller(sellerId, sellerName) {
+    try {
+      const btn = document.getElementById('followBtn');
+      const isFollowing = btn.textContent.includes('Following');
+
+      const res = await fetch(`/api/favorite-sellers/${sellerId}`, {
+        method: isFollowing ? 'DELETE' : 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        if (isFollowing) {
+          btn.textContent = '☆ Follow Seller';
+          alert(`✅ Unfollowed ${sellerName}`);
+        } else {
+          btn.textContent = '⭐ Following';
+          alert(`✅ Following ${sellerName}!`);
+        }
+      } else {
+        alert('❌ ' + (data.message || 'Failed to update follow status'));
+      }
+    } catch (error) {
+      console.error('Error toggling follow status:', error);
+      alert('Could not update follow status');
+    }
+  }
+
+  async function addToWishlist(listingId) {
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ listing_id: listingId })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert('❤️ Added to wishlist!');
+      } else if (res.status === 409) {
+        alert('⚠️ This item is already in your wishlist.');
+      } else {
+        alert('❌ ' + (data.message || 'Failed to add to wishlist'));
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      alert('Could not add to wishlist');
+    }
+  }
+
+  async function deleteListing(listingId) {
+    if (!confirm('Are you sure you want to delete this listing? This cannot be undone.')) return;
+
+    try {
+      const res = await fetch(`/api/listings/${listingId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ Listing deleted successfully');
+        window.location.href = '/profile';
+      } else {
+        alert('❌ Failed to delete listing');
+      }
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      alert('Could not delete listing');
+    }
+  }
+
+  function initiateOrder(listingId, sellerId, price) {
+    window.location.href = `/order?listing_id=${listingId}&seller_id=${sellerId}&price=${price}`;
+  }
+
+  function showError(message) {
+    document.getElementById('loadingBox').style.display = 'none';
+    document.getElementById('errorBox').textContent = '⚠️ ' + message;
+    document.getElementById('errorBox').style.display = 'block';
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  async function showSellerProfile(sellerId) {
+    try {
+      const res = await fetch(`/api/users/${sellerId}`, {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+      });
+
+      if (!res.ok) {
+        alert('Could not load seller profile');
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.success) {
+        alert('Seller profile not found');
+        return;
+      }
+
+      const seller = data.data;
+      const verificationBadge = seller.is_verified ? '✅ Verified' : '';
+      const memberYear = new Date(seller.member_since).getFullYear();
+      const sellerAvatar = seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}">` : '👤';
+      const stars = seller.avg_rating ? '⭐'.repeat(Math.round(seller.avg_rating)) : 'No ratings yet';
+
+      const profileHtml = `
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="width: 100px; height: 100px; margin: 0 auto 16px; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden;">
+            ${sellerAvatar}
+          </div>
+          <h3 style="margin: 8px 0 4px;">${escapeHtml(seller.full_name)} ${verificationBadge ? `<span style="color: #4caf50;">${verificationBadge}</span>` : ''}</h3>
+          <p style="color: #666;">${seller.department || 'BRACU Student'}</p>
+          <p style="color: #ffc107; margin-top: 8px;">${stars} ${seller.total_reviews > 0 ? `(${seller.total_reviews} reviews)` : ''}</p>
+        </div>
+        <div style="border-top: 1px solid #eee; padding-top: 16px;">
+          <p><strong>Member since:</strong> ${memberYear}</p>
+          ${seller.bio ? `<p><strong>About:</strong> ${escapeHtml(seller.bio)}</p>` : ''}
+        </div>
+      `;
+
+      document.getElementById('sellerProfileContent').innerHTML = profileHtml;
+      document.getElementById('sellerModal').classList.add('open');
+    } catch (error) {
+      console.error('Error loading seller profile:', error);
+      alert('Could not load seller profile');
+    }
+  }
+
+  function closeSellerModal() {
+    document.getElementById('sellerModal').classList.remove('open');
+  }
+
+  function openReportModal(reportedId, type) {
+    document.getElementById('reportedUserId').value = reportedId;
+    document.getElementById('reportModal').classList.add('open');
+  }
+
+  function closeReportModal() {
+    document.getElementById('reportModal').classList.remove('open');
+  }
+
+  async function handleReportSubmit(e) {
+    e.preventDefault();
+    const reportedId = document.getElementById('reportedUserId').value;
+    const reason = document.getElementById('reportReason').value;
+    const details = document.getElementById('reportDetails').value;
+    const type = 'listing';
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+
+    if (!reason) {
+      alert('Please select a reason');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    try {
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          reported_type: type,
+          reported_id: reportedId,
+          reason,
+          details
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Report submitted. Our team will review it shortly.');
+        closeReportModal();
+        document.getElementById('reportForm').reset();
+      } else {
+        alert('❌ ' + (data.message || 'Failed to submit report'));
+      }
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      alert('Could not submit report');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Report';
+    }
+  }
+
+  function closeRatingModal() {
+    document.getElementById('ratingModal').classList.remove('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const sellerModal = document.getElementById('sellerModal');
+    const ratingModal = document.getElementById('ratingModal');
+    const reportModal = document.getElementById('reportModal');
+
+    if (sellerModal) {
+      sellerModal.addEventListener('click', (e) => {
+        if (e.target === sellerModal) closeSellerModal();
+      });
+    }
+    if (ratingModal) {
+      ratingModal.addEventListener('click', (e) => {
+        if (e.target === ratingModal) closeRatingModal();
+      });
+    }
+    if (reportModal) {
+      reportModal.addEventListener('click', (e) => {
+        if (e.target === reportModal) closeReportModal();
+      });
+    }
+  });
+</script>
 </body>
 </html>
