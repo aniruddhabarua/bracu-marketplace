@@ -155,6 +155,18 @@ const ListingModel = {
     });
   },
 
+    updateStatus: (listingId, status, callback) => {
+    const validStatuses = ['available', 'reserved', 'sold'];
+    if (!validStatuses.includes(status)) {
+      return callback(new Error('Invalid status. Must be available, reserved, or sold.'));
+    }
+    db.query(
+      'UPDATE listings SET status = ? WHERE listing_id = ?',
+      [status, listingId],
+      callback
+    );
+  },
+
   
   isOwner: (listingId, userId, callback) => {
     db.query(
