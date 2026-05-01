@@ -6,13 +6,32 @@
 const token = localStorage.getItem('token');
 const user  = JSON.parse(localStorage.getItem('user') || 'null');
 
+console.log('=== Profile.js Debug ===');
+console.log('Token exists:', !!token);
+console.log('User exists:', !!user);
+console.log('User data:', user);
+
 // Check for new listing parameter
 const urlParams = new URLSearchParams(window.location.search);
 const newListingId = urlParams.get('new_listing');
 
 if (!token || !user) {
-  window.location.href = '/login';
+  // Show message and redirect after a brief moment
+  const alertBox = document.getElementById('alertBox');
+  if (alertBox) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-error';
+    alert.textContent = '⚠️ Please log in to view your profile. Redirecting to login...';
+    alertBox.appendChild(alert);
+  }
+  
+  console.log('Not logged in, redirecting to login');
+  // Redirect to login after 2 seconds
+  setTimeout(() => {
+    window.location.href = '/login';
+  }, 2000);
 } else {
+  console.log('User logged in, loading profile');
   document.getElementById('navUser').textContent = 'Hi, ' + user.full_name;
   
   // Show success message if new listing was created
@@ -38,23 +57,33 @@ function logout() {
 
 async function loadProfile() {
   try {
+    console.log('loadProfile: Starting fetch to /api/auth/me');
+    console.log('Token:', token ? 'Present (' + token.substring(0, 20) + '...)' : 'Missing');
+    
     // Fetch current user's profile from backend
     const res = await fetch('/api/auth/me', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
 
+    console.log('loadProfile: Response received', res.status, res.statusText);
+
     if (!res.ok) {
-      showAlert('Failed to load profile', 'error');
+      console.error('loadProfile: Response not ok', res.status, res.statusText);
+      showAlert(`Server error: ${res.status} ${res.statusText}`, 'error');
       return;
     }
 
     const data = await res.json();
+    console.log('loadProfile: Response data:', data);
+    
     if (!data.success) {
-      showAlert('Could not retrieve profile data', 'error');
+      console.error('loadProfile: data.success is false', data.message);
+      showAlert('Could not retrieve profile data: ' + (data.message || 'Unknown error'), 'error');
       return;
     }
 
     const userProfile = data.data;
+    console.log('loadProfile: User profile loaded:', userProfile);
     
     // Display profile information
     displayProfile(userProfile);
@@ -78,45 +107,96 @@ async function loadProfile() {
 
   } catch (error) {
     console.error('Error loading profile:', error);
-    showAlert('Could not reach server', 'error');
+    console.error('Error stack:', error.stack);
+    const errorMessage = error.message || 'Could not reach server';
+    showAlert(`Error: ${errorMessage}`, 'error');
   }
 }
 
 function displayProfile(userProfile) {
-  // Display basic information
-  document.getElementById('profileName').textContent = userProfile.full_name || 'User';
-  document.getElementById('profileEmail').textContent = userProfile.email || '-';
-  document.getElementById('profileDepartment').textContent = userProfile.department || 'Not specified';
-  document.getElementById('profileRole').textContent = capitalizeRole(userProfile.role) || 'Student';
+  const pageContent = document.getElementById('pageContent');
   
-  // Display bio
-  const bioElement = document.getElementById('profileBio');
-  if (userProfile.bio && userProfile.bio.trim()) {
-    bioElement.textContent = userProfile.bio;
-  } else {
-    bioElement.innerHTML = '<em style="color: #aaa;">No bio added yet</em>';
-  }
+  // Generate the profile card HTML
+  const profileHTML = `
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-picture" id="profilePicture">
+          ${userProfile.profile_picture ? `<img src="${userProfile.profile_picture}" alt="${userProfile.full_name}">` : '👤'}
+        </div>
+        <div class="profile-info">
+          <h2 id="profileName">${userProfile.full_name || 'User'}</h2>
+          <p id="profileEmail">${userProfile.email || '-'}</p>
+          <p id="profileDepartment">${userProfile.department || 'Not specified'} • <span id="profileRole">${capitalizeRole(userProfile.role) || 'Student'}</span></p>
+          ${userProfile.is_verified ? '<span class="verified-badge">✓ Verified</span>' : ''}
+          <div class="profile-rating" id="profileRating">
+            ${userProfile.avg_rating && userProfile.total_reviews > 0 
+              ? `<div class="rating-stars">${'⭐'.repeat(Math.round(userProfile.avg_rating))}</div>
+                 <span>${userProfile.avg_rating.toFixed(1)} / 5.0 (${userProfile.total_reviews} review${userProfile.total_reviews !== 1 ? 's' : ''})</span>`
+              : '<em style="color: #aaa;">No ratings yet</em>'}
+          </div>
+          <div class="bio" id="profileBio">
+            ${userProfile.bio && userProfile.bio.trim() ? userProfile.bio : '<em style="color: #aaa;">No bio added yet</em>'}
+          </div>
+          <div class="profile-actions">
+            <button class="btn btn-primary" onclick="toggleEditForm()">Edit Profile</button>
+          </div>
+        </div>
+      </div>
 
-  // Display profile picture
-  const profilePicElement = document.getElementById('profilePicture');
-  if (userProfile.profile_picture) {
-    profilePicElement.src = userProfile.profile_picture;
-    profilePicElement.alt = userProfile.full_name;
-  } else {
-    profilePicElement.textContent = '👤';
-  }
+      <div class="edit-form" id="editForm">
+        <h3>Edit Profile</h3>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="editName" value="${userProfile.full_name || ''}" placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <input type="text" id="editDepartment" value="${userProfile.department || ''}" placeholder="Your department">
+        </div>
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea id="editBio" placeholder="Tell us about yourself">${userProfile.bio || ''}</textarea>
+        </div>
+        <div class="profile-actions">
+          <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+          <button class="btn btn-secondary" onclick="toggleEditForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
 
-  // Display rating
-  const ratingElement = document.getElementById('profileRating');
-  if (userProfile.avg_rating && userProfile.total_reviews > 0) {
-    const stars = '⭐'.repeat(Math.round(userProfile.avg_rating));
-    ratingElement.innerHTML = `
-      <div class="rating-stars">${stars}</div>
-      <span>${userProfile.avg_rating.toFixed(1)} / 5.0 (${userProfile.total_reviews} review${userProfile.total_reviews !== 1 ? 's' : ''})</span>
-    `;
-  } else {
-    ratingElement.innerHTML = '<em style="color: #aaa;">No ratings yet</em>';
-  }
+    <div class="my-listings">
+      <div class="section-header">
+        <h2>My Listings</h2>
+        <a href="/sell" class="btn-sell">+ Sell an item</a>
+      </div>
+      <div class="grid" id="myListingsGrid">
+        <div class="loading">Loading listings...</div>
+      </div>
+    </div>
+
+    <div class="wishlist-section">
+      <h2>My Wishlist</h2>
+      <div class="grid" id="wishlistGrid">
+        <div class="loading">Loading wishlist...</div>
+      </div>
+    </div>
+
+    <div class="followed-sellers-section">
+      <h2>Followed Sellers</h2>
+      <div class="grid" id="followedSellersGrid">
+        <div class="loading">Loading followed sellers...</div>
+      </div>
+    </div>
+
+    <div class="reviews-section">
+      <h2>Reviews</h2>
+      <div id="reviewsContainer">
+        <div class="loading">Loading reviews...</div>
+      </div>
+    </div>
+  `;
+  
+  pageContent.innerHTML = profileHTML;
 }
 
 // ==========================================
