@@ -27,6 +27,11 @@ SET time_zone = "+00:00";
 -- Table structure for table `conversations`
 --
 
+SET FOREIGN_KEY_CHECKS = 0;
+DROP DATABASE IF EXISTS `bracu_marketplace`;
+CREATE DATABASE `bracu_marketplace`;
+USE `bracu_marketplace`;
+
 CREATE TABLE `conversations` (
   `conversation_id` int(11) NOT NULL,
   `buyer_id` int(11) NOT NULL,
@@ -565,3 +570,5 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+SET FOREIGN_KEY_CHECKS = 1;
