@@ -57,6 +57,7 @@ app.get('/login',         (req, res) => res.sendFile(path.join(__dirname, 'views
 app.get('/login.html',    (req, res) => res.sendFile(path.join(__dirname, 'views', 'login.html')));
 app.get('/sell',          (req, res) => res.sendFile(path.join(__dirname, 'views', 'sell.html')));
 app.get('/profile',       (req, res) => res.sendFile(path.join(__dirname, 'views', 'profile.html')));
+app.get('/wishlist',      (req, res) => res.redirect('/profile'));
 app.get('/listings',      (req, res) => res.sendFile(path.join(__dirname, 'views', 'listings.html')));
 app.get('/notifications', (req, res) => res.sendFile(path.join(__dirname, 'views', 'notifications.html')));
 app.get('/transactions',  (req, res) => res.sendFile(path.join(__dirname, 'views', 'transactions.html')));
