@@ -66,6 +66,15 @@ app.get('/admin',         (req, res) => res.sendFile(path.join(__dirname, 'views
 app.get('/admin.html',    (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
 
 require('./socket')(io);
+const http = require("http");
+const socketIo = require("socket.io");
+
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: { origin: "*" }
+});
+
+global.io = io;
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
