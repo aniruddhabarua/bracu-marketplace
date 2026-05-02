@@ -277,65 +277,103 @@ async function loadReviewSection(listingId, sellerId, sellerName) {
 }
 
 async function loadSimilarProducts(listingId) {
+  const container = document.getElementById('similarProductsSection');
+  if (!container) return;
+
+  // Show skeleton while loading
+  container.innerHTML = `
+    <div style="margin-top:48px;padding-top:32px;border-top:1px solid #efede8;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+        <div style="width:22px;height:22px;background:#e8e4dc;border-radius:4px;animation:shimmer 1.4s infinite;"></div>
+        <div style="width:160px;height:22px;background:#e8e4dc;border-radius:6px;animation:shimmer 1.4s infinite;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;">
+        ${[1,2,3,4].map(() => `
+          <div style="background:#fff;border:1px solid #e8e4dc;border-radius:16px;overflow:hidden;">
+            <div style="height:160px;background:#f0ede8;animation:shimmer 1.4s infinite;"></div>
+            <div style="padding:14px 16px 16px;">
+              <div style="height:10px;background:#e8e4dc;border-radius:4px;margin-bottom:8px;width:60%;animation:shimmer 1.4s infinite;"></div>
+              <div style="height:14px;background:#e8e4dc;border-radius:4px;margin-bottom:8px;animation:shimmer 1.4s infinite;"></div>
+              <div style="height:14px;background:#e8e4dc;border-radius:4px;margin-bottom:12px;width:80%;animation:shimmer 1.4s infinite;"></div>
+              <div style="height:18px;background:#e8e4dc;border-radius:4px;width:50%;animation:shimmer 1.4s infinite;"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <style>
+      @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    </style>`;
+
   try {
     const res = await fetch(`/api/listings/${listingId}/similar?limit=6`);
     const data = await res.json();
-    
+
     if (!data.success || !data.data || data.data.length === 0) {
+      container.innerHTML = ''; // clear skeleton, hide section
       return;
     }
-    
+
     const products = data.data;
     const catEmoji = {
-      'Books & Notes':'📚','Electronics':'💻','Clothing & Accessories':'👕',
-      'Stationery & Supplies':'✏️','Sports & Fitness':'⚽','Food & Beverages':'🍜',
-      'Furniture & Decor':'🪑','Services':'🛠️','Other':'📦',
+      'Books & Notes': '📚', 'Electronics': '💻', 'Clothing & Accessories': '👕',
+      'Stationery & Supplies': '✏️', 'Sports & Fitness': '⚽', 'Food & Beverages': '🍜',
+      'Furniture & Decor': '🪑', 'Services': '🛠️', 'Other': '📦',
     };
-    
-    let productsHtml = `
-      <div style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #efede8;">
-        <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 24px;">🛍️ Similar Products</h3>
-        <div class="similar-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
-    `;
-    
-    products.forEach(product => {
-      const image = product.primary_image ? `<img src="${product.primary_image}" alt="${product.title}" style="width: 100%; height: 160px; object-fit: cover;">` 
-                   : `<div style="width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 60px;">${catEmoji[product.category] || '📦'}</div>`;
-      
-      const rating = product.avg_rating ? Math.round(product.avg_rating) : 0;
-      const stars = rating > 0 ? '⭐'.repeat(rating) : '☆☆☆☆☆';
-      
-      productsHtml += `
-        <a href="/listings.html?id=${product.listing_id}" style="text-decoration: none; color: inherit;">
-          <div class="similar-product-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; transition: all 0.2s; cursor: pointer;">
-            <div style="position: relative; overflow: hidden;">
+
+    const conditionBadge = (cond) => {
+      const map = { 'new': { label: 'New', color: '#16a34a' }, 'like-new': { label: 'Like New', color: '#2563eb' }, 'good': { label: 'Good', color: '#d97706' }, 'fair': { label: 'Fair', color: '#dc2626' } };
+      const c = map[cond] || { label: cond, color: '#64748b' };
+      return `<span style="font-size:11px;font-weight:600;color:#fff;background:${c.color};padding:2px 8px;border-radius:20px;">${c.label}</span>`;
+    };
+
+    const cards = products.map(product => {
+      const image = product.primary_image
+        ? `<img src="${product.primary_image}" alt="${escapeHtml(product.title)}" style="width:100%;height:160px;object-fit:cover;display:block;">`
+        : `<div style="width:100%;height:160px;display:flex;align-items:center;justify-content:center;background:#f8f7f4;font-size:56px;">${catEmoji[product.category] || '📦'}</div>`;
+
+      const avg = parseFloat(product.avg_rating) || 0;
+      const fullStars = Math.round(avg);
+      const starsHtml = avg > 0
+        ? `<span style="color:#f59e0b;font-size:12px;">${'★'.repeat(fullStars)}${'☆'.repeat(5 - fullStars)}</span> <span style="font-size:11px;color:#94a3b8;">(${product.total_reviews || 0})</span>`
+        : `<span style="font-size:11px;color:#94a3b8;">No reviews yet</span>`;
+
+      return `
+        <a href="/listings.html?id=${product.listing_id}" style="text-decoration:none;color:inherit;display:block;">
+          <div class="sim-card" style="background:#fff;border:1px solid #e8e4dc;border-radius:16px;overflow:hidden;transition:transform 0.18s,box-shadow 0.18s;"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.10)';"
+            onmouseout="this.style.transform='';this.style.boxShadow='';">
+            <div style="position:relative;overflow:hidden;">
               ${image}
+              <div style="position:absolute;top:10px;left:10px;">${conditionBadge(product.condition_type)}</div>
             </div>
-            <div style="padding: 16px;">
-              <h4 style="font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 8px; line-height: 1.3; white-space: normal; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(product.title)}</h4>
-              <p style="font-size: 13px; color: #475569; margin-bottom: 8px;">${product.category}</p>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <p style="font-size: 16px; font-weight: 700; color: #0f172a;">৳ ${Number(product.price).toLocaleString()}</p>
+            <div style="padding:14px 16px 16px;">
+              <p style="font-size:11px;color:#a89b8c;font-weight:500;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">${escapeHtml(product.category)}</p>
+              <h4 style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:6px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(product.title)}</h4>
+              <div style="margin-bottom:8px;">${starsHtml}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:17px;font-weight:700;color:#1a1a2e;">৳ ${Number(product.price).toLocaleString()}</span>
+                <span style="font-size:11px;color:#94a3b8;">by ${escapeHtml(product.seller_name || 'Seller')}</span>
               </div>
-              <p style="font-size: 12px; color: #94a3b8;">${stars} (${product.total_reviews || 0})</p>
             </div>
           </div>
-        </a>
-      `;
-    });
-    
-    productsHtml += `
+        </a>`;
+    }).join('');
+
+    container.innerHTML = `
+      <div style="margin-top:48px;padding-top:32px;border-top:1px solid #efede8;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+          <span style="font-size:22px;">🛍️</span>
+          <h3 style="font-size:20px;font-weight:700;color:#1a1a2e;margin:0;">Similar Products</h3>
+          <span style="font-size:13px;color:#94a3b8;margin-left:4px;">${products.length} item${products.length !== 1 ? 's' : ''} in this category</span>
         </div>
-      </div>
-    `;
-    
-    const container = document.getElementById('listingBox');
-    if (container) {
-      container.innerHTML += productsHtml;
-    }
-    
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;">
+          ${cards}
+        </div>
+      </div>`;
+
   } catch (error) {
     console.error('Error loading similar products:', error);
+    container.innerHTML = ''; // clear skeleton on error
   }
 }
 
@@ -508,6 +546,7 @@ function renderListing(listing, isFollowing = false) {
         </div>
       </div>
       <div id="reviewSection" style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #efede8;"></div>
+      <div id="similarProductsSection"></div>
     </div>
   `;
 
