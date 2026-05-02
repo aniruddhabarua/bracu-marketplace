@@ -71,3 +71,13 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
 
 module.exports = app;
+
+
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    console.log("User joined room:", userId);
+    socket.join(userId);
+  });
+});
