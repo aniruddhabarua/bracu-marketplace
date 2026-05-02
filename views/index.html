@@ -493,7 +493,7 @@
 
     .recent-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 24px;
     }
 
@@ -747,7 +747,7 @@
   <div id="recentSection" class="recent-section" style="display: none;">
     <div class="recent-header">
       <h3>🕐 Recently viewed</h3>
-      <button class="clear-recent-btn" onclick="clearRecentlyViewed()">Clear all</button>
+      <button class="btn-logout" onclick="clearRecentlyViewed()">Clear all</button>
     </div>
     <div id="recentGrid" class="recent-grid"></div>
   </div>
@@ -958,15 +958,20 @@
       if (data.success && data.data && data.data.length > 0) {
         recentSection.style.display = 'block';
         recentGrid.innerHTML = data.data.map(item => `
-          <a class="recent-card" href="/listings?id=${item.listing_id}">
-            <div class="recent-card-img">
+          <div class="card" onclick="window.location.href='/listings?id=${item.listing_id}'" style="cursor: pointer;">
+            <div class="card-img">
               ${item.primary_image ? `<img src="${item.primary_image}" alt="${item.title}">` : getCategoryEmoji(item.category)}
             </div>
-            <div class="recent-card-body">
-              <div class="recent-card-title">${escapeHtml(item.title)}</div>
-              <div class="recent-card-price">৳ ${Number(item.price).toLocaleString()}</div>
+            <div class="card-body">
+              <div class="card-category">${item.category}</div>
+              <div class="card-title">${escapeHtml(item.title)}</div>
+              <div class="card-price">\u09F3 ${Number(item.price).toLocaleString()}</div>
+              <div class="card-footer">
+                <span class="badge">${item.condition_type || ''}</span>
+                <span class="card-seller">${item.seller_name || ''}</span>
+              </div>
             </div>
-          </a>
+          </div>
         `).join('');
       } else {
         recentSection.style.display = 'none';
