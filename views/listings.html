@@ -991,6 +991,7 @@
           </div>
         </div>
         <div id="reviewSection" style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #efede8;"></div>
+        <div id="similarProductsSection"></div>
       </div>
     `;
 
@@ -998,6 +999,7 @@
     document.getElementById('listingBox').style.display = 'block';
     
     loadExistingReviews(listing.listing_id);
+    loadSimilarProducts(listing.listing_id);
   }
 
   function switchImage(imageSrc, thumbnailEl) {
@@ -1054,6 +1056,113 @@
       reviewSection.innerHTML = reviewsHtml;
     } catch (error) {
       console.error('Error loading reviews:', error);
+    }
+  }
+
+  async function loadSimilarProducts(listingId) {
+    const container = document.getElementById('similarProductsSection');
+    if (!container) return;
+
+    const catEmoji = {
+      'Books & Notes':'📚','Electronics':'💻','Clothing & Accessories':'👕',
+      'Stationery & Supplies':'✏️','Sports & Fitness':'⚽','Food & Beverages':'🍜',
+      'Furniture & Decor':'🪑','Services':'🛠️','Other':'📦',
+    };
+
+    // Shimmer skeleton while fetching
+    container.innerHTML = `
+      <style>
+        @keyframes simShimmer { 0%,100%{opacity:1} 50%{opacity:0.45} }
+        .sim-skeleton { animation: simShimmer 1.4s ease-in-out infinite; background:#e8e4dc; border-radius:6px; }
+        .sim-card:hover { transform: translateY(-4px) !important; box-shadow: 0 8px 28px rgba(0,0,0,0.10) !important; }
+      </style>
+      <div style="margin-top:52px;padding-top:36px;border-top:2px solid #efede8;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
+          <div class="sim-skeleton" style="width:24px;height:24px;border-radius:4px;"></div>
+          <div class="sim-skeleton" style="width:180px;height:24px;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;">
+          ${[1,2,3,4].map(()=>`
+            <div style="background:#fff;border:1px solid #e8e4dc;border-radius:16px;overflow:hidden;">
+              <div class="sim-skeleton" style="height:160px;border-radius:0;"></div>
+              <div style="padding:14px 16px 16px;">
+                <div class="sim-skeleton" style="height:10px;width:55%;margin-bottom:10px;"></div>
+                <div class="sim-skeleton" style="height:14px;margin-bottom:7px;"></div>
+                <div class="sim-skeleton" style="height:14px;width:75%;margin-bottom:14px;"></div>
+                <div class="sim-skeleton" style="height:18px;width:45%;"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+
+    try {
+      const res = await fetch(`/api/listings/${listingId}/similar?limit=6`);
+      const data = await res.json();
+
+      if (!data.success || !data.data || data.data.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const products = data.data;
+
+      const conditionBadge = (cond) => {
+        const map = {
+          'new':      { label:'New',      bg:'#16a34a' },
+          'like-new': { label:'Like New', bg:'#2563eb' },
+          'good':     { label:'Good',     bg:'#d97706' },
+          'fair':     { label:'Fair',     bg:'#dc2626' },
+        };
+        const c = map[cond] || { label: cond || 'Used', bg:'#64748b' };
+        return `<span style="position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;color:#fff;background:${c.bg};padding:3px 9px;border-radius:20px;letter-spacing:0.3px;">${c.label}</span>`;
+      };
+
+      const cards = products.map(p => {
+        const img = p.primary_image
+          ? `<img src="${p.primary_image}" alt="${p.title.replace(/"/g,'&quot;')}" style="width:100%;height:160px;object-fit:cover;display:block;">`
+          : `<div style="width:100%;height:160px;display:flex;align-items:center;justify-content:center;background:#f8f7f4;font-size:52px;">${catEmoji[p.category]||'📦'}</div>`;
+
+        const avg   = parseFloat(p.avg_rating) || 0;
+        const full  = Math.round(avg);
+        const stars = avg > 0
+          ? `<span style="color:#f59e0b;font-size:12px;">${'★'.repeat(full)}${'☆'.repeat(5-full)}</span>&nbsp;<span style="font-size:11px;color:#94a3b8;">(${p.total_reviews||0})</span>`
+          : `<span style="font-size:11px;color:#94a3b8;">No reviews yet</span>`;
+
+        return `
+          <a href="/listings?id=${p.listing_id}" style="text-decoration:none;color:inherit;display:block;">
+            <div class="sim-card" style="background:#fff;border:1px solid #e8e4dc;border-radius:16px;overflow:hidden;transition:transform 0.18s,box-shadow 0.18s;cursor:pointer;">
+              <div style="position:relative;overflow:hidden;">
+                ${img}
+                ${conditionBadge(p.condition_type)}
+              </div>
+              <div style="padding:14px 16px 16px;">
+                <p style="font-size:10px;font-weight:600;color:#a89b8c;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">${p.category||''}</p>
+                <h4 style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:7px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${p.title}</h4>
+                <div style="margin-bottom:10px;">${stars}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:17px;font-weight:700;color:#1a1a2e;">৳ ${Number(p.price).toLocaleString()}</span>
+                  <span style="font-size:11px;color:#94a3b8;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">by ${p.seller_name||'Seller'}</span>
+                </div>
+              </div>
+            </div>
+          </a>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div style="margin-top:52px;padding-top:36px;border-top:2px solid #efede8;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
+            <span style="font-size:24px;">🛍️</span>
+            <h3 style="font-size:20px;font-weight:600;color:#1a1a2e;margin:0;">Similar Products</h3>
+            <span style="font-size:13px;color:#94a3b8;background:#f1ede8;padding:2px 10px;border-radius:20px;margin-left:2px;">${products.length} in this category</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;">
+            ${cards}
+          </div>
+        </div>`;
+
+    } catch (err) {
+      console.error('Similar products error:', err);
+      container.innerHTML = '';
     }
   }
 
