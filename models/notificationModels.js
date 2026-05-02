@@ -1,4 +1,21 @@
-const db = require('../config/db');
+const db = require("../config/db");
+
+exports.createNotification = async (user_id, message, type) => {
+  const sql = `
+    INSERT INTO notifications (user_id, message, type, is_read)
+    VALUES (?, ?, ?, 0)
+  `;
+  return db.query(sql, [user_id, message, type]);
+};
+
+exports.getNotifications = async (user_id) => {
+  const sql = `
+    SELECT * FROM notifications
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+  `;
+  return db.query(sql, [user_id]);
+};
 
 const NotificationModel = {
 
