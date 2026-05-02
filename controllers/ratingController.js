@@ -20,6 +20,7 @@ const submitRating = async (req, res) => {
       return res.status(403).json({ error: 'You cannot review your own listing' });
     }
 
+
     const [existing] = await Rating.hasReviewed({ reviewer_id, listing_id });
     if (existing.length > 0) {
       return res.status(409).json({ error: 'You have already reviewed this listing' });

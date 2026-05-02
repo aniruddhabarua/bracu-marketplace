@@ -418,15 +418,6 @@
       margin-top: 6px;
     }
 
-    .seller-listing-card {
-      transition: all 0.2s ease;
-    }
-
-    .seller-listing-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
-    }
-
     .btn {
       display: block;
       width: 100%;
@@ -603,9 +594,9 @@
     .modal {
       background: #ffffff;
       border-radius: 24px;
-      max-width: 700px;
-      width: 95%;
-      max-height: 85vh;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
       overflow-y: auto;
     }
 
@@ -1009,7 +1000,7 @@
     document.getElementById('listingBox').innerHTML = html;
     document.getElementById('listingBox').style.display = 'block';
     
-    loadExistingReviews(listing.listing_id);
+    loadReviewSection(listing.listing_id, listing.seller_id, seller);
     loadSimilarProducts(listing.listing_id);
   }
 
@@ -1021,6 +1012,107 @@
 
     document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
     thumbnailEl.classList.add('active');
+  }
+
+  async function loadReviewSection(listingId, sellerId, sellerName) {
+    try {
+      const reviewsRes = await fetch(`/api/ratings/listing/${listingId}`);
+      const reviewsData = await reviewsRes.json();
+      const hasReviewed = reviewsData.reviews && 
+                          reviewsData.reviews.some(r => r.reviewer_id === user.user_id);
+      
+      const reviewSection = document.getElementById('reviewSection');
+      if (!reviewSection) return;
+      
+      if (!hasReviewed && user.user_id !== sellerId) {
+        reviewSection.innerHTML = `
+          <h3 style="font-size: 18px; font-weight: 500; margin-bottom: 16px;">✍️ Write a Review</h3>
+          <div class="review-form" style="background: #faf9f7; border-radius: 20px; padding: 24px;">
+            <p style="margin-bottom: 12px; color: #5a5a5a;">Share your experience with ${escapeHtml(sellerName)}!</p>
+            <div class="rating-stars" style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <button class="star-btn" data-val="1" onclick="selectRating(1)">★</button>
+              <button class="star-btn" data-val="2" onclick="selectRating(2)">★</button>
+              <button class="star-btn" data-val="3" onclick="selectRating(3)">★</button>
+              <button class="star-btn" data-val="4" onclick="selectRating(4)">★</button>
+              <button class="star-btn" data-val="5" onclick="selectRating(5)">★</button>
+            </div>
+            <textarea id="reviewComment" class="review-textarea" 
+                      placeholder="What did you think about this item? Your feedback helps the community..." 
+                      style="width: 100%; padding: 12px; border: 1px solid #e0ddd8; border-radius: 12px; font-family: inherit; resize: vertical; min-height: 100px; margin-bottom: 16px;"></textarea>
+            <button class="btn btn-primary" onclick="submitProductReview(${listingId}, ${sellerId})" 
+                    style="width: auto; padding: 10px 24px; display: inline-block;">Submit Review</button>
+          </div>
+          <div id="existingReviews"></div>
+        `;
+        loadExistingReviews(listingId);
+      } else {
+        loadExistingReviews(listingId);
+      }
+    } catch (error) {
+      console.error('Error loading review section:', error);
+      loadExistingReviews(listingId);
+    }
+  }
+
+  let selectedProductRating = 0;
+
+  function selectRating(rating) {
+    selectedProductRating = rating;
+    const stars = document.querySelectorAll('#reviewSection .star-btn');
+    stars.forEach((star, idx) => {
+      if (idx < rating) {
+        star.classList.add('active');
+        star.style.color = '#ffc107';
+      } else {
+        star.classList.remove('active');
+        star.style.color = '#ddd';
+      }
+    });
+  }
+
+  async function submitProductReview(listingId, sellerId) {
+    if (!selectedProductRating) {
+      alert('Please select a rating (1-5 stars)');
+      return;
+    }
+    
+    const comment = document.getElementById('reviewComment').value.trim();
+    const submitBtn = event.target;
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+    
+    try {
+      const res = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          listing_id: listingId,
+          seller_id: sellerId,
+          rating: selectedProductRating,
+          comment: comment
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok || data.message === 'Review submitted successfully') {
+        alert('✅ Thank you for your review!');
+        location.reload();
+      } else {
+        alert('❌ ' + (data.error || 'Failed to submit review'));
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Could not submit review. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Review';
+    }
   }
 
   async function loadExistingReviews(listingId) {
@@ -1064,7 +1156,21 @@
         reviewsHtml += '<p style="color: #aaa; text-align: center; padding: 32px;">Be the first to review this item!</p>';
       }
       
-      reviewSection.innerHTML = reviewsHtml;
+      if (reviewSection.innerHTML.includes('review-form')) {
+        let existingDiv = reviewSection.querySelector('#existingReviews');
+        if (!existingDiv) {
+          existingDiv = document.createElement('div');
+          existingDiv.id = 'existingReviews';
+          reviewSection.appendChild(existingDiv);
+        }
+        existingDiv.innerHTML = reviewsHtml;
+      } else {
+        const existingDiv = document.createElement('div');
+        existingDiv.id = 'existingReviews';
+        existingDiv.innerHTML = reviewsHtml;
+        reviewSection.appendChild(existingDiv);
+      }
+      
     } catch (error) {
       console.error('Error loading reviews:', error);
     }
@@ -1080,7 +1186,6 @@
       'Furniture & Decor':'🪑','Services':'🛠️','Other':'📦',
     };
 
-    // Shimmer skeleton while fetching
     container.innerHTML = `
       <style>
         @keyframes simShimmer { 0%,100%{opacity:1} 50%{opacity:0.45} }
@@ -1326,52 +1431,19 @@
       const sellerAvatar = seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}">` : '👤';
       const stars = seller.avg_rating ? '⭐'.repeat(Math.round(seller.avg_rating)) : 'No ratings yet';
 
-      // Build listings grid
-      let listingsHtml = '';
-      if (seller.listings && seller.listings.length > 0) {
-        listingsHtml = '<div style="margin-top: 24px; border-top: 1px solid #eee; padding-top: 16px;">';
-        listingsHtml += `<h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Active Listings (${seller.listings.length})</h4>`;
-        listingsHtml += '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">';
-        
-        seller.listings.forEach(listing => {
-          const imgUrl = listing.primary_image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>📦</text></svg>';
-          const price = Number(listing.price).toLocaleString('en-BD');
-          
-          listingsHtml += `
-            <div style="cursor: pointer; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; transition: all 0.2s; background: #fff;" class="seller-listing-card" onclick="viewProductListing(${listing.listing_id})">
-              <div style="width: 100%; height: 100px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                <img src="${imgUrl}" alt="${listing.title}" style="width: 100%; height: 100%; object-fit: cover;">
-              </div>
-              <div style="padding: 10px;">
-                <p style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">${escapeHtml(listing.title)}</p>
-                <p style="font-size: 14px; font-weight: 700; color: #0f172a;">৳ ${price}</p>
-              </div>
-            </div>
-          `;
-        });
-        
-        listingsHtml += '</div></div>';
-      } else {
-        listingsHtml = '<div style="margin-top: 24px; border-top: 1px solid #eee; padding-top: 16px; text-align: center; color: #94a3b8;"><p>No active listings</p></div>';
-      }
-
       const profileHtml = `
         <div style="text-align: center; margin-bottom: 24px;">
           <div style="width: 100px; height: 100px; margin: 0 auto 16px; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden;">
             ${sellerAvatar}
           </div>
-          <h3 style="margin: 8px 0 4px; font-size: 18px; font-weight: 700;">${escapeHtml(seller.full_name)} ${verificationBadge ? `<span style="color: #4caf50; font-size: 14px;">${verificationBadge}</span>` : ''}</h3>
-          <p style="color: #666; font-size: 14px; margin-bottom: 12px;">${seller.department || 'BRACU Student'}</p>
-          <p style="color: #ffc107; margin-top: 8px; font-size: 14px;">
-            ${seller.avg_rating ? `<span style="color: #0f172a;">Rating: </span>${stars}` : 'No ratings yet'}
-            ${seller.total_reviews > 0 ? `<span style="color: #0f172a;"> • ${seller.total_reviews} review${seller.total_reviews !== 1 ? 's' : ''}</span>` : ''}
-          </p>
+          <h3 style="margin: 8px 0 4px;">${escapeHtml(seller.full_name)} ${verificationBadge ? `<span style="color: #4caf50;">${verificationBadge}</span>` : ''}</h3>
+          <p style="color: #666;">${seller.department || 'BRACU Student'}</p>
+          <p style="color: #ffc107; margin-top: 8px;">${stars} ${seller.total_reviews > 0 ? `(${seller.total_reviews} reviews)` : ''}</p>
         </div>
-        <div style="border-top: 1px solid #eee; padding-top: 16px; font-size: 14px;">
-          <p style="margin-bottom: 8px;"><strong>Member since:</strong> ${memberYear}</p>
-          ${seller.bio ? `<p style="margin-top: 12px; line-height: 1.5;"><strong>About:</strong><br>${escapeHtml(seller.bio)}</p>` : ''}
+        <div style="border-top: 1px solid #eee; padding-top: 16px;">
+          <p><strong>Member since:</strong> ${memberYear}</p>
+          ${seller.bio ? `<p><strong>About:</strong> ${escapeHtml(seller.bio)}</p>` : ''}
         </div>
-        ${listingsHtml}
       `;
 
       document.getElementById('sellerProfileContent').innerHTML = profileHtml;
@@ -1380,10 +1452,6 @@
       console.error('Error loading seller profile:', error);
       alert('Could not load seller profile');
     }
-  }
-
-  function viewProductListing(listingId) {
-    window.location.href = `/listings?id=${listingId}`;
   }
 
   function closeSellerModal() {
