@@ -6,7 +6,7 @@ const NotificationController = {
   // ── GET /api/notifications ────────────────────────────────────
   // Returns all notifications + unread count for logged-in user
   getAll: (req, res) => {
-    const userId = req.user.user_id;
+    const userId = 1; // TEMP FIX
 
     NotificationModel.getForUser(userId, (err, notifications) => {
       if (err) return res.status(500).json({ success: false, message: 'Database error.' });
