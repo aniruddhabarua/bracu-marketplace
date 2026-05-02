@@ -10,7 +10,7 @@ const TransactionController = {
   //                        &order_status=completed|cancelled
   //                        &from=YYYY-MM-DD &to=YYYY-MM-DD
   getHistory: (req, res) => {
-    const userId  = req.user.user_id;
+    const userId = 1; // TEMP FIX
     const filters = {
       type:         req.query.type         || null,
       order_status: req.query.order_status || null,
