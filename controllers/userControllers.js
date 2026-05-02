@@ -7,7 +7,7 @@ const UserController = {
   // GET /api/users/:id
   // Returns the public profile of any user (name, dept, bio, avg rating, listings)
   getProfile: (req, res) => {
-    const userId = parseInt(req.params.id);
+    const userId = 1; // TEMP FIX
     if (isNaN(userId)) return res.status(400).json({ success: false, message: 'Invalid user ID.' });
 
     // 1. Get profile data
