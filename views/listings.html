@@ -594,10 +594,232 @@
     .modal {
       background: #ffffff;
       border-radius: 24px;
-      max-width: 500px;
+      max-width: 600px;
       width: 90%;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
+    }
+
+    .sp-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 24px;
+    }
+
+    .sp-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 3px solid #e2e8f0;
+    }
+
+    .sp-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .sp-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .sp-role {
+      font-size: 13px;
+      font-weight: 600;
+      color: #3b82f6;
+      background: #eff6ff;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .sp-dept {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .sp-stars {
+      font-size: 18px;
+      color: #f59e0b;
+      letter-spacing: 2px;
+    }
+
+    .sp-stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 16px 0;
+      margin-bottom: 24px;
+      background: #f8fafc;
+      border-radius: 16px;
+    }
+
+    .sp-stat {
+      text-align: center;
+    }
+
+    .sp-stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .sp-stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .sp-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+
+    .sp-listings {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .sp-listing-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.2s;
+    }
+
+    .sp-listing-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .sp-listing-img {
+      height: 90px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      overflow: hidden;
+    }
+
+    .sp-listing-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .sp-listing-info {
+      padding: 8px 10px;
+    }
+
+    .sp-listing-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sp-listing-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #3b82f6;
+      margin-top: 2px;
+    }
+
+    .sp-review {
+      padding: 14px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .sp-review:last-child {
+      border-bottom: none;
+    }
+
+    .sp-review-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .sp-review-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .sp-review-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .sp-review-meta {
+      flex: 1;
+    }
+
+    .sp-review-author {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .sp-review-stars {
+      font-size: 12px;
+      color: #f59e0b;
+    }
+
+    .sp-review-comment {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .sp-review-date {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .sp-empty {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+      padding: 16px 0;
     }
 
     .modal-header {
@@ -1409,48 +1631,129 @@
   }
 
   async function showSellerProfile(sellerId) {
+    document.getElementById('sellerProfileContent').innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">Loading...</div>';
+    document.getElementById('sellerModal').classList.add('open');
+
     try {
-      const res = await fetch(`/api/users/${sellerId}`, {
-        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-      });
+      const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+      const [profileRes, reviewsRes] = await Promise.all([
+        fetch(`/api/users/${sellerId}`, { headers }),
+        fetch(`/api/ratings/seller/${sellerId}`, { headers }),
+      ]);
 
-      if (!res.ok) {
-        alert('Could not load seller profile');
+      if (!profileRes.ok) {
+        document.getElementById('sellerProfileContent').innerHTML = '<p style="text-align:center;color:#ef4444;">Could not load seller profile.</p>';
         return;
       }
 
-      const data = await res.json();
-      if (!data.success) {
-        alert('Seller profile not found');
+      const profileData = await profileRes.json();
+      if (!profileData.success) {
+        document.getElementById('sellerProfileContent').innerHTML = '<p style="text-align:center;color:#ef4444;">Seller not found.</p>';
         return;
       }
 
-      const seller = data.data;
-      const verificationBadge = seller.is_verified ? '✅ Verified' : '';
-      const memberYear = new Date(seller.member_since).getFullYear();
-      const sellerAvatar = seller.profile_picture ? `<img src="${seller.profile_picture}" alt="${seller.full_name}">` : '👤';
-      const stars = seller.avg_rating ? '⭐'.repeat(Math.round(seller.avg_rating)) : 'No ratings yet';
+      const seller = profileData.data;
+      const reviews = reviewsRes.ok ? ((await reviewsRes.json()).data || []) : [];
+
+      const avgRating = seller.avg_rating ? parseFloat(seller.avg_rating) : null;
+      const fullStars = avgRating ? Math.round(avgRating) : 0;
+      const starsHtml = avgRating
+        ? '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars)
+        : '☆☆☆☆☆';
+      const ratingLabel = avgRating ? avgRating.toFixed(1) : '—';
+
+      const roleLabel = {
+        student: 'Student', faculty: 'Faculty', staff: 'Staff', alumni: 'Alumni', admin: 'Admin'
+      }[seller.role] || seller.role || 'Member';
+
+      const avatarHtml = seller.profile_picture
+        ? `<img src="${seller.profile_picture}" alt="${escapeHtml(seller.full_name)}">`
+        : '👤';
+
+      const activeListings = (seller.listings || []).filter(l => l.status === 'active');
+
+      const listingsHtml = activeListings.length > 0
+        ? activeListings.slice(0, 6).map(l => {
+            const imgHtml = l.primary_image
+              ? `<img src="${l.primary_image}" alt="${escapeHtml(l.title)}">`
+              : ({'Books & Notes':'📚','Electronics':'💻','Clothing & Accessories':'👕','Stationery & Supplies':'✏️','Sports & Fitness':'⚽','Food & Beverages':'🍜','Furniture & Decor':'🪑','Services':'🛠️','Other':'📦'}[l.category] || '📦');
+            return `
+              <a class="sp-listing-card" href="/listings?id=${l.listing_id}">
+                <div class="sp-listing-img">${imgHtml}</div>
+                <div class="sp-listing-info">
+                  <div class="sp-listing-title">${escapeHtml(l.title)}</div>
+                  <div class="sp-listing-price">৳ ${Number(l.price).toLocaleString()}</div>
+                </div>
+              </a>`;
+          }).join('')
+        : '<p class="sp-empty">No active listings.</p>';
+
+      const reviewsHtml = reviews.length > 0
+        ? reviews.slice(0, 5).map(r => {
+            const rStars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            const rAvatar = r.reviewer_avatar
+              ? `<img src="${r.reviewer_avatar}" alt="${escapeHtml(r.reviewer_name)}">`
+              : '👤';
+            const rDate = new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            return `
+              <div class="sp-review">
+                <div class="sp-review-header">
+                  <div class="sp-review-avatar">${rAvatar}</div>
+                  <div class="sp-review-meta">
+                    <div class="sp-review-author">${escapeHtml(r.reviewer_name)}</div>
+                    <div class="sp-review-stars">${rStars}</div>
+                  </div>
+                  <div class="sp-review-date">${rDate}</div>
+                </div>
+                ${r.comment ? `<div class="sp-review-comment">${escapeHtml(r.comment)}</div>` : ''}
+              </div>`;
+          }).join('')
+        : '<p class="sp-empty">No reviews yet.</p>';
 
       const profileHtml = `
-        <div style="text-align: center; margin-bottom: 24px;">
-          <div style="width: 100px; height: 100px; margin: 0 auto 16px; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden;">
-            ${sellerAvatar}
+        <div class="sp-hero">
+          <div class="sp-avatar">${avatarHtml}</div>
+          <div class="sp-name">
+            ${escapeHtml(seller.full_name)}
+            ${seller.is_verified ? '<span style="color:#4caf50;font-size:14px;margin-left:6px;">✅</span>' : ''}
           </div>
-          <h3 style="margin: 8px 0 4px;">${escapeHtml(seller.full_name)} ${verificationBadge ? `<span style="color: #4caf50;">${verificationBadge}</span>` : ''}</h3>
-          <p style="color: #666;">${seller.department || 'BRACU Student'}</p>
-          <p style="color: #ffc107; margin-top: 8px;">${stars} ${seller.total_reviews > 0 ? `(${seller.total_reviews} reviews)` : ''}</p>
+          <div class="sp-role">${roleLabel}</div>
+          ${seller.department ? `<div class="sp-dept">${escapeHtml(seller.department)}</div>` : ''}
+          <div class="sp-stars">${starsHtml}</div>
         </div>
-        <div style="border-top: 1px solid #eee; padding-top: 16px;">
-          <p><strong>Member since:</strong> ${memberYear}</p>
-          ${seller.bio ? `<p><strong>About:</strong> ${escapeHtml(seller.bio)}</p>` : ''}
+
+        <div class="sp-stats">
+          <div class="sp-stat">
+            <div class="sp-stat-value">${activeListings.length}</div>
+            <div class="sp-stat-label">Listings</div>
+          </div>
+          <div class="sp-stat">
+            <div class="sp-stat-value">${ratingLabel}</div>
+            <div class="sp-stat-label">Rating</div>
+          </div>
+          <div class="sp-stat">
+            <div class="sp-stat-value">${seller.total_reviews}</div>
+            <div class="sp-stat-label">Reviews</div>
+          </div>
+          <div class="sp-stat">
+            <div class="sp-stat-value">${new Date(seller.member_since).getFullYear()}</div>
+            <div class="sp-stat-label">Member Since</div>
+          </div>
         </div>
+
+        ${seller.bio ? `<p style="font-size:13px;color:#475569;margin-bottom:24px;line-height:1.6;">${escapeHtml(seller.bio)}</p>` : ''}
+
+        <div class="sp-section-title">Active Listings</div>
+        <div class="sp-listings">${listingsHtml}</div>
+
+        <div class="sp-section-title">Reviews</div>
+        <div>${reviewsHtml}</div>
       `;
 
       document.getElementById('sellerProfileContent').innerHTML = profileHtml;
-      document.getElementById('sellerModal').classList.add('open');
     } catch (error) {
       console.error('Error loading seller profile:', error);
-      alert('Could not load seller profile');
+      document.getElementById('sellerProfileContent').innerHTML = '<p style="text-align:center;color:#ef4444;">Could not load seller profile.</p>';
     }
   }
 
