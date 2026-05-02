@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — BRACU Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0, transparent 50%),
+                        radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.05) 0, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .logo span { color: var(--primary); }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 32px;
+      padding: 40px;
+      box-shadow: var(--shadow);
+    }
+
+    h1 { font-size: 32px; font-weight: 800; margin-bottom: 32px; letter-spacing: -0.03em; }
+    h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: var(--text-main); }
+
+    .product-summary {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 20px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      overflow: hidden;
+    }
+
+    .product-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .product-info h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .product-info p { color: var(--text-muted); font-size: 14px; }
+
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .method-card {
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: white;
+    }
+
+    .method-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .method-card.active { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
+
+    .method-icon { font-size: 24px; }
+    .method-name { font-size: 14px; font-weight: 700; }
+
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .form-group textarea {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group textarea:focus { border-color: var(--primary); }
+
+    .order-summary { position: sticky; top: 120px; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+    .summary-row.total { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 20px; font-weight: 800; }
+
+    .btn-checkout {
+      width: 100%;
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 24px;
+      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-checkout:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4); }
+    .btn-checkout:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="logo">BRACU <span>Marketplace</span></a>
+</nav>
+
+<div class="container">
+  <div class="main-col">
+    <div class="glass-card">
+      <h1>Checkout</h1>
+      
+      <div id="productDetails">
+        <div class="loading">Loading item details...</div>
+      </div>
+
+      <h3>Payment Method</h3>
+      <div class="payment-methods" id="methodsGrid">
+        <div class="method-card active" data-method="bkash">
+          <span class="method-icon">📱</span>
+          <span class="method-name">bKash</span>
+        </div>
+        <div class="method-card" data-method="nagad">
+          <span class="method-icon">🍊</span>
+          <span class="method-name">Nagad</span>
+        </div>
+        <div class="method-card" data-method="rocket">
+          <span class="method-icon">🚀</span>
+          <span class="method-name">Rocket</span>
+        </div>
+        <div class="method-card" data-method="offline">
+          <span class="method-icon">🤝</span>
+          <span class="method-name">Cash on Delivery</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Message to Seller (Optional)</label>
+        <textarea id="orderNotes" rows="3" placeholder="e.g. I want to pick it up tomorrow at UB3..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-col">
+    <div class="glass-card order-summary">
+      <h3>Order Summary</h3>
+      <div id="summaryContent">
+        <div class="summary-row"><span>Subtotal</span> <span id="subtotal">—</span></div>
+        <div class="summary-row"><span>Service Fee</span> <span>৳ 0.00</span></div>
+        <div class="summary-row total"><span>Total</span> <span id="total">—</span></div>
+      </div>
+      <button class="btn-checkout" id="checkoutBtn" onclick="processOrder()">Confirm Purchase</button>
+      <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px;">
+        Secure transaction via BRACU Marketplace
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loader">Processing your order...</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const listingId = urlParams.get('id');
+  const token = localStorage.getItem('token');
+  let currentListing = null;
+
+  if (!token) {
+    window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+  }
+
+  if (!listingId) {
+    alert('Invalid listing ID');
+    window.location.href = '/';
+  }
+
+  async function loadListing() {
+    try {
+      const res = await fetch(`/api/listings/${listingId}`);
+      const data = await res.json();
+      if (data.success) {
+        currentListing = data.data;
+        renderProduct();
+      } else {
+        alert('Product not found');
+        window.location.href = '/';
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function renderProduct() {
+    const l = currentListing;
+    const primaryImg = (l.images && l.images.length > 0) ? l.images[0].image_url : null;
+    document.getElementById('productDetails').innerHTML = `
+      <div class="product-summary">
+        <div class="product-img">
+          ${primaryImg ? `<img src="${primaryImg}" alt="${l.title}">` : '📦'}
+        </div>
+        <div class="product-info">
+          <h2>${l.title}</h2>
+          <p>Sold by ${l.seller_name}</p>
+          <p style="margin-top: 4px; font-weight: 700; color: var(--primary);">৳ ${l.price}</p>
+        </div>
+      </div>
+    `;
+    document.getElementById('subtotal').textContent = `৳ ${l.price}`;
+    document.getElementById('total').textContent = `৳ ${l.price}`;
+  }
+
+  // Handle method selection
+  document.querySelectorAll('.method-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+    });
+  });
+
+  async function processOrder() {
+    const method = document.querySelector('.method-card.active').dataset.method;
+    const notes = document.getElementById('orderNotes').value;
+    const btn = document.getElementById('checkoutBtn');
+    const loader = document.getElementById('loader');
+
+    btn.disabled = true;
+    loader.style.display = 'flex';
+
+    try {
+      const res = await fetch('/api/payments/orders', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          listing_id: listingId,
+          seller_id: currentListing.seller_id,
+          agreed_price: currentListing.price,
+          payment_method: method,
+          notes: notes
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('Order placed successfully! Redirecting to your orders...');
+        window.location.href = '/transactions';
+      } else {
+        alert(data.message || 'Failed to place order');
+        btn.disabled = false;
+        loader.style.display = 'none';
+      }
+    } catch (err) {
+      alert('An error occurred. Please try again.');
+      btn.disabled = false;
+      loader.style.display = 'none';
+    }
+  }
+
+  loadListing();
+</script>
+
+</body>
+</html>

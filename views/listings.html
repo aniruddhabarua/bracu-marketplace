@@ -1162,7 +1162,7 @@
   }
 
   function initiateOrder(listingId, sellerId, price) {
-    window.location.href = `/order?listing_id=${listingId}&seller_id=${sellerId}&price=${price}`;
+    window.location.href = `/checkout?id=${listingId}`;
   }
 
   function showError(message) {

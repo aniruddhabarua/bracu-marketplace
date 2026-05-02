@@ -19,13 +19,22 @@ const PaymentModel = {
       [listing_id, buyer_id, seller_id, agreed_price, payment_method, notes || null],
       (err, result) => {
         if (err) return callback(err);
+        const orderId = result.insertId;
         // Mark listing as reserved
         db.query(
           "UPDATE listings SET status = 'reserved' WHERE listing_id = ?",
           [listing_id],
           () => {}
         );
-        callback(null, result);
+        
+        // Record transaction history immediately
+        db.query(
+          `INSERT INTO transaction_history (order_id, user_id, type, amount) VALUES (?, ?, 'purchase', ?), (?, ?, 'sale', ?)`,
+          [orderId, buyer_id, agreed_price, orderId, seller_id, agreed_price],
+          () => {
+            callback(null, result);
+          }
+        );
       }
     );
   },

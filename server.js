@@ -31,7 +31,10 @@ if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use((req, res, next) => { req.io = io; next(); });
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 app.use('/',                   userRoutes);
 app.use('/',                   productRoutes);
@@ -57,6 +60,7 @@ app.get('/profile',       (req, res) => res.sendFile(path.join(__dirname, 'views
 app.get('/listings',      (req, res) => res.sendFile(path.join(__dirname, 'views', 'listings.html')));
 app.get('/notifications', (req, res) => res.sendFile(path.join(__dirname, 'views', 'notifications.html')));
 app.get('/transactions',  (req, res) => res.sendFile(path.join(__dirname, 'views', 'transactions.html')));
+app.get('/checkout',      (req, res) => res.sendFile(path.join(__dirname, 'views', 'checkout.html')));
 app.get('/admin',         (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
 app.get('/admin.html',    (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
 

@@ -15,13 +15,25 @@ router.get('/admin/stats', (req, res) => {
   };
   
   db.query(queries.pendingReports, (err, pending) => {
-    if (err) return res.status(500).json({ success: false });
+    if (err) {
+      console.error('Stats Error (pendingReports):', err);
+      return res.status(500).json({ success: false, message: 'Error fetching pending reports' });
+    }
     db.query(queries.totalUsers, (err, users) => {
-      if (err) return res.status(500).json({ success: false });
+      if (err) {
+        console.error('Stats Error (totalUsers):', err);
+        return res.status(500).json({ success: false, message: 'Error fetching total users' });
+      }
       db.query(queries.activeListings, (err, listings) => {
-        if (err) return res.status(500).json({ success: false });
+        if (err) {
+          console.error('Stats Error (activeListings):', err);
+          return res.status(500).json({ success: false, message: 'Error fetching active listings' });
+        }
         db.query(queries.resolvedReports, (err, resolved) => {
-          if (err) return res.status(500).json({ success: false });
+          if (err) {
+            console.error('Stats Error (resolvedReports):', err);
+            return res.status(500).json({ success: false, message: 'Error fetching resolved reports' });
+          }
           res.json({
             success: true,
             data: {

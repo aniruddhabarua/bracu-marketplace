@@ -2,10 +2,10 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-  host:     'localhost',
-  user:     'root',
-  password: '',      
-  database: 'bracu_marketplace',
+  host:     process.env.DB_HOST || 'localhost',
+  user:     process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',      
+  database: process.env.DB_NAME || 'bracu_marketplace',
   waitForConnections: true,
   connectionLimit: 30,
   queueLimit: 0,

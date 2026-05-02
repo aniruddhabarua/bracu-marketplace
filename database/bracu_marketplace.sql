@@ -155,7 +155,7 @@ CREATE TABLE `orders` (
   `agreed_price` decimal(10,2) NOT NULL,
   `payment_method` enum('online','offline','bkash','nagad','rocket','bank') NOT NULL,
   `payment_status` enum('pending','paid','failed','refunded') NOT NULL DEFAULT 'pending',
-  `order_status` enum('pending','confirmed','completed','cancelled','disputed') NOT NULL DEFAULT 'pending',
+  `order_status` enum('pending','confirmed','completed','cancelled','disputed','delivered','ordered') NOT NULL DEFAULT 'pending',
   `notes` text DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()

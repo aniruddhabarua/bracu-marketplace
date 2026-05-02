@@ -132,6 +132,8 @@
     .status-confirmed  { background: #dbeafe; color: #1e40af; }
     .status-cancelled  { background: #fee2e2; color: #991b1b; }
     .status-disputed   { background: #f3e8ff; color: #6b21a8; }
+    .status-ordered    { background: #e0e7ff; color: #3730a3; }
+    .status-delivered  { background: #ccfbf1; color: #0f766e; }
 
     /* Payment method */
     .method-icon { font-size: 15px; margin-right: 4px; }
@@ -299,6 +301,8 @@
         <option value="">All statuses</option>
         <option value="completed">Completed</option>
         <option value="confirmed">Confirmed</option>
+        <option value="delivered">Delivered</option>
+        <option value="ordered">Ordered</option>
         <option value="pending">Pending</option>
         <option value="cancelled">Cancelled</option>
         <option value="disputed">Disputed</option>
@@ -615,6 +619,32 @@
     }
   }
 
+  async function updateOrderStatus(orderId) {
+    const status = document.getElementById('updateStatusSelect').value;
+    if (!confirm(`Are you sure you want to change the order status to ${status}?`)) return;
+    
+    try {
+      const res = await fetch(`/api/payments/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${TOKEN}`
+        },
+        body: JSON.stringify({ order_status: status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('✅ ' + data.message);
+        loadHistory();
+        showDetail(orderId);
+      } else {
+        alert('❌ ' + (data.message || 'Failed to update status'));
+      }
+    } catch (err) {
+      alert('❌ Error updating status');
+    }
+  }
+
   let currentTxnId = null;
   async function showDetail(txnId) {
     currentTxnId = txnId;
@@ -657,10 +687,19 @@
           <span class="detail-label">Payment Method</span>
           <span class="detail-value">${METHOD_ICONS[t.payment_method]||'💳'} ${t.payment_method}</span>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" style="align-items: center;">
           <span class="detail-label">Order Status</span>
-          <span class="detail-value">
-            <span class="badge status-${t.order_status}">${t.order_status}</span>
+          <span class="detail-value" style="display: flex; gap: 8px; justify-content: flex-end;">
+            <select id="updateStatusSelect" style="padding: 4px; border-radius: 4px; font-size: 12px; border: 1px solid #ddd;">
+              <option value="pending" ${t.order_status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="ordered" ${t.order_status === 'ordered' ? 'selected' : ''}>Ordered</option>
+              <option value="confirmed" ${t.order_status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="delivered" ${t.order_status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="completed" ${t.order_status === 'completed' ? 'selected' : ''}>Completed</option>
+              <option value="cancelled" ${t.order_status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              <option value="disputed" ${t.order_status === 'disputed' ? 'selected' : ''}>Disputed</option>
+            </select>
+            <button onclick="updateOrderStatus(${t.order_id})" style="padding: 4px 10px; border-radius: 4px; background: #1a1a2e; color: #fff; border: none; cursor: pointer; font-size: 12px;">Update</button>
           </span>
         </div>
         <div class="detail-row">

@@ -2,9 +2,11 @@
 // Handles Feature 5: Online & Offline Payment
 const PaymentModel       = require('../models/paymentModels');
 const NotificationModel  = require('../models/notificationModels');
+const AnnouncementModel  = require('../models/announcementModels');
+const db                 = require('../config/db');
 
 const VALID_METHODS  = ['online', 'offline', 'bkash', 'nagad', 'rocket', 'bank'];
-const VALID_STATUSES = ['confirmed', 'completed', 'cancelled', 'disputed'];
+const VALID_STATUSES = ['confirmed', 'completed', 'cancelled', 'disputed', 'delivered', 'ordered', 'pending'];
 
 const PaymentController = {
 
@@ -47,8 +49,26 @@ const PaymentController = {
         'order',
         'New Order Received',
         `You have a new order for your listing. Payment method: ${payment_method}.`,
-        `/views/orders.html?id=${orderId}`,
+        `/transactions`,
         () => {}
+      );
+
+      // Post an announcement about the purchase
+      db.query(
+        `SELECT u.full_name as seller_name, l.title as listing_title FROM users u JOIN listings l ON u.user_id = l.seller_id WHERE l.listing_id = ?`,
+        [listing_id],
+        (err3, rows3) => {
+          if (!err3 && rows3.length > 0) {
+            const sellerName = rows3[0].seller_name;
+            const listingTitle = rows3[0].listing_title;
+            AnnouncementModel.create({
+              admin_id: 1, // System admin
+              title: `🎉 Exciting News! Item Sold!`,
+              content: `The item "${listingTitle}" was just purchased from ${sellerName}!`,
+              category: 'Announcement'
+            }, () => {});
+          }
+        }
       );
 
       // Emit real-time notification if Socket.IO is available
@@ -125,11 +145,7 @@ const PaymentController = {
       PaymentModel.updateOrderStatus(orderId, order_status, (err2) => {
         if (err2) return res.status(500).json({ success: false, message: 'Database error.' });
 
-        // Record transaction history when order is completed
-        if (order_status === 'completed') {
-          PaymentModel.recordTransaction(orderId, order.buyer_id,  'purchase', order.agreed_price, () => {});
-          PaymentModel.recordTransaction(orderId, order.seller_id, 'sale',     order.agreed_price, () => {});
-        }
+        // Transaction history is already recorded when the order is created
 
         // Notify the other party
         const notifyUserId = userId === order.buyer_id ? order.seller_id : order.buyer_id;
@@ -138,12 +154,15 @@ const PaymentController = {
           completed:  'Your transaction has been marked as completed!',
           cancelled:  'An order has been cancelled.',
           disputed:   'A dispute has been raised on an order.',
+          delivered:  'Your order has been marked as delivered.',
+          ordered:    'Your order has been placed.',
+          pending:    'Your order is pending.'
         };
         NotificationModel.create(
           notifyUserId, 'order',
           `Order ${order_status.charAt(0).toUpperCase() + order_status.slice(1)}`,
           messages[order_status],
-          `/views/orders.html?id=${orderId}`,
+          `/transactions`,
           () => {}
         );
 
@@ -186,7 +205,7 @@ const PaymentController = {
           order.buyer_id, 'payment',
           'Payment Status Updated',
           `Your payment for "${order.listing_title}" has been marked as ${payment_status}.`,
-          `/views/orders.html?id=${orderId}`,
+          `/transactions`,
           () => {}
         );
 
