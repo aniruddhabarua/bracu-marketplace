@@ -1,5 +1,22 @@
 const db = require('../config/db');
 
+exports.saveMessage = async (sender_id, receiver_id, message) => {
+  const sql = `
+    INSERT INTO messages (sender_id, receiver_id, message)
+    VALUES (?, ?, ?)
+  `;
+  return db.query(sql, [sender_id, receiver_id, message]);
+};
+
+exports.getMessages = async (user1, user2) => {
+  const sql = `
+    SELECT * FROM messages
+    WHERE (sender_id = ? AND receiver_id = ?)
+       OR (sender_id = ? AND receiver_id = ?)
+    ORDER BY created_at ASC
+  `;
+  return db.query(sql, [user1, user2, user2, user1]);
+};
 const ChatModel = {
 
   // ── Get or create a conversation between two users ───────────
