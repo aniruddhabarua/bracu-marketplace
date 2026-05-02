@@ -29,11 +29,26 @@ const ChatController = {
       });
     });
   },
+  const Chat = require("../models/chatModels");
 
+  exports.sendMessage = async (req, res) => {
+    const { receiver_id, message } = req.body;
+  
+    const sender_id = 1; // TEMP FIX
+  
+    await Chat.saveMessage(sender_id, receiver_id, message);
+  
+    global.io.to(String(receiver_id)).emit("receive_message", {
+      sender_id,
+      message
+    });
+  
+    res.json({ success: true });
+  };
   // ── GET /api/chat/conversations ───────────────────────────────
   // Get all conversations (inbox) for the logged-in user
   getInbox: (req, res) => {
-    const userId = req.user.user_id;
+    const userId = 1; // TEMP FIX
 
     ChatModel.getConversationsForUser(userId, (err, rows) => {
       if (err) return res.status(500).json({ success: false, message: 'Database error.', error: err.message });
