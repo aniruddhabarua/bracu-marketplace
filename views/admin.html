@@ -432,13 +432,13 @@
       border-radius: 24px;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
-      overflow: hidden;
+      overflow-x: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      text-align: left;
+      min-width: 800px;
     }
 
     thead th {
@@ -462,8 +462,8 @@
     }
 
     td {
-      padding: 20px 24px;
-      font-size: 14px;
+      padding: 16px 20px;
+      font-size: 13px;
       color: var(--text-main);
       vertical-align: middle;
     }
@@ -488,23 +488,25 @@
     .badge.available { background: #dcfce7; color: #166534; }
     .badge.sold { background: #fee2e2; color: #991b1b; }
 
-    /* Action Buttons */
+    /* Action Buttons - Enhanced */
     .action-btns {
       display: flex;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: nowrap;
     }
 
     .btn-sm {
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all 0.2s;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+      white-space: nowrap;
     }
 
     .btn-primary { background: var(--primary); color: white; }
@@ -522,7 +524,53 @@
     .btn-dismiss { background: #f1f5f9; color: var(--text-muted); }
     .btn-dismiss:hover { background: var(--text-muted); color: white; }
 
-    /* Modals */
+    
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar-sm {
+      width: 32px;
+      height: 32px;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      overflow: hidden;
+    }
+
+    .user-avatar-sm img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .verified-badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 6px;
+    }
+
+    .role-select {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+   
     .modal-overlay {
       display: none;
       position: fixed;
@@ -611,7 +659,7 @@
       cursor: pointer;
     }
 
-    /* Toast */
+  
     .toast {
       position: fixed;
       bottom: 40px;
@@ -641,12 +689,40 @@
       font-weight: 800;
       text-transform: uppercase;
     }
-    .tag-announcement { background: #dbeafe; color: #1e40af; }
-    .tag-rule { background: #fef3c7; color: #92400e; }
-    .tag-update { background: #dcfce7; color: #166534; }
+    .tag-Announcement { background: #dbeafe; color: #1e40af; }
+    .tag-Rule { background: #fef3c7; color: #92400e; }
+    .tag-Update { background: #dcfce7; color: #166534; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #94a3b8;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .report-link {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .report-link:hover {
+      text-decoration: underline;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-label { font-weight: 600; color: var(--text-muted); }
+    .detail-value { color: var(--text-main); text-align: right; }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -742,8 +818,6 @@
         <div class="filter-bar">
           <div class="filter-chip" data-status="all" onclick="filterReports('all', this)">All</div>
           <div class="filter-chip" data-status="pending" onclick="filterReports('pending', this)">Pending</div>
-          <div class="filter-chip" data-status="reviewed" onclick="filterReports('reviewed', this)">Reviewed</div>
-          <div class="filter-chip" data-status="resolved" onclick="filterReports('resolved', this)">Resolved</div>
           <div class="filter-chip" data-status="dismissed" onclick="filterReports('dismissed', this)">Dismissed</div>
         </div>
         <div class="table-card" id="reportsTable">
@@ -1068,8 +1142,8 @@
                     <button class="btn-sm btn-dismiss" onclick="openDismissModal(${r.report_id})">Dismiss</button>
                     <button class="btn-sm btn-primary" onclick="takeActionOnReport(${r.report_id}, ${r.reported_user_id || r.reported_id}, '${escapeHtml(r.reported_user_name || 'User')}')">Take Action</button>
                   </div>` : '<span style="color:#94a3b8;">—</span>'}
-               </td>
-             </tr>
+                </td>
+              </tr>
           `).join('')}
         </tbody>
       </table>`;
@@ -1169,7 +1243,9 @@
     el.innerHTML = `
       <table>
         <thead>
-          <tr><th>ID</th><th>User</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th><th>Joined</th><th>Listings</th><th>Actions</th></tr>
+          <tr>
+            <th>ID</th><th>User</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th><th>Joined</th><th>Listings</th><th style="min-width: 200px;">Actions</th>
+          </tr>
         </thead>
         <tbody>
           ${users.map(u => `
@@ -1194,10 +1270,10 @@
               <td><span class="badge ${u.is_active === 1 ? 'active' : 'suspended'}">${u.is_active === 1 ? 'Active' : 'Suspended'}</span></td>
               <td>${formatDate(u.created_at)}</td>
               <td>${u.listing_count || 0}</td>
-              <td>
+              <td style="white-space: nowrap;">
                 <div class="action-btns">
                   <button class="btn-sm btn-primary" onclick="viewUserDetails(${u.user_id})">View</button>
-                  <button class="btn-sm btn-warning" onclick="sendWarningToUser(${u.user_id}, '${escapeHtml(u.full_name)}')">⚠️ Warn</button>
+                  <button class="btn-sm btn-warning" onclick="sendWarningToUser(${u.user_id}, '${escapeHtml(u.full_name)}')">Warn</button>
                   ${u.is_active === 1 ?
                     `<button class="btn-sm btn-danger" onclick="toggleUserStatus(${u.user_id}, false)">Suspend</button>` :
                     `<button class="btn-sm btn-success" onclick="toggleUserStatus(${u.user_id}, true)">Activate</button>`

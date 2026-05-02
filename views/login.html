@@ -246,26 +246,6 @@
       text-decoration: underline;
     }
 
-    .demo-credentials {
-      background: rgba(15, 23, 42, 0.04);
-      border-radius: 16px;
-      padding: 16px;
-      margin-top: 24px;
-      font-size: 13px;
-      text-align: center;
-      color: var(--text-muted);
-      border: 1px dashed var(--border);
-    }
-
-    .demo-credentials span {
-      font-family: 'JetBrains Mono', monospace;
-      background: #ffffff;
-      padding: 4px 8px;
-      border-radius: 8px;
-      color: var(--secondary);
-      font-weight: 600;
-      font-size: 12px;
-    }
   </style>
 </head>
 <body>
@@ -292,9 +272,7 @@
       <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
     </div>
     <button class="btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
-    <div class="demo-credentials">
-      🔐 Demo: <span>admin@bracu.ac.bd</span> / <span>password123</span>
-    </div>
+
   </div>
 
   <div class="panel" id="registerPanel">
