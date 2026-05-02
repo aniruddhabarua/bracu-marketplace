@@ -2,47 +2,7 @@
 // Handles all In-App Chat HTTP requests
 // Real-time delivery is handled separately by socket.js (Socket.IO)
 const ChatModel = require('../models/chatModels');
-const Chat = require("../models/chatModels");
 const Notification = require("../models/notificationModels");
-
-// TEMP: replace with real auth later
-const CURRENT_USER_ID = 1;
-
-exports.sendMessage = async (req, res) => {
-  try {
-    const { receiver_id, message } = req.body;
-
-    if (!receiver_id || !message) {
-      return res.status(400).json({ error: "Missing data" });
-    }
-
-    await Chat.saveMessage(CURRENT_USER_ID, receiver_id, message);
-
-    // 🔔 Create notification
-    await Notification.createNotification(
-      receiver_id,
-      "New message received",
-      "chat"
-    );
-
-    // ⚡ Real-time message
-    if (global.io) {
-      global.io.to(String(receiver_id)).emit("receive_message", {
-        sender_id: CURRENT_USER_ID,
-        message
-      });
-
-      global.io.to(String(receiver_id)).emit("new_notification", {
-        message: "New message received"
-      });
-    }
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-};
 
 const ChatController = {
 
@@ -70,22 +30,7 @@ const ChatController = {
       });
     });
   },
-  const Chat = require("../models/chatModels");
 
-  exports.sendMessage = async (req, res) => {
-    const { receiver_id, message } = req.body;
-  
-    const sender_id = 1; // TEMP FIX
-  
-    await Chat.saveMessage(sender_id, receiver_id, message);
-  
-    global.io.to(String(receiver_id)).emit("receive_message", {
-      sender_id,
-      message
-    });
-  
-    res.json({ success: true });
-  };
   // ── GET /api/chat/conversations ───────────────────────────────
   // Get all conversations (inbox) for the logged-in user
   getInbox: (req, res) => {

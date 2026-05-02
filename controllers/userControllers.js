@@ -107,7 +107,8 @@ const UserController = {
       });
     });
   },
-    exports.updateProfile = async (req, res) => {
+
+  updateProfile: async (req, res) => {
     const userId = 1; // TEMP FIX
   
     const { name, bio } = req.body;
@@ -123,7 +124,7 @@ const UserController = {
     });
   
     res.json({ success: true });
-  };
+  },
 
   // POST /api/users/verify
   verifyUser: (req, res) => {

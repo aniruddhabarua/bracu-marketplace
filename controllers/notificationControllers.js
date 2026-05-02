@@ -4,25 +4,6 @@ const Notification = require("../models/notificationModels");
 // TEMP USER
 const CURRENT_USER_ID = 1;
 
-exports.getNotifications = async (req, res) => {
-  try {
-    const data = await Notification.getNotifications(CURRENT_USER_ID);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
-await Notification.createNotification(
-  receiver_id,
-  "You have a new message",
-  "chat"
-);
-
-global.io.to(String(receiver_id)).emit("new_notification", {
-  message: "You have a new message"
-});
-
 const NotificationController = {
 
   // ── GET /api/notifications ────────────────────────────────────

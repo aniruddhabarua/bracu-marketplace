@@ -13,12 +13,6 @@ const express        = require('express');
 const router         = express.Router();
 const ChatController = require('../controllers/chatControllers');
 const { authenticate } = require('../middleware/auth');
-const router = require("express").Router();
-const chatController = require("../controllers/chatControllers");
-
-router.post("/send", chatController.sendMessage);
-
-module.exports = router;
 
 // All chat routes require a valid JWT token
 router.use(authenticate);

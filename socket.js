@@ -137,30 +137,6 @@ module.exports = (io) => {
       console.log(`[Socket] Disconnected: ${socket.id}`);
     });
 
-
-    const socket = io("http://localhost:3000");
-    
-    // IMPORTANT: replace this with actual logged-in user ID
-    const userId = window.USER_ID || 1;
-    
-    socket.emit("join", userId);
-    
-    socket.on("connect", () => {
-      console.log("Connected to socket:", socket.id);
-    });
-    
-    socket.on("receive_message", (data) => {
-      console.log("New message:", data);
-    });
-    
-    socket.on("new_notification", (data) => {
-      console.log("Notification:", data);
-    });
-    
-    socket.on("profile_updated", (data) => {
-      console.log("Profile updated:", data);
-    });
-    
-      });
+  });
 
 };
