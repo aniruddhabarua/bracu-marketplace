@@ -1,6 +1,16 @@
 // controllers/notificationControllers.js
 const NotificationModel = require('../models/notificationModels');
 
+await Notification.createNotification(
+  receiver_id,
+  "You have a new message",
+  "chat"
+);
+
+global.io.to(String(receiver_id)).emit("new_notification", {
+  message: "You have a new message"
+});
+
 const NotificationController = {
 
   // ── GET /api/notifications ────────────────────────────────────
