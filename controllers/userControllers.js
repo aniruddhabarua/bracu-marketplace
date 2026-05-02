@@ -107,7 +107,23 @@ const UserController = {
       });
     });
   },
-
+    exports.updateProfile = async (req, res) => {
+    const userId = 1; // TEMP FIX
+  
+    const { name, bio } = req.body;
+  
+    await db.query(
+      "UPDATE users SET name=?, bio=? WHERE id=?",
+      [name, bio, userId]
+    );
+  
+    global.io.to(String(userId)).emit("profile_updated", {
+      name,
+      bio
+    });
+  
+    res.json({ success: true });
+  };
 
   // POST /api/users/verify
   verifyUser: (req, res) => {
