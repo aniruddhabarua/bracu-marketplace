@@ -4,89 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile — BRACU Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --secondary: #0f172a;
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --card-bg: #ffffff;
+      --glass: rgba(255, 255, 255, 0.85);
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+      --gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
-      line-height: 1.5;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
+    /* ── Navbar ── */
     .nav {
-      background: #ffffff;
-      border-bottom: 1px solid #e2e8f0;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 100;
-      backdrop-filter: blur(8px);
-      background: rgba(255, 255, 255, 0.95);
+      z-index: 1000;
+      padding: 0 40px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
     }
 
     .nav-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 70px;
+      height: 80px;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
     }
 
     .logo {
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
       text-decoration: none;
-      background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%);
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.03em;
     }
 
     .nav-links {
       display: flex;
-      gap: 24px;
+      gap: 32px;
       align-items: center;
     }
 
     .nav-link {
       text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      color: #475569;
-      transition: color 0.2s;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s;
     }
 
     .nav-link:hover {
-      color: #3b82f6;
+      color: var(--primary);
+      transform: translateY(-1px);
     }
 
     .nav-user {
       font-size: 14px;
-      font-weight: 500;
-      color: #0f172a;
-      background: #f1f5f9;
-      padding: 6px 12px;
-      border-radius: 20px;
+      font-weight: 600;
+      color: var(--secondary);
+      background: rgba(59, 130, 246, 0.1);
+      padding: 8px 18px;
+      border-radius: 12px;
     }
 
     .btn-logout {
-      background: none;
-      border: 1px solid #e2e8f0;
-      padding: 8px 20px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 500;
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 10px 24px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      color: #475569;
+      color: var(--text-muted);
       transition: all 0.2s;
     }
 

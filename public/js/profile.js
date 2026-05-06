@@ -69,7 +69,12 @@ async function loadProfile() {
 
     if (!res.ok) {
       console.error('loadProfile: Response not ok', res.status, res.statusText);
-      showAlert(`Server error: ${res.status} ${res.statusText}`, 'error');
+      if (res.status === 403) {
+        showAlert('Session expired or invalid. Redirecting to login...', 'error');
+        setTimeout(() => logout(), 2000);
+      } else {
+        showAlert(`Server error: ${res.status} ${res.statusText}`, 'error');
+      }
       return;
     }
 
