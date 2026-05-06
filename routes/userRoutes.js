@@ -8,7 +8,8 @@ const { authenticate, JWT_SECRET } = require('../middleware/auth');
 const path = require('path');
 
 router.post('/api/auth/register', async (req, res) => {
-  const { full_name, email, password, role, department } = req.body;
+  const email = req.body.email ? req.body.email.trim().toLowerCase() : '';
+  const { full_name, password, role, department } = req.body;
 
   if (!full_name || !email || !password)
     return res.status(400).json({ success: false, message: 'full_name, email and password are required.' });
@@ -16,7 +17,7 @@ router.post('/api/auth/register', async (req, res) => {
   const allowedDomains = ['@bracu.ac.bd', '@g.bracu.ac.bd'];
   const isAllowed = allowedDomains.some(d => email.endsWith(d));
   if (!isAllowed)
-    return res.status(400).json({ success: false, message: 'Only BRACU email addresses are allowed.' });
+    return res.status(400).json({ success: false, message: 'Only BRACU email addresses are allowed (@bracu.ac.bd or @g.bracu.ac.bd).' });
 
   if (password.length < 6)
     return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
@@ -43,10 +44,16 @@ router.post('/api/auth/register', async (req, res) => {
 });
 
 router.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
+  const email = req.body.email ? req.body.email.trim().toLowerCase() : '';
+  const { password } = req.body;
 
   if (!email || !password)
     return res.status(400).json({ success: false, message: 'Email and password are required.' });
+
+  const allowedDomains = ['@bracu.ac.bd', '@g.bracu.ac.bd'];
+  const isAllowed = allowedDomains.some(d => email.endsWith(d));
+  if (!isAllowed)
+    return res.status(400).json({ success: false, message: 'Only BRACU email addresses are allowed.' });
 
   UserModel.findByEmail(email, async (err, user) => {
     if (err)   return res.status(500).json({ success: false, message: 'Database error.' });

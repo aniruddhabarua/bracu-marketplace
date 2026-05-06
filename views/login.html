@@ -355,8 +355,8 @@
     if (!email || !password) {
       return showAlert('Please fill in all fields.');
     }
-    
-    if (!email.includes('@bracu.ac.bd') && !email.includes('@g.bracu.ac.bd')) {
+    const lowerEmail = email.toLowerCase();
+    if (!lowerEmail.endsWith('@bracu.ac.bd') && !lowerEmail.endsWith('@g.bracu.ac.bd')) {
       return showAlert('Only BRACU email addresses are allowed.');
     }
 
@@ -401,8 +401,8 @@
     if (!full_name || !email || !password || !confirm) {
       return showAlert('Please fill in all required fields.');
     }
-    
-    if (!email.includes('@bracu.ac.bd') && !email.includes('@g.bracu.ac.bd')) {
+    const lowerEmail = email.toLowerCase();
+    if (!lowerEmail.endsWith('@bracu.ac.bd') && !lowerEmail.endsWith('@g.bracu.ac.bd')) {
       return showAlert('Only BRACU email addresses are allowed.');
     }
     
